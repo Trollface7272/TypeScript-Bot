@@ -15,7 +15,7 @@ const ParseMessage = async (client: Bot, message: Message, args: string[]) => {
     }
 
     if (args[0] == "display" || args[0] == "show") {
-        return { action: "show", data: await client.database.GetFilter(client, message) }
+        return { action: "show", data: await client.database.Guilds.GetFilter(client, message) }
     }
 }
 
@@ -31,12 +31,12 @@ const error = (client: Bot, message: Message, code: any) => {
 
 const AddFilter = async (client: Bot, message: Message, filter: Filter) => {
     if (filter.match == "") throw 1
-    await client.database.AddFilter(client, message, filter)
+    await client.database.Guilds.AddFilter(client, message, filter)
     message.channel.send({embeds: [client.embed({ description: `Successfully added \`${filter.match}\` as a ${filter.type} filter.` }, message)]})
 }
 
 const RemoveFilter = async (client: Bot, message: Message, name: string) => {
-    await client.database.RemoveFilter(client, message, name)
+    await client.database.Guilds.RemoveFilter(client, message, name)
     message.channel.send({embeds: [client.embed({ description: `Successfully removed ${name} from filters.` }, message)]})
 }
 

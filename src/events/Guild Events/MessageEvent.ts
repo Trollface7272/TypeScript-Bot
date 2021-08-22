@@ -8,7 +8,7 @@ export const run: RunFunction = async (client: Bot, message: Message) => {
     if (message.author.bot || !message.guild) return
     client.database.OnMessage(client, message)
     //if (await Filter(client, message)) return
-    const prefix = "!"
+    const prefix = await client.database.Guilds.GetPrefix(client, message)
 
     if (!message.content.toLocaleLowerCase().startsWith(prefix)) return
     const args: string[] = message.content.slice(prefix.length).trim().split(/ +/g)

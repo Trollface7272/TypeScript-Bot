@@ -10,11 +10,9 @@ import * as guilds from "./Guilds"
 const logger = consola
 const link = (File as Config).mongo_db_url
 
-export const GetOsuUsername = users.GetOsuUsername
+export const Users = users
 
-export const AddFilter = guilds.AddFilter
-export const RemoveFilter = guilds.RemoveFilter
-export const GetFilter = guilds.GetFilter
+export const Guilds = guilds
 
 export var database: Connection
 export const Connect = async () => {

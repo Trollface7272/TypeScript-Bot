@@ -13,7 +13,7 @@ const Word = (client: Bot, message: Message, filter: FilterType): boolean => {
 
 
 export const Filter = async (client: Bot, message: Message) => {
-    const filter = await client.database.GetFilter(client, message)
+    const filter = await client.database.Guilds.GetFilter(client, message)
     if (!filter) return
     client.logger.log(filter)
     for (let i = 0; i < filter.length; i++) {

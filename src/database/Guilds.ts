@@ -15,7 +15,8 @@ export interface Guild {
     messages: number,
     commands: number,
     skeetkey_uses: number,
-    filter: Array<Filter>
+    prefix: string,
+    filter: Array<Filter>,
 }
 
 const schema = new Schema<Guild>({
@@ -24,6 +25,7 @@ const schema = new Schema<Guild>({
     messages: { type: Number, required: true },
     commands: { type: Number, required: true },
     skeetkey_uses: { type: Number, required: true },
+    prefix: { type: String, required: true },
     filter: { type: Array, required: true }
 })
 
@@ -37,6 +39,7 @@ async function CreateGuild(message: Message): Promise<Guild> {
         messages: 1,
         commands: 0,
         skeetkey_uses: 0,
+        prefix: "!",
         filter: []
     })
     await doc.save()
@@ -63,9 +66,17 @@ export const AddFilter = async (client: Bot, message: Message, filter: Filter) =
 }
 
 export const RemoveFilter = async (client: Bot, message: Message, name: string) => {
-    await client.database.database.collection("guilds").updateOne({ id: message.guild.id }, { $pull: { filter: {name: name} } })
+    await client.database.database.collection("guilds").updateOne({ id: message.guild.id }, { $pull: { filter: { name: name } } })
 }
 
 export const GetFilter = async (client: Bot, message: Message) => {
     return (await client.database.database.collection("guilds").findOne({ id: message.guild.id }) as Guild).filter
+}
+
+export const GetPrefix = async (client: Bot, message: Message) => {
+    return (await client.database.database.collection("guilds").findOne({ id: message.guild.id }) as Guild).prefix || "!"
+}
+
+export const SetPrefix = async (client: Bot, message: Message, prefix: string) => {
+    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, {$set: {prefix}})
 }

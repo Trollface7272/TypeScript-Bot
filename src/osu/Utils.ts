@@ -180,7 +180,7 @@ export const ParseArgs = async (client: Bot, message: Message, args: string[]) =
         if (!out.Flags.map) out.Flags.map = await FindMapInConversation(message)
     }
     if (!out.Name) {
-        out.Name = await client.database.GetOsuUsername(client, message)
+        out.Name = await client.database.Users.GetOsuUsername(client, message)
     }
     client.logger.info(out)
     return out
