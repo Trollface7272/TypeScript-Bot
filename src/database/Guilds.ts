@@ -75,7 +75,7 @@ export const GetFilter = async (client: Bot, message: Message): Promise<Array<Fi
 }
 
 export const GetPrefix = async (client: Bot, message: Message): Promise<string> => {
-    return (await client.database.database.collection("guilds").findOne({ id: message.guild.id }) as Guild).prefix || "!"
+    return (await client.database.database.collection("guilds").findOne({ id: message.guild.id }) as Guild)?.prefix || "!"
 }
 
 export const SetPrefix = async (client: Bot, message: Message, prefix: string): Promise<void> => {
