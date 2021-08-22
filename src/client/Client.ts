@@ -21,7 +21,7 @@ class Bot extends Client {
         })
         consola.wrapStd()
         database.Connect().then(v => this.database.database = v)
-        consola.level = LogLevel.Error
+        //consola.level = LogLevel.Debug
     }
     public async Start(config: Config): Promise<void> {
         this.config = config
