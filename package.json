@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "ts-node-dev --respawn --transpile-only --poll ./src/index.ts",
+    "halal": "ts-node-dev --respawn --transpile-only --poll ./src/osu/Calculator/test.ts",
     "lint": "prettier --write .",
     "build": "tsc"
   },
@@ -67,9 +68,10 @@
   "dependencies": {
     "axios": "^0.21.1",
     "consola": "^2.15.3",
-    "discord.js": "^12.5.3",
+    "discord.js": "^13.1.0",
     "express": "^4.17.1",
     "glob": "^7.1.7",
-    "mongoose": "^5.13.3"
+    "mongoose": "^5.13.3",
+    "ojsama": "^2.2.0"
   }
 }
