@@ -1,4 +1,4 @@
-import { GuildMember, Message, PermissionOverwrites, Permissions, Role } from "discord.js";
+import { GuildMember, Message, Role } from "discord.js";
 import { Bot } from "../../client/Client";
 import { GetRetardRoles } from "../../database/Guilds";
 import { RunFunction } from "../../interfaces/Command";
