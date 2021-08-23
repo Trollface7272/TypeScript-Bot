@@ -1,7 +1,5 @@
 dist
 **/.yarn/**
-yarn.lock
-.yarnrc.yml
 !.yarn/cache
 !.yarn/releases
 !.yarn/plugins
