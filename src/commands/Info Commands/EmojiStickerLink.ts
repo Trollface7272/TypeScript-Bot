@@ -15,7 +15,7 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
         arr.shift()
         out += `https://cdn.discordapp.com/emojis/${arr[1]}.${el.includes("<a:") ? "gif" : "png"}?v=1\n`
     })
-    message.channel.send(out)
+    message.channel.send(out || {embeds: [client.embed({description: "No emoji/sticker provided"}, message)]})
 }
 
 export const name: string = "link"

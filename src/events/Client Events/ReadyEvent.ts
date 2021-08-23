@@ -1,7 +1,12 @@
 import { Bot } from "../../client/Client";
 import { RunFunction } from "../../interfaces/Event";
 export const run: RunFunction = async (client) => {
-    client.logger.success(`Logged on as ${client.user.tag}!`);
+    client.logger.success(`Logged on as ${client.user.tag}!`)
+    client.user.setPresence({status: "online"})
+    client.user.setActivity({
+        name: "!invite",
+        type: "PLAYING",
+    })
     //LogStatusLinks(client)
     //FunnyBansThing(client)
 }

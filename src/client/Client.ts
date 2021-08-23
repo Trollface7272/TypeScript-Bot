@@ -40,7 +40,7 @@ class Bot extends Client {
         })
     }
     public embed(options: MessageEmbedOptions, message: Message): MessageEmbed {
-        return new MessageEmbed({...options, color: "RANDOM"}).setFooter(`${message.author.tag}`, message.author.displayAvatarURL({ format: "png", dynamic: true}))
+        return new MessageEmbed({ ...options, color: "RANDOM" }).setFooter(`${message.author.tag}`, message.author.displayAvatarURL({ format: "png", dynamic: true }))
     }
 }
 
