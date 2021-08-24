@@ -1,7 +1,8 @@
 import { Message, MessageEmbed } from "discord.js";
 import { Bot } from "../../client/Client";
 import { RunFunction } from "../../interfaces/Command";
-import { Beatmap, GetBeatmap, GetProfile, GetScore, Profile, Score } from "../../osu/Api/Api";
+import { Beatmap, Profile, Score } from "../../interfaces/OsuApi";
+import { GetBeatmap, GetProfile, GetScore } from "../../osu/Api/Api";
 import { GetFcAcc, GetFcPP } from "../../osu/Calculator";
 import { CalculateAcc, ConvertBitMods, DateDiff, GetCombo, GetHits, GetMapImage, GetMapLink, GetModsFromString, GetProfileImage, HandleError, ModNames, ParseArgs, RankingEmotes } from "../../osu/Utils";
 

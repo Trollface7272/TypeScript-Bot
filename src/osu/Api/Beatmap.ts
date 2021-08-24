@@ -1,21 +1,22 @@
-import { Beatmap, linkBase, ShortBeatmap, BeatmapParams as Params } from "./Api"
+import { linkBase } from "./Api"
 import axios from "axios"
 import { RoundFixed, CommaFormat, GetDiffMods, Mods } from "../Utils"
 import { parser, ppv2, std_beatmap_stats } from "ojsama"
+import { Beatmap, BeatmapParams, ShortBeatmap } from "../../interfaces/OsuApi"
 
 
 const endpoint: string = linkBase + "api/get_beatmaps"
 
-export async function Get(params: Params): Promise<Beatmap> {
+export async function Get(params: BeatmapParams): Promise<Beatmap> {
     return v1(params)
 }
 
-export async function GetShort(params: Params): Promise<ShortBeatmap> {
+export async function GetShort(params: BeatmapParams): Promise<ShortBeatmap> {
     if (params.m != 0) return v1(params)
     else return v2(params)
 }
 
-const v2 = async (params: Params): Promise<ShortBeatmap> => {
+const v2 = async (params: BeatmapParams): Promise<ShortBeatmap> => {
     let beatmap = (await axios.get("https://osu.ppy.sh/osu/" + params.b)).data
     let parsed = new parser().feed(beatmap)
     
@@ -77,7 +78,7 @@ const v2 = async (params: Params): Promise<ShortBeatmap> => {
     }
 }
 
-const v1 = async (params: Params): Promise<Beatmap> => {
+const v1 = async (params: BeatmapParams): Promise<Beatmap> => {
     params.a = 1
     params.mods = GetDiffMods(params.mods)
     const data: any = (await axios.get(endpoint, { params })).data[0]
@@ -90,7 +91,7 @@ const v1 = async (params: Params): Promise<Beatmap> => {
         multiplier = 0.75
 
     data.diff_approach = CalculateApproach(parseFloat(data.diff_approach), multiplier, 1)
-    data.diff_overall = CalculateApproach(parseFloat(data.diff_overall), multiplier, 1)
+    data.diff_overall = CalculateOverall(parseFloat(data.diff_overall), multiplier, 1)
 
     return {
         id: parseInt(data.beatmap_id),

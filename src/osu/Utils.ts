@@ -1,7 +1,7 @@
-import { Emoji, Message } from "discord.js";
-import { modbits } from "ojsama";
-import { Bot } from "../client/Client";
-import { Counts, Objects, Score } from "./Api/Api";
+import { Emoji, Message } from "discord.js"
+import { modbits } from "ojsama"
+import { Bot } from "../client/Client"
+import { Counts, Objects } from "../interfaces/OsuApi"
 
 const CommandGamemodes = {
     "taiko": 1,

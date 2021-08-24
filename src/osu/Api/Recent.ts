@@ -1,10 +1,11 @@
-import { Score, linkBase, RecentParams as Params } from "./Api"
+import { linkBase } from "./Api"
 import axios from "axios"
 import { RoundFixed, CommaFormat } from "../Utils"
+import { RecentParams, Score } from "../../interfaces/OsuApi"
 
 const endpoint: string = linkBase + "api/get_user_recent"
 
-export async function Get(params: Params): Promise<Array<Score>> {
+export async function Get(params: RecentParams): Promise<Array<Score>> {
     const data: any = (await axios.get(endpoint, { params })).data
     if (!data) throw { code: 5 }
     const out: Array<Score> = []

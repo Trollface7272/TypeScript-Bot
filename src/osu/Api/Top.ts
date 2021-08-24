@@ -1,12 +1,13 @@
-import { Score, linkBase, TopParams as Params } from "./Api"
+import { linkBase } from "./Api"
 import axios from "axios"
 import { CommaFormat, RoundFixed } from "../Utils"
+import { Score, TopParams } from "../../interfaces/OsuApi"
 
 
 
 const endpoint: string = linkBase + "api/get_user_best"
 
-export async function Get(params: Params): Promise<Array<Score>> {
+export async function Get(params: TopParams): Promise<Array<Score>> {
     const data: any = (await axios.get(endpoint, { params })).data
     if (!data) throw { code: 5 }
     const out: Array<Score> = []

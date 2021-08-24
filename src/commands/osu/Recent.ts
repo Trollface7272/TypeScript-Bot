@@ -1,9 +1,10 @@
 import { Message, MessageEmbed } from "discord.js"
 import { Bot } from "../../client/Client"
 import { RunFunction } from "../../interfaces/Command"
-import { Beatmap, GetBeatmap, GetProfileCache, GetRecent, GetTop, Profile, Score } from "../../osu/Api/Api"
+import { GetBeatmap, GetProfileCache, GetRecent, GetTop } from "../../osu/Api/Api"
 import { ParseArgs, ModNames, GetFlagUrl, GetProfileLink, GetServer, GetProfileImage, HandleError, RankingEmotes, CalculateAcc, GetHits, CalculateProgress, ConvertBitMods, GetMapLink, GetMapImage, DateDiff, ErrorIds, Args, GetCombo } from "../../osu/Utils"
 import { GetFcAcc, GetFcPP, GetPP } from "../../osu/Calculator"
+import { Beatmap, Profile, Score } from "../../interfaces/OsuApi"
 
 export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {
     const options: Args = await ParseArgs(client, message, args)

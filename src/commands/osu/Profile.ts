@@ -1,7 +1,8 @@
 import { Message, MessageEmbed } from "discord.js"
 import { Bot } from "../../client/Client"
 import { RunFunction } from "../../interfaces/Command"
-import { GetProfile, Profile } from "../../osu/Api/Api"
+import { Profile } from "../../interfaces/OsuApi"
+import { GetProfile } from "../../osu/Api/Api"
 import { ParseArgs, ModNames, GetFlagUrl, GetProfileLink, GetServer, GetProfileImage, HandleError } from "../../osu/Utils"
 
 export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {

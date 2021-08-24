@@ -1,12 +1,13 @@
-import { Profile, linkBase, ProfileParams as Params } from "./Api"
+import { linkBase } from "./Api"
 import axios from "axios"
 import { RoundFixed, CommaFormat } from "../Utils"
 import consola from "consola"
+import { Profile, ProfileParams } from "../../interfaces/OsuApi"
 
 
 
 const endpoint: string = linkBase + "api/get_user"
-export async function Get(params: Params): Promise<Profile> {
+export async function Get(params: ProfileParams): Promise<Profile> {
     consola.debug({endpoint,params})
     
     const data: any = (await axios.get(endpoint, { params })).data[0]
@@ -76,6 +77,6 @@ export async function Get(params: Params): Promise<Profile> {
     }
 }
 
-export async function GetCached(params: Params): Promise<Profile> {
+export async function GetCached(params: ProfileParams): Promise<Profile> {
     return await Get(params)
 }

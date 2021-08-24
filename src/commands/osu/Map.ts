@@ -2,8 +2,9 @@ import { Message, MessageEmbed } from "discord.js"
 import { Bot } from "../../client/Client"
 import { RunFunction } from "../../interfaces/Command"
 import { Args, ConvertBitMods, GetDifficultyEmote, GetMapLink, HandleError, ParseArgs, RoundFixed } from "../../osu/Utils"
-import { Beatmap, GetBeatmap } from "../../osu/Api/Api"
+import { GetBeatmap } from "../../osu/Api/Api"
 import { GetMapPP } from "../../osu/Calculator"
+import { Beatmap } from "../../interfaces/OsuApi"
 
 
 export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {

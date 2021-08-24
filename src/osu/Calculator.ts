@@ -1,8 +1,8 @@
 import { Bot } from "../client/Client"
-import { Beatmap, Counts, Score } from "./Api/Api"
 import { CalculateAcc, Mods, RoundFixed } from "./Utils"
 import { ppv2 } from "ojsama"
 import { DeepCopy } from "../GlobalUtils"
+import { Beatmap, Counts, Score } from "../interfaces/OsuApi"
 
 export const GetPP = (client: Bot, score: Score, beatmap: Beatmap, mode: number) => {
     switch (mode) {
