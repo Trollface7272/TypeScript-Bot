@@ -7,8 +7,20 @@ export const run: RunFunction = async (client) => {
         name: "!invite",
         type: "PLAYING",
     })
+    DisplayGuilds(client)
     //LogStatusLinks(client)
     //FunnyBansThing(client)
+}
+
+const DisplayGuilds = async (client: Bot) => {
+    const guilds = await client.guilds.fetch()
+    let o = {
+        "List of all guilds:": []
+    }
+    guilds.each(guild => {
+        o["List of all guilds:"].push(guild.name)
+    })
+    client.logger.info(o)
 }
 
 const LogStatusLinks = async (client: Bot) => {

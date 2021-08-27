@@ -71,10 +71,12 @@ const GreaterCount = async (client: Bot, message: Message, options: Args) => {
     catch (err) { HandleError(client, message, err, options.Name) }
 
     let scores: Array<Score>
-    try { scores = await GetTop({ u: options.Name, m: options.Flags.m }) }
+    try { scores = await GetTop({ u: options.Name, m: options.Flags.m, limit: 100 }) }
     catch (err) { HandleError(client, message, err, profile.Name) }
 
-    scores = scores.filter(e => options.Flags.rv ? (e.Performance.raw < options.Flags.g) : (e.Performance.raw > options.Flags.g))
+    scores = scores.filter(e => 
+        options.Flags.rv ? (e.Performance.raw < options.Flags.g) : (e.Performance.raw > options.Flags.g)
+    )
 
     message.channel.send({embeds: [client.embed({ description: `**${profile.Name} has ${scores.length} plays worth more than ${RoundFixed(parseFloat(options.Flags.g + ""))}pp**` }, message)]})
 }
