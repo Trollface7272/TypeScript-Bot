@@ -313,7 +313,7 @@ export const CalculateProgress = (client: Bot, counts: Counts, objects: Objects,
 }
 
 export const ConvertBitMods = (client: Bot, mods: number): string => {
-    if (mods === 0) return "No Mod"
+    if (mods == 0) return "No Mod"
 
     let resultMods = ""
     if (mods & Mods.Bit.Perfect) mods &= ~Mods.Bit.SuddenDeath
