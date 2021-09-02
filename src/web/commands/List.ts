@@ -1,8 +1,8 @@
 export var list = {
-    "Customization": ["SetPrefix"],
+    "Customization": ["Set Prefix"],
     "Info": ["Avatar", "Link", "Invite", "Ping"],
-    "Moderation": ["Retard", "UnRetard", "RetardRoles List", "RetardRoles Add", "RetardRoles Remove", "RetardRoles Clear",],
-    "osu": ["Compare", "CountMods", "Map", "OsuSet", "Profile", "Recent", "Top"],
-    "Troll": ["SkeetKey"]
+    "Moderation": ["Retard", "UnRetard", "Retard Roles List", "Retard Roles Add", "Retard Roles Remove", "Retard Roles Clear",],
+    "osu": ["Compare", "Count Mods", "Map", "Osu Set", "Profile", "Recent", "Top"],
+    "Special": ["SkeetKey"]
 }
 

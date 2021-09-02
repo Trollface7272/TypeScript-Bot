@@ -9,23 +9,23 @@ export const Moderation = {
         "Description": "Lower users role to one of the roles set at RetardRoles.",
         "Usage": "!unretard @target"
     },
-    "RetardRoles List": {
-        "Title": "RetardRoles List",
+    "Retard Roles List": {
+        "Title": "Retard Roles List",
         "Description": "List all set roles for Retard and UnRetard commands.",
         "Usage": "!retardroles list"
     },
-    "RetardRoles Add": {
-        "Title": "RetardRoles Add",
+    "Retard Roles Add": {
+        "Title": "Retard Roles Add",
         "Description": "Add a role to Retard and UnRetard commands.",
         "Usage": "!retardroles add [before/after] [index] @role"
     },
-    "RetardRoles Remove": {
-        "Title": "RetardRoles Remove",
+    "Retard Roles Remove": {
+        "Title": "Retard Roles Remove",
         "Description": "Remove role from Retard and UnRetard commands.",
         "Usage": "!retardroles remove index/@role"
     },
-    "RetardRoles Clear": {
-        "Title": "RetardRoles Clear",
+    "Retard Roles Clear": {
+        "Title": "Retard Roles Clear",
         "Description": "Clear all set roles for Retard and UnRetard commands.",
         "Usage": "!retardroles clear"
     }

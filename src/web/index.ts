@@ -4,6 +4,10 @@ import Express from "express"
 import path from "path"
 import { list } from "./commands/List"
 import { Moderation } from "./commands/Moderation"
+import { Customization } from "./commands/Customization"
+import { Info } from "./commands/Info"
+import { osu } from "./commands/osu"
+import { Special } from "./commands/Special"
 //import { Client } from "../bot/index"
 
 const app = Express()
@@ -44,9 +48,22 @@ resources.all("/botimage", (req, res) => {
 commands.all("/", (req, res) => {
     res.send(list)
 })
+commands.all("/customization", (req, res) => {
+    res.send(Customization)
+})
+commands.all("/info", (req, res) => {
+    res.send(Info)
+})
 commands.all("/moderation", (req, res) => {
     res.send(Moderation)
 })
+commands.all("/osu", (req, res) => {
+    res.send(osu)
+})
+commands.all("/special", (req, res) => {
+    res.send(Special)
+})
+
 resources.use("/commands", commands)
 
 app.use("/resources", resources)

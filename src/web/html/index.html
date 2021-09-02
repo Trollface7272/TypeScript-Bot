@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <!-- Meta -->
     <meta charset="UTF-8">
@@ -14,6 +15,7 @@
 
     <title>Real One Documentation</title>
 </head>
+
 <body>
     <div id="web">
         <div id="navigation-bar">
@@ -28,7 +30,24 @@
             <div id="search-bar-wrapper">
                 <div id="search">
                     <div id="search-icon">
-                        <?xml version="1.0" ?><!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.0//EN'  'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'><svg enable-background="new 0 0 24 24" id="Layer_1" version="1.0" viewBox="0 0 24 24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g><g><path d="M9,4c2.8,0,5,2.2,5,5s-2.2,5-5,5s-5-2.2-5-5S6.2,4,9,4 M9,2C5.1,2,2,5.1,2,9c0,3.9,3.1,7,7,7s7-3.1,7-7C16,5.1,12.9,2,9,2    L9,2z"/></g></g><g><polygon points="22,20.3 20.3,22 14,15.7 14,14 15.7,14  "/><rect height="3.6" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -5.9741 14.4227)" width="1.2" x="13.8" y="12.6"/></g></svg>
+                        <?xml version="1.0" ?>
+                        <!DOCTYPE svg
+                            PUBLIC '-//W3C//DTD SVG 1.0//EN' 'http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd'>
+                        <svg enable-background="new 0 0 24 24" id="Layer_1" version="1.0" viewBox="0 0 24 24"
+                            xml:space="preserve" xmlns="http://www.w3.org/2000/svg"
+                            xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <g>
+                                <g>
+                                    <path
+                                        d="M9,4c2.8,0,5,2.2,5,5s-2.2,5-5,5s-5-2.2-5-5S6.2,4,9,4 M9,2C5.1,2,2,5.1,2,9c0,3.9,3.1,7,7,7s7-3.1,7-7C16,5.1,12.9,2,9,2    L9,2z" />
+                                </g>
+                            </g>
+                            <g>
+                                <polygon points="22,20.3 20.3,22 14,15.7 14,14 15.7,14  " />
+                                <rect height="3.6" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -5.9741 14.4227)"
+                                    width="1.2" x="13.8" y="12.6" />
+                            </g>
+                        </svg>
                     </div>
                     <div id="search-input-wrapper">
                         <input type="text" name="search" id="search-input" placeholder="Search" autocomplete="off">
@@ -39,10 +58,10 @@
         <div id="content-wrapper">
             <div id="main">
                 <div id="navigation" class="sidebar">
-                    
+
                 </div>
                 <div id="main-content">
-fsdfsdf
+                    fsdfsdf
                 </div>
                 <div class="sidebar"></div>
             </div>
@@ -75,18 +94,38 @@ fsdfsdf
             $(".navigation-block").click(e => {
                 const arrow = $(e.currentTarget).children(".navigation-key-wrapper").children(".navigation-arrow")
                 const commands = $(e.currentTarget).children(".navigation-command-list")
-                console.log(arrow);
                 if (arrow.hasClass("toggled")) return UnToggleArrows()
                 commands.attr("hidden", false)
                 UnToggleArrows()
                 arrow.css("transform", "rotate(90deg)")
                 arrow.toggleClass("toggled")
-                ChangeMain(e.currentTarget)
+                ChangeMain($(e.currentTarget).find(".navigation-key").text())
             })
         }
         async function ChangeMain(category) {
-            let data = await $.get("./resources/commands/"+category)
-            $("#main-content").html(data)
+            let data = await $.get("./resources/commands/" + category)
+            console.log(data);
+            const main = $("#main-content")
+            main.html("")
+            for (let key in data) {
+                const command = data[key]
+                let html = `
+<div id="${command.Title.replace(/\s/g, "-")}" class="command-wrapper">
+    <div class="command-title-wrapper">
+        <span class="command-title">${command.Title}</span>
+    </div>
+    <div class="command-description-wrapper">
+        <span class="command-description">${command.Description}</span>
+    </div>
+    <br>
+    <div class="command-usage-wrapper">
+        <div class="usage-text">Usage</div>
+        <span class="command-usage">${command.Usage}</span>
+    </div>
+</div>`
+                main.append(html)
+            }
+
         }
         function UnToggleArrows() {
             $(".navigation-block").each((_, elm) => {
@@ -109,6 +148,7 @@ fsdfsdf
         SetBotImages()
     </script>
 
-    
+
 </body>
+
 </html>
