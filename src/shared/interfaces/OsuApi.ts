@@ -275,3 +275,10 @@ export interface TopParams {
     limit?: number
     type?: "string" | "id"
 }
+
+export interface Performance {
+    Accuracy: number
+    Speed: number
+    Aim: number
+    Total: number
+}
