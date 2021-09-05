@@ -3,8 +3,8 @@ import { Bot } from "../../client/Client"
 import { RunFunction } from "../../../shared/interfaces/Command"
 import { Beatmap, Profile, Score } from "../../../shared/interfaces/OsuApi"
 import { GetBeatmap, GetProfileCache, GetTop } from "../../osu/Api/Api"
-import { GetFcAcc, GetFcPP } from "../../osu/Calculator"
 import { Args, CalculateAcc, ConvertBitMods, DateDiff, GetCombo, GetFlagUrl, GetHits, GetMapLink, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs, RankingEmotes, RoundFixed } from "../../osu/Utils"
+import { GetFcAccuracy, GetFcPerformance } from "../../osu/Calculator"
 
 const FormatTopPlay = async (client: Bot, message: Message, score: Score, options: Args): Promise<string> => {
     let beatmap: Beatmap
@@ -12,7 +12,7 @@ const FormatTopPlay = async (client: Bot, message: Message, score: Score, option
     catch (err) { HandleError(client, message, err, score.Username); return "" }
 
     let fcppDisplay = "", description = ""
-    if (score.Combo < beatmap.MaxCombo - 15 || score.Counts.miss > 0) fcppDisplay = `(${GetFcPP(client, score, beatmap, options.Flags.m)}pp for ${GetFcAcc(client, score, options.Flags.m)}% FC) `
+    if (score.Combo < beatmap.MaxCombo - 15 || score.Counts.miss > 0) fcppDisplay = `(${await (await GetFcPerformance(client, message, score, options.Flags.m)).Total.Formatted}pp for ${GetFcAccuracy(client, message, score.Counts, options.Flags.m)}% FC) `
     description += `**${score.Index}. [${beatmap.Title} [${beatmap.Version}]](${GetMapLink(beatmap.id)}) +${ConvertBitMods(client, score.Mods)}** [${beatmap.Difficulty.Star.Formatted}★]\n`
     description += `▸ ${RankingEmotes(client, score.Rank)} ▸ **${score.Performance.Formatted}pp** ${fcppDisplay}▸ ${CalculateAcc(client, score.Counts, options.Flags.m)}%\n`
     description += `▸ ${score.Score.Formatted} ▸ ${GetCombo(client, score.Combo, beatmap.MaxCombo, options.Flags.m)} ▸ [${GetHits(client, score.Counts, options.Flags.m)}]\n`

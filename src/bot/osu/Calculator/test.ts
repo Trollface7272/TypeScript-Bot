@@ -1,26 +1,26 @@
-import { beatmap, parser, ppv2, std_diff } from "ojsama"
-import { Beatmap, Counts, Score } from "../Api/Api"
+import { parser } from "ojsama"
 import { Get as GetBeatmap } from "../Api/Beatmap"
 import { Get as GetTop } from "../Api/Top"
 import { Mods } from "../Utils"
 import consola, { Consola, LogLevel } from "consola"
 import axios from "axios"
+import { Beatmap, Counts, Score } from "../../../shared/interfaces/OsuApi"
 
 let logger: Consola = consola
 
-function TotalHits(counts: Counts) {
+function TotalHits (counts: Counts) {
     return counts[50] + counts[100] + counts[300] + counts.miss
 }
 
-function Clamp(num: number, min: number, max: number) {
+function Clamp (num: number, min: number, max: number) {
     return Math.min(Math.max(num, min), max)
 }
 
-function Accuracy(counts: Counts) {
+function Accuracy (counts: Counts) {
     return Clamp(counts[50] * 50 + counts[100] * 100 + counts[300] * 300 / (TotalHits(counts) * 300), 0, 1)
 }
 
-function TotalValue(score: Score, beatmap: Beatmap) {
+function TotalValue (score: Score, beatmap: Beatmap) {
     let objects = beatmap.Objects
     let counts = score.Counts
     let mods = score.Mods
@@ -41,7 +41,7 @@ function TotalValue(score: Score, beatmap: Beatmap) {
     ) * multiplier
 }
 
-function Aim(score: Score, beatmap: Beatmap) {
+function Aim (score: Score, beatmap: Beatmap) {
     let difficulty = beatmap.Difficulty
     let counts = score.Counts
     let mods = score.Mods
@@ -98,7 +98,7 @@ function Aim(score: Score, beatmap: Beatmap) {
     return _aimValue
 }
 
-function Speed(score: Score, beatmap: Beatmap) {
+function Speed (score: Score, beatmap: Beatmap) {
     let difficulty = beatmap.Difficulty
     let counts = score.Counts
     let mods = score.Mods
@@ -119,7 +119,7 @@ function Speed(score: Score, beatmap: Beatmap) {
     let combo = score.Combo
 
     if (maxCombo > 0)
-        _speedValue *= Math.min(Math.pow(combo, 0.8) / Math.pow(maxCombo, 0.8), 1);
+        _speedValue *= Math.min(Math.pow(combo, 0.8) / Math.pow(maxCombo, 0.8), 1)
 
     let approachRate = difficulty.Approach.raw
     let approachRateFactor = 0
@@ -141,7 +141,7 @@ function Speed(score: Score, beatmap: Beatmap) {
     return _speedValue
 }
 
-function Acc(score: Score, beatmap: Beatmap) {
+function Acc (score: Score, beatmap: Beatmap) {
     let difficulty = beatmap.Difficulty
     let counts = score.Counts
     let mods = score.Mods
@@ -172,7 +172,7 @@ function Acc(score: Score, beatmap: Beatmap) {
     return _accValue
 }
 
-async function Test(userId: string) {
+async function Test (userId: string) {
     let scores = await GetTop({ u: userId, limit: 10 })
     logger.level = LogLevel.Debug
     for (let i = 0; i < scores.length; i++) {
@@ -187,7 +187,7 @@ async function Test(userId: string) {
     }
 }
 
-async function Test2(userId: string) {
+async function Test2 (userId: string) {
     let score = (await GetTop({ u: userId, limit: 1 }))[0]
     let beatmap = (await axios.get("https://osu.ppy.sh/osu/" + score.MapId)).data
     let data = new parser().feed(beatmap)

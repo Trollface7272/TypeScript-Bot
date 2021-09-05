@@ -50,43 +50,53 @@ async function CreateGuild(message: Message): Promise<Guild> {
 }
 
 export const OnMessage = async (client: Bot, message: Message): Promise<void> => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
     const res = await client.database.database.collection("guilds").updateOne({ id: message.guild.id }, { $inc: { messages: 1 } })
     if (res.matchedCount < 1) await CreateGuild(message)
 }
 
 export const OnCommand = async (client: Bot, message: Message): Promise<void> => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
     client.database.database.collection("guilds").updateOne({ id: message.guild.id }, { $inc: { commands: 1 } })
 }
 
 export const SkeetkeyUsed = async (client: Bot, message: Message): Promise<void> => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
     client.database.database.collection("guilds").updateOne({ id: message.guild.id }, { $inc: { skeetkey_uses: 1 } })
 }
 
 export const AddFilter = async (client: Bot, message: Message, filter: Filter): Promise<void> => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
     client.database.database.collection("guilds").updateOne({ id: message.guild.id }, { $push: { filter: filter } })
 }
 
 export const RemoveFilter = async (client: Bot, message: Message, name: string): Promise<void> => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
     client.database.database.collection("guilds").updateOne({ id: message.guild.id }, { $pull: { filter: { name: name } } })
 }
 
 export const GetFilter = async (client: Bot, message: Message): Promise<Array<Filter>> => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return []}
     return (await client.database.database.collection("guilds").findOne({ id: message.guild.id }) as Guild).filter
 }
 
 export const GetPrefix = async (client: Bot, message: Message): Promise<string> => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return "!" }
     return (await client.database.database.collection("guilds").findOne({ id: message.guild.id }) as Guild)?.prefix || "!"
 }
 
 export const SetPrefix = async (client: Bot, message: Message, prefix: string): Promise<void> => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
     client.database.database.collection("guilds").updateOne({ id: message.guild.id }, {$set: {prefix}})
 }
 
 export const GetRetardRoles = async (client: Bot, message: Message): Promise<Array<string>> => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return []}
     return (await client.database.database.collection("guilds").findOne({ id: message.guild.id }) as Guild).retard_roles
 }
 
 export const AddRetardRole = async (client: Bot, message: Message, id: string, position: number): Promise<void> => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
     let query: UpdateQuery<any>
     if (position == -1) query = {$push: {retard_roles: {$each: [id]}}}
     else query = {$push: {retard_roles: {$each: [id], $position: position}}}
@@ -94,15 +104,22 @@ export const AddRetardRole = async (client: Bot, message: Message, id: string, p
 }
 
 export const ClearRetardRoles = async (client: Bot, message: Message): Promise<void> => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
     client.database.database.collection("guilds").updateOne({ id: message.guild.id }, {$set: {retard_roles: []}})
 }
 
 export const RemoveRetardRoleId = async (client: Bot, message: Message, id: string): Promise<void> => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
     client.database.database.collection("guilds").updateOne({ id: message.guild.id }, {$pull: {retard_roles: id}})
 }
 
 export const RemoveRetardRoleIndex = async (client: Bot, message: Message, index: number): Promise<string> => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
     let id = (await GetRetardRoles(client, message))[index-1]
     client.database.database.collection("guilds").updateOne({ id: message.guild.id }, {$pull: {retard_roles: id}})
     return id
+}
+
+export const TrackUser = async (client: Bot, message: Message, name: string) => {
+
 }

@@ -377,5 +377,5 @@ export const GetDifficultyEmote = (client: Bot, message: Message, mode: 0|1|2|3,
     if (star > 4) difficulty++
     if (star > 5.3) difficulty++
     if (star > 6.5) difficulty++
-    return DifficultyEmoteIds[mode][difficulty]
+    return client.emojis.cache.get(DifficultyEmoteIds[mode][difficulty])
 }

@@ -3,8 +3,8 @@ import { Bot } from "../../client/Client"
 import { RunFunction } from "../../../shared/interfaces/Command"
 import { GetBeatmap, GetProfileCache, GetRecent, GetTop } from "../../osu/Api/Api"
 import { ParseArgs, ModNames, GetFlagUrl, GetProfileLink, GetServer, GetProfileImage, HandleError, RankingEmotes, CalculateAcc, GetHits, CalculateProgress, ConvertBitMods, GetMapLink, GetMapImage, DateDiff, ErrorIds, Args, GetCombo } from "../../osu/Utils"
-import { GetFcAcc, GetFcPP, GetPP } from "../../osu/Calculator"
 import { Beatmap, Profile, Score } from "../../../shared/interfaces/OsuApi"
+import { GetFcAccuracy, GetFcPerformance, GetPlayPerformance } from "../../osu/Calculator"
 
 export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {
     const options: Args = await ParseArgs(client, message, args)
@@ -21,7 +21,7 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
     try { recent = await GetRecent({ u: options.Name, m: options.Flags.m, limit: 50 }) }
     catch (err) { return HandleError(client, message, err, profile.Name) }
 
-    if (recent.length == 0) return HandleError(client, message, {code: 5}, profile.Name)
+    if (recent.length == 0) return HandleError(client, message, { code: 5 }, profile.Name)
 
     const score: Score = recent[0]
 
@@ -29,7 +29,7 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
     let beatmap: Beatmap
     try { beatmap = await GetBeatmap({ b: score.MapId, m: options.Flags.m, mods: score.Mods }) }
     catch (err) {
-        console.log(err);
+        console.log(err)
         return HandleError(client, message, err, profile.Name)
     }
 
@@ -42,9 +42,9 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
 
     let fcppDisplay = ""
     if (score.Combo < beatmap.MaxCombo - 15 || score.Counts.miss > 0)
-        fcppDisplay = `(${GetFcPP(client, score, beatmap, options.Flags.m)}pp for ${GetFcAcc(client, score, options.Flags.m)}% FC) `
+        fcppDisplay = `(${(await GetFcPerformance(client, message, score, options.Flags.m)).Total.Formatted}pp for ${GetFcAccuracy(client, message, score.Counts, options.Flags.m)}% FC) `
 
-    let desc = `▸ ${RankingEmotes(client, score.Rank)} ▸ **${GetPP(client, score, beatmap, options.Flags.m)}pp** ${fcppDisplay}▸ ${CalculateAcc(client, score.Counts, options.Flags.m)}%\n`
+    let desc = `▸ ${RankingEmotes(client, score.Rank)} ▸ **${(await GetPlayPerformance(client, message, score, options.Flags.m)).Total.Formatted}pp** ${fcppDisplay}▸ ${CalculateAcc(client, score.Counts, options.Flags.m)}%\n`
     desc += `▸ ${score.Score.Formatted} ▸ x${score.Combo}/${beatmap.MaxCombo} ▸ [${GetHits(client, score.Counts, options.Flags.m)}]`
 
     if (score.Rank == "F")
@@ -80,7 +80,7 @@ const RecentBest = async (client: Bot, message: Message, options: Args) => {
     catch (err) { return HandleError(client, message, err, profile.Name) }
 
     let fcppDisplay = ""
-    if (score.Combo < beatmap.MaxCombo - 15 || score.Counts.miss > 0) fcppDisplay = `(${GetFcPP(client, score, beatmap, options.Flags.m)}pp for ${GetFcAcc(client, score, options.Flags.m)}% FC) `
+    if (score.Combo < beatmap.MaxCombo - 15 || score.Counts.miss > 0) fcppDisplay = `(${await GetFcPerformance(client, message, score, options.Flags.m)}pp for ${GetFcAccuracy(client, message, score.Counts, options.Flags.m)}% FC) `
 
     let desc = `**${score.Index}. [${beatmap.Title} [${beatmap.Version}]](${GetMapLink(beatmap.id)}) +${ConvertBitMods(client, score.Mods)}** [${beatmap.Difficulty.Star.Formatted}★]\n`
     desc += `▸ ${RankingEmotes(client, score.Rank)} ▸ **${score.Performance.Formatted}pp** ${fcppDisplay}▸ ${CalculateAcc(client, score.Counts, options.Flags.m)}%\n`

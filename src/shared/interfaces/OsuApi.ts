@@ -177,7 +177,8 @@ export interface Beatmap {
     Objects: Objects
     MaxCombo: number
     Gamemode: 0 | 1 | 2 | 3
-    Approved: -2 | -1 | 0 | 1 | 2 | 3 | 4
+    Approved: string
+    ApprovedRaw: -2 | -1 | 0 | 1 | 2 | 3 | 4
     SubmitedDate: Date
     ApprovedDate: Date
     LastUpdate: Date
@@ -277,8 +278,39 @@ export interface TopParams {
 }
 
 export interface Performance {
-    Accuracy: number
-    Speed: number
-    Aim: number
-    Total: number
+    Accuracy: {
+        raw: number
+        Formatted: string
+    }
+    Speed: {
+        raw: number
+        Formatted: string
+    }
+    Aim: {
+        raw: number
+        Formatted: string
+    }
+    Total: {
+        raw: number
+        Formatted: string
+    }
+    AccuracyPercent: {
+        raw: number
+        Formatted: string
+    }
+}
+
+export interface Difficulty {
+    Aim: {
+        raw: number
+        Formatted: string
+    }
+    Speed: {
+        raw: number
+        Formatted: string
+    }
+    Total: {
+        raw: number
+        Formatted: string
+    }
 }

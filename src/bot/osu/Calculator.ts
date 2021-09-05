@@ -1,25 +1,71 @@
-import axios from "axios";
-import { Message } from "discord.js";
-import { existsSync, readFileSync, writeFile, writeFileSync } from "fs";
-import { parser, ppv2 } from "ojsama";
-import { Performance, Score } from "../../shared/interfaces/OsuApi";
-import { Bot } from "../client/Client";
-const CACHE_DIR = "../../../cache"
+import axios from "axios"
+import { Message } from "discord.js"
+import { existsSync, mkdirSync, readFileSync, writeFile, writeFileSync } from "fs"
+import { diff, parser, ppv2, std_accuracy } from "ojsama"
+import { DeepCopy } from "../../shared/GlobalUtils"
+import { Counts, Difficulty, Performance, Score } from "../../shared/interfaces/OsuApi"
+import { Bot } from "../client/Client"
+import { RoundFixed } from "./Utils"
+const CACHE_DIR = "./src/cache"
 
 
-
-export const GetPlayPerformance = async (client: Bot, message: Message, score: Score, mode: 0|1|2|3): Promise<Performance> => {
+export const GetPlayPerformance = (client: Bot, message: Message, score: Score, mode: 0 | 1 | 2 | 3): Promise<Performance> => {
     switch (mode) {
-        case 0: return await CalcStdPerformance(client, message, score)
-    
+        case 0: return CalcStdPerformance(client, message, score)
+
         default:
-            break;
+            break
+    }
+}
+
+export const GetAccuracyPerformance = (client: Bot, message: Message, mapId: number, mods: number, mode: 0 | 1 | 2 | 3, acc: number[] | number): Promise<Performance[]> => {
+    switch (mode) {
+        case 0: return CalcStdAccuracyPerformance(client, message, mapId, mods, acc)
+
+        default:
+            break
+    }
+}
+
+export const GetFcPerformance = (client: Bot, message: Message, score: Score, mode: 0 | 1 | 2 | 3): Promise<Performance> => {
+    score = DeepCopy(score)
+    score.Counts[300] += score.Counts.miss
+    score.Counts.miss = 0
+    score.Combo = 0
+
+    return GetPlayPerformance(client, message, score, mode)
+}
+
+export const GetDiffWithMods = async (client: Bot, message: Message, mapId: number, mode: 0 | 1 | 2 | 3, mods: number | number[]) => {
+    if (typeof mods == "number") mods = [mods]
+    switch (mode) {
+        case 0: return await CaclStdDiffWithMods(client, message, mapId, mods)
+
+        default:
+            break
+    }
+}
+
+export const GetFcAccuracy = (client: Bot, message: Message, counts: Counts, mode: 0 | 1 | 2 | 3) => {
+    counts = DeepCopy(counts)
+    switch (mode) {
+        case 0:
+            counts[300] += counts.miss
+            let acc = new std_accuracy({
+                n300: counts[300],
+                n100: counts[100],
+                n50: counts[50],
+                nmiss: counts.miss
+            }).value()
+            return RoundFixed(acc * 100)
+        default:
     }
 }
 
 const CalcStdPerformance = async (client: Bot, message: Message, score: Score): Promise<Performance> => {
     const mapFile = await GetBeatmapFile(client, message, score.MapId)
     const mapParser = new parser().feed(mapFile)
+    
     const performance = ppv2({
         map: mapParser.map,
         mods: score.Mods,
@@ -27,31 +73,105 @@ const CalcStdPerformance = async (client: Bot, message: Message, score: Score): 
         n100: score.Counts[100],
         n50: score.Counts[50],
         nmiss: score.Counts.miss,
-        combo: score.Combo
+        combo: score.Combo || mapParser.map.max_combo()
     })
     return {
-        Accuracy: performance.acc,
-        Speed: performance.speed,
-        Aim: performance.aim,
-        Total: performance.total
+        Accuracy: {
+            raw: performance.acc,
+            Formatted: RoundFixed(performance.acc)
+        },
+        Aim: {
+            raw: performance.aim,
+            Formatted: RoundFixed(performance.aim)
+        },
+        Speed: {
+            raw: performance.speed,
+            Formatted: RoundFixed(performance.speed)
+        },
+        Total: {
+            raw: performance.total,
+            Formatted: RoundFixed(performance.total)
+        },
+        AccuracyPercent: {
+            raw: performance.computed_accuracy.percent,
+            Formatted: RoundFixed(performance.computed_accuracy.percent)
+        }
     }
 }
 
-const GetAccPerformance = async (client: Bot, message: Message, mapId: number, mods: number, mode:0|1|2|3, acc: number|number[]): Promise<Performance[]> => {
+const CalcStdAccuracyPerformance = async (client: Bot, message: Message, mapId: number, mods: number, acc: number | number[]): Promise<Performance[]> => {
     if (typeof acc == "number") acc = [acc]
     const mapFile = await GetBeatmapFile(client, message, mapId)
     const mapParser = new parser().feed(mapFile)
-    const data = {
+    let data = {
         map: mapParser.map,
-        mods: mods
+        mods: mods,
+        acc_percent: 100
     }
+    let out: Performance[] = []
+    acc.forEach(el => {
+        data.acc_percent = el
+        let performance = ppv2(data)
+        out.push({
+            Accuracy: {
+                raw: performance.acc,
+                Formatted: RoundFixed(performance.acc)
+            },
+            Aim: {
+                raw: performance.aim,
+                Formatted: RoundFixed(performance.aim)
+            },
+            Speed: {
+                raw: performance.speed,
+                Formatted: RoundFixed(performance.speed)
+            },
+            Total: {
+                raw: performance.total,
+                Formatted: RoundFixed(performance.total)
+            },
+            AccuracyPercent: {
+                raw: el,
+                Formatted: el.toString()
+            }
+        })
+    })
+    return out
+}
+
+const CaclStdDiffWithMods = async (client: Bot, message: Message, mapId: number, mods: number[]) => {
+    const mapFile = await GetBeatmapFile(client, message, mapId)
+    const mapParser = new parser().feed(mapFile)
+    let data = {
+        map: mapParser.map,
+        mods: 0
+    }
+    let out: Difficulty[] = []
+    mods.forEach(el => {
+        data.mods = el
+        let difficulty = new diff().calc(data)
+        out.push({
+            Aim: {
+                raw: difficulty.aim,
+                Formatted: RoundFixed(difficulty.aim)
+            },
+            Speed: {
+                raw: difficulty.speed,
+                Formatted: RoundFixed(difficulty.speed)
+            },
+            Total: {
+                raw: difficulty.total,
+                Formatted: RoundFixed(difficulty.total)
+            }
+        })
+    })
+    return out
 }
 
 const GetBeatmapFile = async (client: Bot, message: Message, id: number): Promise<string> => {
     if (existsSync(`${CACHE_DIR}/${id}.osu`)) return readFileSync(`${CACHE_DIR}/${id}.osu`).toString("utf-8")
-    const mapFile = (await axios.get(`http://osu.ppy.sh/osu/${id}`)).data
-    writeFile(`${CACHE_DIR}/${id}.osu`, mapFile, null)
-    return mapFile
+    const mapFile = (await axios.get(`http://osu.ppy.sh/osu/${id}`))
+    writeFile(`${CACHE_DIR}/${id}.osu`, mapFile.data, (e) => { if (e) client.logger.error(e) })
+    return mapFile.data
 }
 
 

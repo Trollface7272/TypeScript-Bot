@@ -6,7 +6,15 @@ import { Beatmap, BeatmapParams, ShortBeatmap } from "../../../shared/interfaces
 
 
 const endpoint: string = linkBase + "api/get_beatmaps"
-
+const MapRanking = {
+    "-2": "Graveyarded",
+    "-1": "WIP",
+    "0": "Pending",
+    "1": "Ranked",
+    "2": "Approved",
+    "3": "Qualified",
+    "4": "Loved"
+}
 export async function Get(params: BeatmapParams): Promise<Beatmap> {
     return v1(params)
 }
@@ -174,7 +182,8 @@ const v1 = async (params: BeatmapParams): Promise<Beatmap> => {
         },
         MaxCombo: parseInt(data.max_combo),
         Gamemode: data.mode,
-        Approved: data.approved,
+        Approved: MapRanking[data.approved],
+        ApprovedRaw: data.approved,
         SubmitedDate: new Date(data.submit_date),
         ApprovedDate: new Date(data.approved_date),
         LastUpdate: new Date(data.last_update),
