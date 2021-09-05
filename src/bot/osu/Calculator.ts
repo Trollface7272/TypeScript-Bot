@@ -65,8 +65,7 @@ export const GetFcAccuracy = (client: Bot, message: Message, counts: Counts, mod
 const CalcStdPerformance = async (client: Bot, message: Message, score: Score): Promise<Performance> => {
     const mapFile = await GetBeatmapFile(client, message, score.MapId)
     const mapParser = new parser().feed(mapFile)
-    
-    const performance = ppv2({
+    const data = {
         map: mapParser.map,
         mods: score.Mods,
         n300: score.Counts[300],
@@ -74,7 +73,10 @@ const CalcStdPerformance = async (client: Bot, message: Message, score: Score): 
         n50: score.Counts[50],
         nmiss: score.Counts.miss,
         combo: score.Combo || mapParser.map.max_combo()
-    })
+    }
+    console.log(data);
+    
+    const performance = ppv2(data)
     return {
         Accuracy: {
             raw: performance.acc,
@@ -169,8 +171,10 @@ const CaclStdDiffWithMods = async (client: Bot, message: Message, mapId: number,
 
 const GetBeatmapFile = async (client: Bot, message: Message, id: number): Promise<string> => {
     if (existsSync(`${CACHE_DIR}/${id}.osu`)) return readFileSync(`${CACHE_DIR}/${id}.osu`).toString("utf-8")
-    const mapFile = (await axios.get(`http://osu.ppy.sh/osu/${id}`))
-    writeFile(`${CACHE_DIR}/${id}.osu`, mapFile.data, (e) => { if (e) client.logger.error(e) })
+    const mapFile = await axios.get(`http://osu.ppy.sh/osu/${id}`)
+    
+    writeFileSync(`${CACHE_DIR}/${id}.osu`, mapFile.data)
+
     return mapFile.data
 }
 
