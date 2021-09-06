@@ -15,7 +15,7 @@ export interface Guild {
     messages: number,
     commands: number,
     skeetkey_uses: number,
-    prefix: string,
+    prefix: string[],
     retard_roles: Array<string>,
     filter: Array<Filter>,
 }
@@ -26,7 +26,7 @@ const schema = new Schema<Guild>({
     messages: { type: Number, required: true },
     commands: { type: Number, required: true },
     skeetkey_uses: { type: Number, required: true },
-    prefix: { type: String, required: true },
+    prefix: { type: Array, required: true },
     retard_roles: {type: Array, required: true},
     filter: { type: Array, required: true }
 })
@@ -41,7 +41,7 @@ async function CreateGuild(message: Message): Promise<Guild> {
         messages: 1,
         commands: 0,
         skeetkey_uses: 0,
-        prefix: "!",
+        prefix: ["!"],
         retard_roles: [],
         filter: []
     })
@@ -67,7 +67,7 @@ export const SkeetkeyUsed = async (client: Bot, message: Message): Promise<void>
 
 export const AddFilter = async (client: Bot, message: Message, filter: Filter): Promise<void> => {
     if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
-    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, { $push: { filter: filter } })
+    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, { $push: { filter } })
 }
 
 export const RemoveFilter = async (client: Bot, message: Message, name: string): Promise<void> => {
@@ -80,14 +80,19 @@ export const GetFilter = async (client: Bot, message: Message): Promise<Array<Fi
     return (await client.database.database.collection("guilds").findOne({ id: message.guild.id }) as Guild).filter
 }
 
-export const GetPrefix = async (client: Bot, message: Message): Promise<string> => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return "!" }
-    return (await client.database.database.collection("guilds").findOne({ id: message.guild.id }) as Guild)?.prefix || "!"
+export const GetPrefix = async (client: Bot, message: Message): Promise<string[]> => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return ["!"] }
+    return (await client.database.database.collection("guilds").findOne({ id: message.guild.id }) as Guild)?.prefix || ["!"]
 }
 
 export const SetPrefix = async (client: Bot, message: Message, prefix: string): Promise<void> => {
     if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
-    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, {$set: {prefix}})
+    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, {$set: {prefix: [prefix]}})
+}
+
+export const AddPrefix = async (client: Bot, message: Message, prefix: string) => {
+    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
+    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, {$push: {prefix}})
 }
 
 export const GetRetardRoles = async (client: Bot, message: Message): Promise<Array<string>> => {
