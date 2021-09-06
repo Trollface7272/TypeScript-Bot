@@ -15,7 +15,7 @@ const css = Express()
 const resources = Express()
 const commands = Express()
 
-const port = (File as Config).web_port || 8080
+const port = (File as Config).web_port || [8080]
 
 /*-----------------------------------------------*/
 /*                     Main                      */
@@ -68,4 +68,4 @@ resources.use("/commands", commands)
 
 app.use("/resources", resources)
 
-app.listen(port)
+port.forEach(e => app.listen(e))
