@@ -4,6 +4,15 @@ import { RunFunction } from "../../../shared/interfaces/Command"
 
 
 export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {
+    if (args.length < 1) {
+        message.channel.send({
+            embeds: [client.embed(
+                {
+                    description: `Please your neverlose username.`
+                }, message)]
+        })
+        return
+    }
     seed = 0
     args.join(" ").split("").forEach(el => seed += el.charCodeAt(0))
     let link = `https://neverlose.cc/activate?code=${RandString(20)}`

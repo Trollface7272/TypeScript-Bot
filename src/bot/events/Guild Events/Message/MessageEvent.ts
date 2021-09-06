@@ -1,8 +1,8 @@
-import { RunFunction } from "../../../shared/interfaces/Event"
+import { RunFunction } from "../../../../shared/interfaces/Event"
 import { Message } from "discord.js"
-import { Command } from "../../../shared/interfaces/Command"
-import { Bot } from "../../client/Client"
-import { Filter } from "../../moderation/Filter"
+import { Command } from "../../../../shared/interfaces/Command"
+import { Bot } from "../../../client/Client"
+import { Filter } from "../../../moderation/Filter"
 
 export const run: RunFunction = async (client: Bot, message: Message) => {
     if (message.author.bot || !message.guild) return
@@ -10,7 +10,11 @@ export const run: RunFunction = async (client: Bot, message: Message) => {
     //if (await Filter(client, message)) return
     const prefix = await client.database.Guilds.GetPrefix(client, message)
 
-    if (!message.content.toLocaleLowerCase().startsWith(prefix)) return
+    let isCommand = false
+    for (let i = 0; i < prefix.length; i++)
+        if (message.content.toLocaleLowerCase().startsWith(prefix[i])) isCommand = true
+    if (!isCommand) return
+    
     const args: string[] = message.content.slice(prefix.length).trim().split(/ +/g)
     const cmd: string = args.shift()
     const command: Command = client.commands.get(cmd)
