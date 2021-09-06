@@ -8,7 +8,7 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
         message.channel.send({
             embeds: [client.embed(
                 {
-                    description: `Please your neverlose username.`
+                    description: `Please provide your neverlose username.`
                 }, message)]
         })
         return
