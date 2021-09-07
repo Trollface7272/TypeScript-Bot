@@ -27,14 +27,14 @@ const schema = new Schema<Guild>({
     commands: { type: Number, required: true },
     skeetkey_uses: { type: Number, required: true },
     prefix: { type: Array, required: true },
-    retard_roles: {type: Array, required: true},
+    retard_roles: { type: Array, required: true },
     filter: { type: Array, required: true }
 })
 
 
 const Model = model<Guild>("Guild", schema)
 
-async function CreateGuild(message: Message): Promise<Guild> {
+async function CreateGuild (message: Message): Promise<Guild> {
     let doc = new Model({
         id: message.guild.id,
         name: message.guild.name,
@@ -50,81 +50,65 @@ async function CreateGuild(message: Message): Promise<Guild> {
 }
 
 export const OnMessage = async (client: Bot, message: Message): Promise<void> => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
-    const res = await client.database.database.collection("guilds").updateOne({ id: message.guild.id }, { $inc: { messages: 1 } })
+    const res = await GetCollection(client)?.updateOne({ id: message.guild.id }, { $inc: { messages: 1 } })
     if (res.matchedCount < 1) await CreateGuild(message)
 }
 
 export const OnCommand = async (client: Bot, message: Message): Promise<void> => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
-    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, { $inc: { commands: 1 } })
+    GetCollection(client)?.updateOne({ id: message.guild.id }, { $inc: { commands: 1 } })
 }
 
 export const SkeetkeyUsed = async (client: Bot, message: Message): Promise<void> => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
-    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, { $inc: { skeetkey_uses: 1 } })
+    GetCollection(client)?.updateOne({ id: message.guild.id }, { $inc: { skeetkey_uses: 1 } })
 }
 
 export const AddFilter = async (client: Bot, message: Message, filter: Filter): Promise<void> => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
-    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, { $push: { filter } })
+    GetCollection(client)?.updateOne({ id: message.guild.id }, { $push: { filter } })
 }
 
 export const RemoveFilter = async (client: Bot, message: Message, name: string): Promise<void> => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
-    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, { $pull: { filter: { name: name } } })
+    GetCollection(client)?.updateOne({ id: message.guild.id }, { $pull: { filter: { name: name } } })
 }
 
 export const GetFilter = async (client: Bot, message: Message): Promise<Array<Filter>> => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return []}
-    return (await client.database.database.collection("guilds").findOne({ id: message.guild.id }) as Guild).filter
+    return (await GetCollection(client)?.findOne({ id: message.guild.id }) as Guild).filter || []
 }
 
 export const GetPrefix = async (client: Bot, message: Message): Promise<string[]> => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return ["!"] }
-    return (await client.database.database.collection("guilds").findOne({ id: message.guild.id }) as Guild)?.prefix || ["!"]
+    return (await GetCollection(client)?.findOne({ id: message.guild.id }) as Guild)?.prefix || ["!"]
 }
 
 export const SetPrefix = async (client: Bot, message: Message, prefix: string): Promise<void> => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
-    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, {$set: {prefix: [prefix]}})
+    GetCollection(client)?.updateOne({ id: message.guild.id }, { $set: { prefix: [prefix] } })
 }
 
 export const AddPrefix = async (client: Bot, message: Message, prefix: string) => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
-    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, {$push: {prefix}})
+    GetCollection(client)?.updateOne({ id: message.guild.id }, { $push: { prefix } })
 }
 
 export const GetRetardRoles = async (client: Bot, message: Message): Promise<Array<string>> => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return []}
-    return (await client.database.database.collection("guilds").findOne({ id: message.guild.id }) as Guild).retard_roles
+    return (await GetCollection(client)?.findOne({ id: message.guild.id }) as Guild).retard_roles || []
 }
 
 export const AddRetardRole = async (client: Bot, message: Message, id: string, position: number): Promise<void> => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
     let query: UpdateQuery<any>
-    if (position == -1) query = {$push: {retard_roles: {$each: [id]}}}
-    else query = {$push: {retard_roles: {$each: [id], $position: position}}}
-    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, query)
+    if (position == -1) query = { $push: { retard_roles: { $each: [id] } } }
+    else query = { $push: { retard_roles: { $each: [id], $position: position } } }
+    GetCollection(client)?.updateOne({ id: message.guild.id }, query)
 }
 
 export const ClearRetardRoles = async (client: Bot, message: Message): Promise<void> => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
-    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, {$set: {retard_roles: []}})
+    GetCollection(client)?.updateOne({ id: message.guild.id }, { $set: { retard_roles: [] } })
 }
 
 export const RemoveRetardRoleId = async (client: Bot, message: Message, id: string): Promise<void> => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
-    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, {$pull: {retard_roles: id}})
+    GetCollection(client)?.updateOne({ id: message.guild.id }, { $pull: { retard_roles: id } })
 }
 
 export const RemoveRetardRoleIndex = async (client: Bot, message: Message, index: number): Promise<string> => {
-    if (!client.database.database) {client.logger.error(new Error("Database connection not active")); return }
-    let id = (await GetRetardRoles(client, message))[index-1]
-    client.database.database.collection("guilds").updateOne({ id: message.guild.id }, {$pull: {retard_roles: id}})
+    let id = (await GetRetardRoles(client, message))[index - 1]
+    GetCollection(client)?.updateOne({ id: message.guild.id }, { $pull: { retard_roles: id } })
     return id
 }
 
-export const TrackUser = async (client: Bot, message: Message, name: string) => {
-
-}
+const GetCollection = (client: Bot) => client?.database?.database?.collection("guilds")

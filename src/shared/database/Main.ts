@@ -6,6 +6,7 @@ import { Bot } from "../../bot/client/Client"
 import { Message } from "discord.js"
 import * as users from "./Users"
 import * as guilds from "./Guilds"
+import * as tracking from "./Tracking"
 
 const logger = consola
 const link = (File as Config).mongo_db_url
@@ -14,6 +15,7 @@ export const Users = users
 
 export const Guilds = guilds
 
+export const Tracking = tracking
 export var database: Connection
 export const Connect = async () => {
     if (database) return
