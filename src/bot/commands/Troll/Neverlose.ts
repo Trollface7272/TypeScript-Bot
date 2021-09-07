@@ -16,6 +16,7 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
     seed = 0
     args.join(" ").split("").forEach(el => seed += el.charCodeAt(0))
     let link = `https://neverlose.cc/activate?code=${RandString(20)}`
+    client.database.SkeetkeyUsed(client, message)
     message.channel.send(link)
 }
 
