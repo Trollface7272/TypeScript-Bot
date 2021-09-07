@@ -42,7 +42,7 @@ export const RemoveFromTracking = (client: Bot, message: Message, id: number, ch
 }
 
 export const GetTrackedInChannel = (client: Bot, mesage: Message, channel: string) => {
-    GetCollection(client)?.find({channels: })
+    GetCollection(client)?.find({channels: channel})
 }
 
 
