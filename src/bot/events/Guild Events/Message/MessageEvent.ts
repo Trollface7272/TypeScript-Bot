@@ -9,6 +9,15 @@ export const run: RunFunction = async (client: Bot, message: Message) => {
     client.database.OnMessage(client, message)
     //if (await Filter(client, message)) return
     const prefix = await client.database.Guilds.GetPrefix(client, message)
+    client.triggers.forEach(el => {
+        if (Array.isArray(el.regex)) {
+            el.regex.forEach(e => {
+                if (message.content.toLowerCase().match(e)) el.run(client, message)
+            })
+        } else if (typeof el.regex == "object") {
+            if (message.content.toLowerCase().match(el.regex)) el.run(client, message)
+        }
+    })
 
     let isCommand = false
     for (let i = 0; i < prefix.length; i++)
