@@ -37,26 +37,28 @@ async function CreateUser(message: Message): Promise<User> {
     return doc
 }
 
-export const OnMessage = async (discordClient: Bot, message: Message) => {
-    const res = await discordClient.database.database.collection("users").updateOne({id: message.author.id}, {$inc: {messages: 1}})
+export const OnMessage = async (client: Bot, message: Message) => {
+    const res = await GetCollection(client)?.updateOne({id: message.author.id}, {$inc: {messages: 1}})
     if (res.matchedCount < 1) await CreateUser(message)
 }
 
-export const OnCommand = async (discordClient: Bot, message: Message) => {
-    const res = await discordClient.database.database.collection("users").updateOne({id: message.author.id}, {$inc: {commands: 1}})
+export const OnCommand = async (client: Bot, message: Message) => {
+    const res = await GetCollection(client)?.updateOne({id: message.author.id}, {$inc: {commands: 1}})
     if (res.matchedCount < 1) await CreateUser(message)
 }
 
-export const SkeetkeyUsed = async (discordClient: Bot, message: Message) => {
-    const res = await discordClient.database.database.collection("users").updateOne({id: message.author.id}, {$inc: {skeetkey_uses: 1}})
+export const SkeetkeyUsed = async (client: Bot, message: Message) => {
+    const res = await GetCollection(client)?.updateOne({id: message.author.id}, {$inc: {skeetkey_uses: 1}})
     if (res.matchedCount < 1) await CreateUser(message)
 }
 
-export const GetOsuUsername = async (discordClient: Bot, message: Message): Promise<String|false> => {
-    if (!discordClient.database.database) return false
-    return (await discordClient.database.database.collection("users").findOne({id: message.author.id}) as User).osu_name || false
+export const GetOsuUsername = async (client: Bot, message: Message): Promise<String|false> => {
+    return (await GetCollection(client)?.findOne({id: message.author.id}) as User).osu_name || false
 }
 
-export const SetOsuUsername = async (discordClient: Bot, message: Message, name: string): Promise<void> => {
-    discordClient.database.database.collection("users").updateOne({id: message.author.id}, {$set: {osu_name: name}})
+export const SetOsuUsername = async (client: Bot, message: Message, name: string): Promise<void> => {
+    GetCollection(client)?.updateOne({id: message.author.id}, {$set: {osu_name: name}})
 }
+
+
+const GetCollection = (client: Bot) => client?.database?.database?.collection("users")

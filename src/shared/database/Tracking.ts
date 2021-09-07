@@ -16,7 +16,7 @@ const schema = new Schema<Tracking>({
 
 const Model = model<Tracking>("Tracking", schema)
 
-async function CreateTrackedUser(client: Bot, message: Message, id: number, channel: string): Promise<Tracking> {
+async function CreateTrackedUser (client: Bot, message: Message, id: number, channel: string): Promise<Tracking> {
     let doc = new Model({
         id: id,
         channels: [channel]
@@ -25,6 +25,25 @@ async function CreateTrackedUser(client: Bot, message: Message, id: number, chan
     return doc
 }
 
-export const AddToTracking = async (client: Bot, message: Message, id: number, channel: string) => {
-    let data = await client.database.database.collection("tracking").findOne({id: id})
+export const AddToTracking = async (client: Bot, message: Message, id: number, channel: string): Promise<void> => {
+    let data: Tracking = await GetCollection(client)?.findOne({ id: id })
+    if (data) GetCollection(client)?.updateOne({ id: id }, {
+        $push: { channels: channel }
+    })
+    else CreateTrackedUser(client, message, id, channel)
 }
+
+export const ClearTracking = async (client: Bot, message: Message, channel: string): Promise<void> => {
+    GetCollection(client)?.updateMany({}, { $pull: { channels: channel } })
+}
+
+export const RemoveFromTracking = (client: Bot, message: Message, id: number, channel: string) => {
+    GetCollection(client)?.updateOne({ id: id }, { $pull: { channels: channel } })
+}
+
+export const GetTrackedInChannel = (client: Bot, mesage: Message, channel: string) => {
+    GetCollection(client)?.find({channels: })
+}
+
+
+const GetCollection = (client: Bot) => client?.database?.database?.collection("tracking")
