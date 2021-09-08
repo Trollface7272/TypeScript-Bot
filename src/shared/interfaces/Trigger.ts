@@ -8,6 +8,8 @@ export interface RunFunction {
 export interface Trigger {
     name: string | string[],
     regex: RegExp | RegExp[],
+    matchEmotes: boolean,
+    caseSensitive: boolean,
     category: string,
     run: RunFunction
 }

@@ -10,4 +10,6 @@ export const run: RunFunction = async (client: Bot, message: Message) => {
 }
 
 export const name: string = "WYSI"
+export const caseSensitive: boolean = false
+export const matchEmotes: boolean = true
 export const regex: RegExp = /(7|seven)[\s\/]*?(2|twenty)[\s\/]*?(7|seven)/
