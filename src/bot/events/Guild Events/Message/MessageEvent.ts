@@ -39,7 +39,6 @@ const RunTrigger = (client: Bot, message: Message) => {
     client.triggers.forEach(el => {
         let content = el.caseSensitive ? message.content : message.content.toLowerCase()
         let emojis = content.match(/(:[^:\s]+:|<:[^:\s]+:[0-9]+>|<a:[^:\s]+:[0-9]+>)/g)
-        client.logger.log(emojis)
         emojis?.forEach(e => {
             if (el.matchEmotes) content = content.replace(e.split(":")[2], "")
             else content = content.replace(e, "")
