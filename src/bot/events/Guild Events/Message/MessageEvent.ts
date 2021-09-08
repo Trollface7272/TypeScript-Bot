@@ -9,22 +9,19 @@ export const run: RunFunction = async (client: Bot, message: Message) => {
     client.database.OnMessage(client, message)
     //if (await Filter(client, message)) return
     const prefix = await client.database.Guilds.GetPrefix(client, message)
-    client.triggers.forEach(el => {
-        if (Array.isArray(el.regex)) {
-            el.regex.forEach(e => {
-                if (message.content.toLowerCase().match(e)) el.run(client, message)
-            })
-        } else if (typeof el.regex == "object") {
-            if (message.content.toLowerCase().match(el.regex)) el.run(client, message)
-        }
-    })
+    RunTrigger(client, message)
 
     let isCommand = false
     for (let i = 0; i < prefix.length; i++)
         if (message.content.toLocaleLowerCase().startsWith(prefix[i])) isCommand = true
     if (!isCommand) return
-    
     const args: string[] = message.content.slice(prefix.length).trim().split(/ +/g)
+
+    RunCommand(client, message, args)
+    
+}
+// /(:[^:\s]+:|<:[^:\s]+:[0-9]+>|<a:[^:\s]+:[0-9]+>)/g
+const RunCommand = (client: Bot, message: Message, args: string[]) => {
     const cmd: string = args.shift()
     const command: Command = client.commands.get(cmd)
     
@@ -35,6 +32,24 @@ export const run: RunFunction = async (client: Bot, message: Message) => {
             description: `Unexpected error: ${reason}`
         }, message)]})
         client.logger.error((reason))
+    })
+}
+
+const RunTrigger = (client: Bot, message: Message) => {
+    client.triggers.forEach(el => {
+        let content = el.caseSensitive ? message.content : message.content.toLowerCase()
+        let emojis = content.match(/(:[^:\s]+:|<:[^:\s]+:[0-9]+>|<a:[^:\s]+:[0-9]+>)/g)
+        client.logger.log(emojis)
+        emojis?.forEach(e => {
+            if (el.matchEmotes) content = content.replace(e.split(":")[2], "")
+            else content = content.replace(e, "")
+        })
+        if (!Array.isArray(el.regex)){ if (content.match(el.regex)) el.run(client, message) }
+        else {
+            el.regex.forEach(e => {
+                if (content.match(e)) el.run(client, message)
+            })
+        }
     })
 }
 
