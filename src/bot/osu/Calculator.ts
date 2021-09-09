@@ -8,6 +8,7 @@ import { Bot } from "../client/Client"
 import { RoundFixed } from "./Utils"
 const CACHE_DIR = "./src/cache"
 
+if (!existsSync(CACHE_DIR)) mkdirSync(CACHE_DIR)
 
 export const GetPlayPerformance = (client: Bot, message: Message, score: Score, mode: 0 | 1 | 2 | 3): Promise<Performance> => {
     switch (mode) {

@@ -1,5 +1,5 @@
 import { Message } from "discord.js"
-import { model, Schema, UpdateQuery } from "mongoose"
+import { model, QueryCursor, Schema, UpdateQuery } from "mongoose"
 import { Bot } from "../../bot/client/Client"
 
 
@@ -41,8 +41,13 @@ export const RemoveFromTracking = (client: Bot, message: Message, id: number, ch
     GetCollection(client)?.updateOne({ id: id }, { $pull: { channels: channel } })
 }
 
-export const GetTrackedInChannel = (client: Bot, mesage: Message, channel: string) => {
-    GetCollection(client)?.find({channels: })
+export const GetTrackedInChannel = async (client: Bot, mesage: Message, channel: string) => {
+    let tracked = GetCollection(client)?.find({ channels: { $all: [channel] } })
+    let out = []
+    tracked.forEach((el: Tracking) => {
+        out.push(el)
+    })
+    return out
 }
 
 
