@@ -1,2 +1,2 @@
 require("./bot/index")
-require("./web/index")
+require("./web/docs/index")

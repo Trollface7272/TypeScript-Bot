@@ -37,29 +37,29 @@ export const Disconnect = async () => {
     database = null
 }
 
-export const OnMessage = async (discordClient: Bot, message: Message) => {
+export const OnMessage = async (client: Bot, message: Message) => {
     try {
-        await users.OnMessage(discordClient, message)
-        await guilds.OnMessage(discordClient, message)
+        await users.OnMessage(client, message)
+        await guilds.OnMessage(client, message)
     } catch (err) {
-        discordClient.logger.error(`Error writing into database => ` + err.message)
+        client.logger.error(`Error writing into database => ` + err.message)
     }
 }
 
-export const OnCommand = async (discordClient: Bot, message: Message) => {
+export const OnCommand = async (client: Bot, message: Message) => {
     try {
-        await users.OnCommand(discordClient, message)
-        await guilds.OnCommand(discordClient, message)
+        await users.OnCommand(client, message)
+        await guilds.OnCommand(client, message)
     } catch (err) {
-        discordClient.logger.error(`Error writing into database => ` + err.message)
+        client.logger.error(`Error writing into database => ` + err.message)
     }
 }
 
-export const SkeetkeyUsed = async (discordClient: Bot, message: Message) => {
+export const SkeetkeyUsed = async (client: Bot, message: Message) => {
     try {
-        await users.SkeetkeyUsed(discordClient, message)
-        await guilds.SkeetkeyUsed(discordClient, message)
+        await users.SkeetkeyUsed(client, message)
+        await guilds.SkeetkeyUsed(client, message)
     } catch (err) {
-        discordClient.logger.error(`Error writing into database => ` + err.message)
+        client.logger.error(`Error writing into database => ` + err.message)
     }
 }

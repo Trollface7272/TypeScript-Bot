@@ -1,4 +1,4 @@
-export var list = {
+export const List = {
     "Customization": ["Set Prefix"],
     "Info": ["Avatar", "Link", "Invite", "Ping"],
     "Moderation": ["Retard", "UnRetard", "Retard Roles List", "Retard Roles Add", "Retard Roles Remove", "Retard Roles Clear",],
