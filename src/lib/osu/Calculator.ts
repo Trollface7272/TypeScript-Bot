@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, readFileSync, writeFile, writeFileSync } from "f
 import { diff, parser, ppv2, std_accuracy } from "ojsama"
 import { DeepCopy } from "../../shared/GlobalUtils"
 import { Counts, Difficulty, Performance, Score } from "../../shared/interfaces/OsuApi"
-import { Bot } from "../client/Client"
+import { Bot } from "../../bot/client/Client"
 import { RoundFixed } from "./Utils"
 const CACHE_DIR = "./src/cache"
 

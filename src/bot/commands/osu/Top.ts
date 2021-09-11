@@ -2,9 +2,9 @@ import { Message, MessageEmbed } from "discord.js"
 import { Bot } from "../../client/Client"
 import { RunFunction } from "../../../shared/interfaces/Command"
 import { Beatmap, Profile, Score } from "../../../shared/interfaces/OsuApi"
-import { GetBeatmap, GetProfileCache, GetTop } from "../../osu/Api/Api"
-import { Args, CalculateAcc, ConvertBitMods, DateDiff, GetCombo, GetFlagUrl, GetHits, GetMapLink, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs, RankingEmotes, RoundFixed } from "../../osu/Utils"
-import { GetFcAccuracy, GetFcPerformance } from "../../osu/Calculator"
+import { GetBeatmap, GetProfileCache, GetTop } from "../../../lib/osu/Api/Api"
+import { Args, CalculateAcc, ConvertBitMods, DateDiff, GetCombo, GetFlagUrl, GetHits, GetMapLink, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs, RankingEmotes, RoundFixed } from "../../../lib/osu/Utils"
+import { GetFcAccuracy, GetFcPerformance } from "../../../lib/osu/Calculator"
 
 const FormatTopPlay = async (client: Bot, message: Message, score: Score, options: Args): Promise<string> => {
     let beatmap: Beatmap

@@ -2,8 +2,8 @@ import { Message, MessageEmbed } from "discord.js";
 import { Bot } from "../../client/Client";
 import { RunFunction } from "../../../shared/interfaces/Command";
 import { Profile, Score, ScoreParams } from "../../../shared/interfaces/OsuApi";
-import { GetProfileCache, GetTop } from "../../osu/Api/Api";
-import { Args, ConvertBitMods, ErrorIds, GetFlagUrl, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs } from "../../osu/Utils";
+import { GetProfileCache, GetTop } from "../../../lib/osu/Api/Api";
+import { Args, ConvertBitMods, ErrorIds, GetFlagUrl, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs } from "../../../lib/osu/Utils";
 
 
 export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {

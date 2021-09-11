@@ -1,6 +1,6 @@
 import { Emoji, Message } from "discord.js"
 import { modbits } from "ojsama"
-import { Bot } from "../client/Client"
+import { Bot } from "../../bot/client/Client"
 import { Counts, Objects } from "../../shared/interfaces/OsuApi"
 
 const CommandGamemodes = {
