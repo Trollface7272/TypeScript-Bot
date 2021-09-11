@@ -73,7 +73,6 @@ const CalcStdPerformance = async (client: Bot, message: Message, score: Score): 
         nmiss: score.Counts.miss,
         combo: score.Combo || mapParser.map.max_combo()
     }
-    console.log(data);
     
     const performance = ppv2(data)
     return {
