@@ -48,15 +48,13 @@ export const GetDiffWithMods = async (client: Bot, message: Message, mapId: numb
 }
 
 export const GetFcAccuracy = (client: Bot, message: Message, counts: Counts, mode: 0 | 1 | 2 | 3) => {
-    counts = DeepCopy(counts)
     switch (mode) {
         case 0:
-            counts[300] += counts.miss
             let acc = new std_accuracy({
-                n300: counts[300],
+                n300: counts[300] + counts.miss,
                 n100: counts[100],
                 n50: counts[50],
-                nmiss: counts.miss
+                nmiss: 0
             }).value()
             return RoundFixed(acc * 100)
         default:
