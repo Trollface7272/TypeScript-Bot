@@ -130,6 +130,7 @@ export interface Flags {
     acc: number
     map: number
     rand: boolean
+    l: boolean
 }
 
 export const ParseArgs = async (client: Bot, message: Message, args: string[]) => {
@@ -145,7 +146,8 @@ export const ParseArgs = async (client: Bot, message: Message, args: string[]) =
             mods: 0,
             acc: null,
             map: null,
-            rand: null
+            rand: null,
+            l: null
         }
     }
 
@@ -156,6 +158,7 @@ export const ParseArgs = async (client: Bot, message: Message, args: string[]) =
         else if (el == "o") { out.Flags.rv = true; out.Flags.b = true }
         else if (el == "rv") out.Flags.rv = true
         else if (el == "rand") out.Flags.rand = true
+        else if (el == "l") out.Flags.l = true
         else if (el == "g") {
             if (i == args.length - 1) break
             out.Flags.g = args[i + 1]

@@ -9,6 +9,7 @@ import { GetFcAccuracy, GetFcPerformance, GetPlayPerformance } from "../../../li
 export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {
     const options: Args = await ParseArgs(client, message, args)
     if (!options.Name) return HandleError(client, message, { code: ErrorIds.NoUsername }, "")
+    if (options.Flags.l) return RecentList(client, message, options)
 
     if (options.Flags.b) return RecentBest(client, message, options)
 
@@ -92,6 +93,58 @@ const RecentBest = async (client: Bot, message: Message, options: Args) => {
         .setDescription(desc)
         .setFooter(GetServer())
         .setThumbnail(GetProfileImage(profile.id))
+    message.channel.send({ embeds: [embed] })
+}
+
+const RecentList = async (client: Bot, message: Message, options: Args) => {
+    let profile: Profile
+    try { profile = await GetProfileCache({ u: options.Name, m: options.Flags.m }) }
+    catch (err) { return HandleError(client, message, err, options.Name) }
+
+    let recent: Array<Score>
+    try { recent = await GetRecent({ u: options.Name, m: options.Flags.m, limit: 5 }) }
+    catch (err) { return HandleError(client, message, err, profile.Name) }
+
+    if (recent.length == 0) return HandleError(client, message, { code: 5 }, profile.Name)
+
+
+
+    let beatmaps: Beatmap[] = []
+    let description = ""
+    for (let i = 0; i < recent.length; i++) {
+        const score = recent[i];
+        let beatmap: Beatmap
+        if (beatmaps[score.MapId]) beatmap = beatmaps[score.MapId]
+        else try {
+            beatmap = await GetBeatmap({ b: score.MapId, m: options.Flags.m, mods: score.Mods })
+            beatmaps[score.MapId] = beatmap
+        } catch (err) {
+            console.log(err)
+            return HandleError(client, message, err, profile.Name)
+        }
+
+        let fcppDisplay = ""
+        if (score.Counts.miss > 0 || score.Combo < beatmap.MaxCombo - 15)
+            fcppDisplay = `(${(await GetFcPerformance(client, message, score, options.Flags.m)).Total.Formatted}pp for ${GetFcAccuracy(client, message, score.Counts, options.Flags.m)}% FC) `
+
+        if (score.Combo < beatmap.MaxCombo - 15 || score.Counts.miss > 0) fcppDisplay = `(${(await GetFcPerformance(client, message, score, options.Flags.m)).Total.Formatted}pp for ${GetFcAccuracy(client, message, score.Counts, options.Flags.m)}% FC) `
+        description += `**${score.Index}. [${beatmap.Title} [${beatmap.Version}]](${GetMapLink(beatmap.id)}) +${ConvertBitMods(client, score.Mods)}** [${beatmap.Difficulty.Star.Formatted}★]\n`
+        description += `▸ ${RankingEmotes(client, score.Rank)} ▸ **${(await GetPlayPerformance(client, message, score, options.Flags.m)).Total.Formatted}pp** ${fcppDisplay}▸ ${CalculateAcc(client, score.Counts, options.Flags.m)}%\n`
+        description += `▸ ${score.Score.Formatted} ▸ ${GetCombo(client, score.Combo, beatmap.MaxCombo, options.Flags.m)} ▸ [${GetHits(client, score.Counts, options.Flags.m)}]\n`
+        description += `▸ Score Set ${DateDiff(client, score.Date, new Date(new Date().toLocaleString('en-US', { timeZone: "UTC" })))}Ago\n`
+        /*desc += `${beatmap.Title} [${beatmap.Version}] +${ConvertBitMods(client, score.Mods)} [${beatmap.Difficulty.Star.Formatted}★]\n`
+        desc += `▸ ${RankingEmotes(client, score.Rank)} ▸ **${(await GetPlayPerformance(client, message, score, options.Flags.m)).Total.Formatted}pp** ${fcppDisplay}▸ ${CalculateAcc(client, score.Counts, options.Flags.m)}%\n`
+        desc += `▸ ${score.Score.Formatted} ▸ x${score.Combo}/${beatmap.MaxCombo} ▸ [${GetHits(client, score.Counts, options.Flags.m)}]\n`
+        desc += `${DateDiff(client, score.Date, new Date(new Date().toLocaleString('en-US', { timeZone: "UTC" })))}Ago`*/
+
+        if (score.Rank == "F")
+            description += `▸ **Map Completion:** ${CalculateProgress(client, score.Counts, beatmap.Objects, options.Flags.m)}%\n`
+    }
+    const embed = new MessageEmbed()
+        .setAuthor(`Recent 5 plays for ${profile.Name}`, GetFlagUrl(profile.Country), GetProfileLink(profile.id, options.Flags.m))
+        .setThumbnail(GetProfileImage(profile.id))
+        .setDescription(description)
+        .setFooter(`${GetServer()}`)
     message.channel.send({ embeds: [embed] })
 }
 
