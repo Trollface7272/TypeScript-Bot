@@ -6,8 +6,8 @@ import { Score, ScoreParams } from '../../../shared/interfaces/OsuApi';
 const endpoint: string = linkBase + 'api/get_scores';
 
 export async function Get(params: ScoreParams): Promise<Array<Score>> {
-	const data: any = (await axios.get(endpoint, { params })).data;
-	if (!data) throw { code: 5 };
+	const data: any = (await axios.get(endpoint, { params })).data
+	if (!data || data == []) throw { code: 5 };
 	const out: Array<Score> = [];
 
 	for (let i = 0; i < data.length; i++) {

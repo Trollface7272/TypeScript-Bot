@@ -14,6 +14,6 @@
 		"skipDefaultLibCheck": true,
 		"resolveJsonModule": true
 	},
-	"include": ["src"],
+	"include": ["src", "src/web/dashboard/js/jquery-3.6.0.min.js", "src/web/dashboard/js/bootstrap.bundle.min.js"],
 	"exclude": ["node_modules", "**/*.spec.ts"]
 }

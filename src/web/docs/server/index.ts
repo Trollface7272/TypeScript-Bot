@@ -16,7 +16,7 @@ const port = (File as Config).web_ports.docs || 8080
 /*                     Main                      */
 /*-----------------------------------------------*/
 app.all("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "/html/index.html"))
+    res.sendFile(path.join(__dirname, "/../html/index.html"))
 })
 
 

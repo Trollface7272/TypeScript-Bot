@@ -9,7 +9,7 @@ const endpoint: string = linkBase + "api/get_user_best"
 
 export async function Get(params: TopParams): Promise<Array<Score>> {
     const data: any = (await axios.get(endpoint, { params })).data
-    if (!data) throw { code: 5 }
+    if (!data || data == []) throw { code: 5 }
     const out: Array<Score> = []
 
     for (let i = 0; i < data.length; i++) {
