@@ -1,0 +1,11 @@
+.bot-image {
+    max-width: 40px;
+}
+.servers {
+    background-color: rgb(85, 78, 75);
+    border: black 2px solid;
+    color: white;
+}
+.server {
+    max-width: 33%;
+}
