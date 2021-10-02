@@ -1,10 +1,9 @@
-import { Message } from "discord.js"
+import { EmbedField, Message } from "discord.js"
 import { Bot } from "../../client/Client"
 import { RunFunction } from "../../../shared/interfaces/Command"
 import { HandleError, ParseArgs } from "../../../lib/osu/Utils"
 import { Profile } from "../../../shared/interfaces/OsuApi"
 import { GetProfileCache } from "../../../lib/osu/Api/Api"
-import { Tracking } from "../../../shared/database/Tracking"
 
 
 export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {
@@ -19,10 +18,8 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
 
 const AddToTracking = async (client: Bot, message: Message, args: string[]): Promise<any> => {
     const options = await ParseArgs(client, message, args)
-    if (!options.Name)
-        return message.channel.send({
-            embeds: [client.embed({ description: "Specity username." }, message)]
-        })
+    if (!options.Name) return HandleError(client, message, {code: 1}, options.Name)
+
     let profile: Profile
     try { profile = await GetProfileCache({u:options.Name, m: options.Flags.m})}
     catch (err) { return HandleError(client, message, err, options.Name) }
@@ -35,13 +32,14 @@ const ClearTracking = async (client: Bot, message: Message) => {
 
 const ListTracking = async (client: Bot, message: Message, args: string[]) => {
     const tracked = await client.database.Tracking.GetTrackedInChannel(client, message, message.channel.id)
-    const fields = []
+    const fields: EmbedField[] = []
 
     for (let i = 0; i < tracked.length; i++) {
         const e = tracked[i];
         let profile = await GetProfileCache({u: e.id, m: e.m})
         fields.push({
-            name: profile.id,
+            name: profile.Name,
+            value: "\u200b",
             inline: true
         })
     }
@@ -51,4 +49,4 @@ const ListTracking = async (client: Bot, message: Message, args: string[]) => {
     }, message)]})
 }
 
-export const name: string = "track"
+export const name: string[] = ["track", "tracking"]

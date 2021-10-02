@@ -24,6 +24,8 @@ const FormatTopPlay = async (client: Bot, message: Message, score: Score, option
 export const run: RunFunction = async (client: Bot, message: Message, args: Array<string>) => {
     const options: Args = await ParseArgs(client, message, args)
 
+    if (!options.Name) return HandleError(client, message, {code: 1}, options.Name)
+
     if ((options.Flags.g) && !(options.Flags.b || options.Flags.rv)) return GreaterCount(client, message, options)
 
     let profile: Profile

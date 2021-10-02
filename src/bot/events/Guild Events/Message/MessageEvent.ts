@@ -7,8 +7,11 @@ import { Filter } from "../../../moderation/Filter"
 export const run: RunFunction = async (client: Bot, message: Message) => {
     if (message.author.bot || !message.guild) return
     client.database.OnMessage(client, message)
+    
     //if (await Filter(client, message)) return
-    const prefix = await client.database.Guilds.GetPrefix(client, message)
+    var prefix: string[]
+    if (process.argv.indexOf("-prefix") !== -1) prefix = [process.argv[process.argv.indexOf("-prefix") + 1]]
+    else prefix = await client.database.Guilds.GetPrefix(client, message)
     RunTrigger(client, message)
 
     let isCommand = false
