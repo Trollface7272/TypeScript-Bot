@@ -9,6 +9,9 @@ import { GetDiffWithMods, GetFcAccuracy, GetFcPerformance } from "../../../lib/o
 
 export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {
     const options = await ParseArgs(client, message, args)
+
+    if (!options.Name) return HandleError(client, message, {code: 1}, options.Name)
+    
     let profile: Profile
     try { profile = await GetProfile({ u: options.Name, m: options.Flags.m }) }
     catch (err) { return HandleError(client, message, err, options.Name) }
