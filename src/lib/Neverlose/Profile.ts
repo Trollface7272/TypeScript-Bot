@@ -3,7 +3,7 @@ import { database } from "../../shared/database/Main"
 
 
 export const GetProfile = async (name: string) => {
-    let profile = (await axios.get(`https://forum.neverlose.cc/u/${name}.json`)).data
+    let profile = (await axios.post(`https://forum.neverlose.cc/u/${name}.json`)).data
     if (profile.errors) throw new Error("Profile not found")
 
     return {
