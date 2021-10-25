@@ -9,6 +9,7 @@ export async function Get(params: ScoreParams): Promise<Array<Score>> {
 	const data: any = (await axios.get(endpoint, { params })).data
 	if (!data || data == []) throw { code: 5 };
 	const out: Array<Score> = [];
+	if (data.length == 0) throw { code: 7 }
 
 	for (let i = 0; i < data.length; i++) {
 		const el = data[i];
