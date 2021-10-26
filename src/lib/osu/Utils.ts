@@ -224,7 +224,7 @@ export function CommaFormat(num: any): string {
 }
 
 export const GetFlagUrl = (country: string): string => {
-    return `https://flagcdn.com/w20/${country.toLowerCase()}.png`
+    return `https://flagcdn.com/w80/${country.toLowerCase()}.png`
 }
 
 export const GetProfileLink = (id: number, mode: 0 | 1 | 2 | 3): string => {
