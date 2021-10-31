@@ -6,6 +6,7 @@ const messages = [
     "727", "When you see it", "WHEN YOU SEE IT", "When you fucking see it", "WYSI", "727 WYSI", "WHEN YOU FUCKING SEE IT"
 ]
 export const run: RunFunction = async (client: Bot, message: Message) => {
+    if (message.content.toLowerCase().includes("trollface7272@post.cz")) return
     message.reply({content: messages[Math.round(Math.random() * messages.length)], files: ["https://i.imgur.com/3sFZs6Q.gif"]})
 }
 
