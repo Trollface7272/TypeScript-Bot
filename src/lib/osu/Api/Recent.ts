@@ -5,9 +5,25 @@ import { RecentParams, Score } from "../../../shared/interfaces/OsuApi"
 
 const endpoint: string = linkBase + "api/get_user_recent"
 
+interface user_recent {
+    beatmap_id:   string
+    score:        string
+    maxcombo:     string
+    count50:      string
+    count100:     string
+    count300:     string
+    countmiss:    string
+    countkatu:    string
+    countgeki:    string
+    perfect:      string
+    enabled_mods: string
+    user_id:      string
+    date:         string
+    rank:         string
+}
 export async function Get(params: RecentParams): Promise<Array<Score>> {
-    const data: any = (await axios.get(endpoint, { params })).data
-    if (!data || data == []) throw { code: 5 }
+    const data: user_recent[] = (await axios.get(endpoint, { params })).data
+    if (!data || data.length < 1) throw { code: 5 }
     const out: Array<Score> = []
 
     for (let i = 0; i < data.length; i++) {

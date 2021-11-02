@@ -1,8 +1,7 @@
-import { channel } from "diagnostics_channel";
-import { Message, Role } from "discord.js";
-import { Bot } from "../../client/Client";
-import { AddRetardRole } from "../../../shared/database/Guilds";
-import { RunFunction } from "../../../shared/interfaces/Command";
+import { Message, Role } from "discord.js"
+import { Bot } from "../../client/Client"
+import { AddRetardRole } from "../../../shared/database/Guilds"
+import { RunFunction } from "../../../shared/interfaces/Command"
 
 const ErrorCodes = {
     "1": "Invalid syntax",
@@ -14,14 +13,14 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
     if (args[0] == "list") return List(client, message)
     if (args[0] == "add") return Add(client, message, args)
     if (args[0] == "remove") return Remove(client, message, args)
-    if (args[0] == "clear") return Clear(client, message, args)
+    if (args[0] == "clear") return Clear(client, message)
 }
 
 const List = async (client: Bot, message: Message) => {
-    let roles = await client.database.Guilds.GetRetardRoles(client, message)
+    const roles = await client.database.Guilds.GetRetardRoles(client, message)
     let out = ""
     for (let i = 0; i < roles?.length; i++) {
-        let role = message.guild.roles.cache.get(roles[i]) || await message.guild.roles.fetch(roles[i])
+        const role = message.guild.roles.cache.get(roles[i]) || await message.guild.roles.fetch(roles[i])
         out += `${i + 1}. <@&${role.id}>\n`
     }
     message.channel.send({ embeds: [client.embed({ description: out, title: "List of retard roles:" }, message)], allowedMentions: {roles: []} })
@@ -30,7 +29,7 @@ const List = async (client: Bot, message: Message) => {
 const Add = async (client: Bot, message: Message, args: string[]) => {
     if (!message.member.permissions.has("ADMINISTRATOR")) return HandleError(client, message, 3)
     let position = -1
-    let offset = args[1] == "before" ? -1 : args[1] == "after" ? 0 : Infinity
+    const offset = args[1] == "before" ? -1 : args[1] == "after" ? 0 : Infinity
     if (offset != Infinity) {
         if (isNaN(parseInt(args[2]))) { return HandleError(client, message, 1) }
         position = parseInt(args[2]) + offset
@@ -39,7 +38,7 @@ const Add = async (client: Bot, message: Message, args: string[]) => {
     if (message.mentions.roles.size > 0) {
         role = message.mentions.roles.first()
     } else {
-        let id = offset == Infinity ? args[1] : args[3]
+        const id = offset == Infinity ? args[1] : args[3]
         if (!id) return HandleError(client, message, 1)
         role = message.guild.roles.cache.get(id) || await message.guild.roles.fetch(id)
     }
@@ -49,7 +48,7 @@ const Add = async (client: Bot, message: Message, args: string[]) => {
     client.logger.debug({position, offset, id:role.id,})
 }
 
-const Clear = async (client: Bot, message: Message, args: string[]) => {
+const Clear = async (client: Bot, message: Message) => {
     if (!message.member.permissions.has("ADMINISTRATOR")) return HandleError(client, message, 3)
     client.database.Guilds.ClearRetardRoles(client, message)
     message.channel.send({embeds: [client.embed({description: `Successfully cleared retard roles list` }, message)], allowedMentions: {roles: []}})
@@ -71,9 +70,10 @@ const Remove = async (client: Bot, message: Message, args: string[]) => {
     message.channel.send({embeds: [client.embed({description: `Successfully removed <@&${id}> from retard role list.` }, message)], allowedMentions: {roles: []}})
 }
 
+// eslint-disable-next-line
 const HandleError = (client: Bot, message: Message, error: any) => {
     client.logger.debug(ErrorCodes[error] ? ErrorCodes[error] : error)
     message.channel.send({embeds: [client.embed({description: ErrorCodes[error]}, message)]})
 }
 
-export const name: string = "retardroles"
+export const name = "retardroles"

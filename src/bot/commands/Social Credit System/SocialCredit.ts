@@ -4,7 +4,14 @@ import { RunFunction } from "../../../shared/interfaces/Command";
 
 
 export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {
+    switch(args[0]) {
+        case "enable":
 
+    }
 }
 
-export const name: string = "gbdskfgldfgldk"
+const EnableSocialCredit = () => {
+    
+}
+
+export const name: string = "socialcredit"

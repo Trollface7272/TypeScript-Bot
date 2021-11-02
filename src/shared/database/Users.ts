@@ -1,14 +1,13 @@
 import { model, Schema } from "mongoose"
-import consola, { Consola } from "consola"
 import { Message } from 'discord.js'
 import { Bot } from "../../bot/client/Client"
 
 interface User {
-    id: String,
-    name: String,
+    id: string,
+    name: string,
     messages: number,
     commands: number,
-    osu_name: String,
+    osu_name: string,
     skeetkey_uses: number
 }
 
@@ -21,12 +20,10 @@ const schema = new Schema<User>({
     osu_name: String
 })
 
-const logger: Consola = consola
-
 const Model = model<User>("User", schema)
 
 async function CreateUser(message: Message): Promise<User> {
-    let doc = new Model({
+    const doc = new Model({
         id: message.author.id,
         name: message.author.tag,
         messages: 1,
@@ -52,7 +49,7 @@ export const SkeetkeyUsed = async (client: Bot, message: Message) => {
     if (res.matchedCount < 1) await CreateUser(message)
 }
 
-export const GetOsuUsername = async (client: Bot, message: Message): Promise<String|false> => {
+export const GetOsuUsername = async (client: Bot, message: Message): Promise<string|false> => {
     return (await GetCollection(client)?.findOne({id: message.author.id}) as User).osu_name || false
 }
 

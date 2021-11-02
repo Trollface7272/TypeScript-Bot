@@ -5,12 +5,45 @@ import consola from "consola"
 import { Profile, ProfileParams } from "../../../shared/interfaces/OsuApi"
 
 
+interface event {          
+    display_html:         string
+    beatmap_id:           string
+    beatmapset_id:        string
+    date:                 string
+    epicfactor:           string
+}
+
+interface user {
+    user_id:              string
+    username:             string
+    join_date:            string
+    count300:             string
+    count100:             string
+    count50:              string
+    playcount:            string
+    ranked_score:         string
+    total_score:          string
+    pp_rank:              string
+    level:                string
+    pp_raw:               string
+    accuracy:             string
+    count_rank_ss:        string
+    count_rank_ssh:       string
+    count_rank_s:         string
+    count_rank_sh:        string
+    count_rank_a:         string
+    country:              string
+    total_seconds_played: string
+    pp_country_rank:      string
+    events:               event[]
+}
+
 
 const endpoint: string = linkBase + "api/get_user"
 export async function Get(params: ProfileParams): Promise<Profile> {
     consola.debug({endpoint,params})
     
-    const data: any = (await axios.get(endpoint, { params })).data[0]
+    const data: user = (await axios.get(endpoint, { params })).data[0]
     if (!data) throw { code: 4 }
     consola.debug({data})
     return {
@@ -44,7 +77,7 @@ export async function Get(params: ProfileParams): Promise<Profile> {
         },
         Accuracy: {
             raw: parseFloat(data.accuracy),
-            Formatted: RoundFixed(data.accuracy)
+            Formatted: RoundFixed(parseFloat(data.accuracy))
         },
         Playtime: {
             Raw: parseInt(data.total_seconds_played),

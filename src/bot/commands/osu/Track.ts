@@ -10,12 +10,13 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
     switch (args.shift()) {
         case "add": return AddToTracking(client, message, args)
         case "clear": return ClearTracking(client, message)
-        case "list": return ListTracking(client, message, args)
+        case "list": return ListTracking(client, message)
         default:
             break;
     }
 }
 
+// eslint-disable-next-line
 const AddToTracking = async (client: Bot, message: Message, args: string[]): Promise<any> => {
     const options = await ParseArgs(client, message, args)
     if (!options.Name) return HandleError(client, message, {code: 1}, options.Name)
@@ -30,13 +31,13 @@ const ClearTracking = async (client: Bot, message: Message) => {
     client.database.Tracking.ClearTracking(client, message, message.channel.id)
 }
 
-const ListTracking = async (client: Bot, message: Message, args: string[]) => {
+const ListTracking = async (client: Bot, message: Message) => {
     const tracked = await client.database.Tracking.GetTrackedInChannel(client, message, message.channel.id)
     const fields: EmbedField[] = []
 
     for (let i = 0; i < tracked.length; i++) {
         const e = tracked[i];
-        let profile = await GetProfileCache({u: e.id, m: e.m})
+        const profile = await GetProfileCache({u: e.id, m: e.m})
         fields.push({
             name: profile.Name,
             value: "\u200b",

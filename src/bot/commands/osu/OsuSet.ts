@@ -8,4 +8,4 @@ export const run: RunFunction = async (client: Bot, message: Message, args: Arra
     message.channel.send({embeds: [client.embed({description: `Successfully set your osu username to \`${args[0]}\``}, message)]})
 }
 
-export const name: string = "osuset"
+export const name = "osuset"

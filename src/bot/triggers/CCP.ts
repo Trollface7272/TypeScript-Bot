@@ -29,7 +29,7 @@ export const run: RunFunction = async (client: Bot, message: Message) => {
     message.reply({content: messages[0]})
 }
 
-export const name: string = "CCP"
-export const caseSensitive: boolean = false
-export const matchEmotes: boolean = true
-export const regex: RegExp = /(taiwan|:flag_tw:|🇹🇼)/
+export const name = "CCP"
+export const caseSensitive = false
+export const matchEmotes = true
+export const regex = /(taiwan|:flag_tw:|🇹🇼)/

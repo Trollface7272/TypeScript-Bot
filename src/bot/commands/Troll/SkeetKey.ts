@@ -18,4 +18,4 @@ function Random(min: number, max: number) {
     return Math.random() * (max - min) + min;
 }
 
-export const name: string = "skeetkey"
+export const name = "skeetkey"

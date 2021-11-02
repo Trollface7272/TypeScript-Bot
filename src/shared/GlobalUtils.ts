@@ -1,5 +1,7 @@
+// eslint-disable-next-line
 export const DeepCopy = (obj: any) => {
-    var copy: any
+    // eslint-disable-next-line
+    let copy: any
 
     // Handle the 3 simple types, and null or undefined
     if (null == obj || "object" != typeof obj) return obj;
@@ -14,7 +16,7 @@ export const DeepCopy = (obj: any) => {
     // Handle Array
     if (obj instanceof Array) {
         copy = [];
-        for (var i = 0, len = obj.length; i < len; i++) {
+        for (let i = 0, len = obj.length; i < len; i++) {
             copy[i] = DeepCopy(obj[i]);
         }
         return copy;
@@ -23,7 +25,8 @@ export const DeepCopy = (obj: any) => {
     // Handle Object
     if (obj instanceof Object) {
         copy = {};
-        for (var attr in obj) {
+        for (const attr in obj) {
+            // eslint-disable-next-line
             if (obj.hasOwnProperty(attr)) copy[attr] = DeepCopy(obj[attr]);
         }
         return copy;

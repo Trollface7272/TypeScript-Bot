@@ -1,7 +1,7 @@
 import { Config } from "../../../shared/interfaces/Config"
 import * as File from "../../../../config.json"
 export const key: string = (File as Config).osu_token
-export const linkBase: string = "https://osu.ppy.sh/"
+export const linkBase = "https://osu.ppy.sh/"
 
 import { Get as ApiGetBeatmap, GetShort as ApiGetIncompleteBeatmap } from "./Beatmap"
 import { Get as ApiGetProfile } from "./Profile"

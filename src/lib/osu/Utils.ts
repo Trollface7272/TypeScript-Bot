@@ -132,10 +132,13 @@ export interface Flags {
     rand: boolean
     l: boolean
 }
+interface Error {
+    code: number
+}
 
 export const ParseArgs = async (client: Bot, message: Message, args: string[]) => {
-    let cmd = message.content.toLocaleLowerCase().split(" ")[0].substr(1)
-    let out = {
+    const cmd = message.content.toLocaleLowerCase().split(" ")[0].substr(1)
+    const out = {
         Name: null,
         Flags: {
             m: CommandGamemodes[cmd] || 0,
@@ -209,17 +212,18 @@ const FindMapInConversation = async (msgs: Message): Promise<string> => {
     return map || "Not Found"
 }
 
-export const RoundFixed = (num: number, digits: number = 2): string => {
+export const RoundFixed = (num: number, digits = 2): string => {
     return (Math.round(num * Math.pow(10, digits)) / Math.pow(10, digits)).toFixed(digits)
 }
 
-export function CommaFormat(num: any): string {
-    if (typeof (num) == "number") num = num.toString()
-    num = num.split(".")
-    let decimals = num[1] ? "." + num[1] : ""
-    num = num[0]
+export function CommaFormat(num: number|string): string {
+    let str: string
+    str = String(num)
+    const arr = str.split(".")
+    const decimals = arr[1] ? "." + arr[1] : ""
+    str = arr[0]
     let formatted = ""
-    for (let i = num.length - 1; i >= 0; i--) formatted = ((i - num.length) % 3 == 0 && i > 0 ? "," : "") + num[i] + formatted
+    for (let i = arr.length - 1; i >= 0; i--) formatted = ((i - str.length) % 3 == 0 && i > 0 ? "," : "") + arr[i] + formatted
     return formatted + decimals
 }
 
@@ -239,9 +243,9 @@ export const GetProfileImage = (id: number): string => {
     return `http://s.ppy.sh/a/${id}?newFix=${new Date().getTime()}`
 }
 
-export const HandleError = (client: Bot, message: Message, err: any, name: string): void => {
+export const HandleError = (client: Bot, message: Message, err: Error, name: string): void => {
     if (err.code) message.channel.send({ embeds: [client.embed({ description: Errors[err.code].replace("${Name}", name) }, message)] })
-    else client.logger.error(new Error(err))
+    else client.logger.error(new Error(JSON.stringify(err)))
 }
 
 export const RankingEmotes = (client: Bot, ranking: string): Emoji => {
@@ -321,7 +325,7 @@ export const ConvertBitMods = (client: Bot, mods: number): string => {
     let resultMods = ""
     if (mods & Mods.Bit.Perfect) mods &= ~Mods.Bit.SuddenDeath
     if (mods & Mods.Bit.Nightcore) mods &= ~Mods.Bit.DoubleTime
-    for (let mod in Mods.Bit) {
+    for (const mod in Mods.Bit) {
         if (Mods.Bit[mod] & mods)
             resultMods += Mods.Names[mod]
     }
@@ -337,24 +341,24 @@ export const GetMapImage = (id: number): string => {
 }
 
 export const DateDiff = (client: Bot, date1: Date, date2: Date) => {
-    let diff: number = date2.getTime() - date1.getTime()
-    let out: Array<string> = []
-    let years: number = Math.floor(diff / 1000 / 60 / 60 / 24 / 30 / 12)
+    const diff: number = date2.getTime() - date1.getTime()
+    const out: Array<string> = []
+    const years: number = Math.floor(diff / 1000 / 60 / 60 / 24 / 30 / 12)
     if (years > 0) out.push(`${years} Year${years > 1 ? "s" : ""} `)
 
-    let months: number = Math.floor(diff / 1000 / 60 / 60 / 24 / 30 % 12)
+    const months: number = Math.floor(diff / 1000 / 60 / 60 / 24 / 30 % 12)
     if (months > 0) out.push(`${months} Month${months > 1 ? "s" : ""} `)
 
-    let days: number = Math.floor(diff / 1000 / 60 / 60 / 24 % 30)
+    const days: number = Math.floor(diff / 1000 / 60 / 60 / 24 % 30)
     if (days > 0) out.push(`${days} Day${days > 1 ? "s" : ""} `)
 
-    let hours: number = Math.floor(diff / 1000 / 60 / 60 % 24)
+    const hours: number = Math.floor(diff / 1000 / 60 / 60 % 24)
     if (hours > 0) out.push(`${hours} Hour${hours > 1 ? "s" : ""} `)
 
-    let minutes: number = Math.floor(diff / 1000 / 60 % 60)
+    const minutes: number = Math.floor(diff / 1000 / 60 % 60)
     if (minutes > 0) out.push(`${minutes} Minute${minutes > 1 ? "s" : ""} `)
 
-    let seconds: number = Math.floor(diff / 1000 % 60)
+    const seconds: number = Math.floor(diff / 1000 % 60)
     if (seconds > 0) out.push(`${seconds} Second${seconds > 1 ? "s" : ""} `)
 
     return out[0] + (out[1] || "")

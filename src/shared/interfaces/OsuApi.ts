@@ -105,8 +105,8 @@ export interface Beatmap {
     Source: string
     Title: string
     Version: string
-    Genre: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 9 | 10 | 11 | 12 | 13 | 14
-    Language: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14
+    Genre: number
+    Language: number
     Tags: string
     HasStoryboard: boolean
     HasVideo: boolean
@@ -176,9 +176,9 @@ export interface Beatmap {
     }
     Objects: Objects
     MaxCombo: number
-    Gamemode: 0 | 1 | 2 | 3
+    Gamemode: number
     Approved: string
-    ApprovedRaw: -2 | -1 | 0 | 1 | 2 | 3 | 4
+    ApprovedRaw: number
     SubmitedDate: Date
     ApprovedDate: Date
     LastUpdate: Date
@@ -226,7 +226,7 @@ export interface ShortBeatmap {
     }
     Objects: Objects
     MaxCombo: number
-    Gamemode: 0 | 1 | 2 | 3
+    Gamemode: number
 }
 
 export interface BeatmapParams {
@@ -244,11 +244,11 @@ export interface BeatmapParams {
 }
 
 export interface ProfileParams {
-    k?: String
-    u: Number | String
+    k?: string
+    u: number | string
     m?: 0 | 1 | 2 | 3
     type?: "string" | "id"
-    event_days?: Number
+    event_days?: number
 }
 
 export interface RecentParams {

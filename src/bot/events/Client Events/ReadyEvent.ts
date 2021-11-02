@@ -14,7 +14,7 @@ export const run: RunFunction = async (client) => {
 
 const DisplayGuilds = async (client: Bot) => {
     const guilds = await client.guilds.fetch()
-    let o = {
+    const o = {
         "List of all guilds:": []
     }
     guilds.each(guild => {
@@ -23,20 +23,22 @@ const DisplayGuilds = async (client: Bot) => {
     client.logger.info(o)
 }
 
+// eslint-disable-next-line
 const LogStatusLinks = async (client: Bot) => {
     (await client.guilds.cache.get("854006362979827742").members.fetch()).forEach(e => {
-        let activities = e.presence.activities
+        const activities = e.presence.activities
         
         for (let i = 0; i < activities.length; i++) {
             const el = activities[i]
-            let name = el.name?.toLowerCase()
-            let state = el.state?.toLowerCase()
+            const name = el.name?.toLowerCase()
+            const state = el.state?.toLowerCase()
             if (name?.includes(".gg") || name?.includes("resell") || name?.includes("re sell") || name?.includes("re-sell") || name?.includes("vouch")) client.logger.info(el.name)
             if (state?.includes(".gg") || state?.includes("resell") || state?.includes("re sell") || state?.includes("re-sell") || state?.includes("vouch")) client.logger.info(el.state)
         }
     })
 }
 
+// eslint-disable-next-line
 const FunnyBansThing = async (client: Bot) => {
     let out = {};
     (await client.guilds.cache.get("854006362979827742").bans.fetch()).forEach(el => {
@@ -50,8 +52,8 @@ const FunnyBansThing = async (client: Bot) => {
             out[el.reason].count++
         }
     })
-    let sorted = []
-    for (let key in out) {
+    const sorted = []
+    for (const key in out) {
         sorted.push([key, out[key]])
     }
     sorted.sort((el1, el2) => el1[1].count - el2[1].count)
@@ -59,4 +61,4 @@ const FunnyBansThing = async (client: Bot) => {
     sorted.forEach(e => out[e[0]] = e[1])
     client.logger.log(out)
 }
-export const name: string = 'ready'
+export const name = 'ready'

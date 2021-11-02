@@ -6,7 +6,7 @@ import consola, { Consola, LogLevel } from "consola"
 import axios from "axios"
 import { Beatmap, Counts, Score } from "../../../shared/interfaces/OsuApi"
 
-let logger: Consola = consola
+const logger: Consola = consola
 
 function TotalHits (counts: Counts) {
     return counts[50] + counts[100] + counts[300] + counts.miss
@@ -21,15 +21,15 @@ function Accuracy (counts: Counts) {
 }
 
 function TotalValue (score: Score, beatmap: Beatmap) {
-    let objects = beatmap.Objects
-    let counts = score.Counts
-    let mods = score.Mods
+    const objects = beatmap.Objects
+    const counts = score.Counts
+    const mods = score.Mods
     let multiplier = 1.12
 
     if (mods & Mods.Bit.NoFail)
         multiplier *= Math.max(0.9, 1 - 0.02 * counts.miss)
 
-    let numTotalHits = TotalHits(counts)
+    const numTotalHits = TotalHits(counts)
 
     if ((mods & Mods.Bit.SpunOut) > 0)
         multiplier *= 1 - Math.pow(objects.Spinner / numTotalHits, 0.85)
@@ -42,9 +42,9 @@ function TotalValue (score: Score, beatmap: Beatmap) {
 }
 
 function Aim (score: Score, beatmap: Beatmap) {
-    let difficulty = beatmap.Difficulty
-    let counts = score.Counts
-    let mods = score.Mods
+    const difficulty = beatmap.Difficulty
+    const counts = score.Counts
+    const mods = score.Mods
     let rawAim = difficulty.Aim.raw
 
     if (mods & Mods.Bit.TouchDevice)
@@ -52,9 +52,9 @@ function Aim (score: Score, beatmap: Beatmap) {
 
     let _aimValue = Math.pow(5 * Math.max(1, rawAim / 0.0675) - 4, 3) / 100000
 
-    let numTotalHits = TotalHits(counts)
+    const numTotalHits = TotalHits(counts)
 
-    let LengthBonus = 0.95 + 0.4 * Math.min(1, numTotalHits / 2000) +
+    const LengthBonus = 0.95 + 0.4 * Math.min(1, numTotalHits / 2000) +
         (numTotalHits > 2000 ? Math.log10(numTotalHits) / 2000 * 0.5 : 0)
 
     _aimValue *= LengthBonus
@@ -62,21 +62,21 @@ function Aim (score: Score, beatmap: Beatmap) {
     if (counts.miss > 0)
         _aimValue *= 0.97 * Math.pow(1 - Math.pow(counts.miss / numTotalHits, 0.775), counts.miss)
 
-    let combo = score.Combo
-    let maxCombo = beatmap.MaxCombo
+    const combo = score.Combo
+    const maxCombo = beatmap.MaxCombo
     if (combo > 0)
         _aimValue *= Math.min(Math.pow(maxCombo, 0.8) / Math.pow(combo, 0.8), 1)
 
-    let approachRate = beatmap.Difficulty.Approach.raw
+    const approachRate = beatmap.Difficulty.Approach.raw
     let approachRateFactor = 0.0
     if (approachRate > 10.33)
         approachRateFactor = approachRate - 10.33
     else if (approachRate < 8)
         approachRateFactor = 0.025 * (8 - approachRate)
 
-    let approachRateTotalHitsFactor = 1 / (1 + Math.exp(-(0.007 * (numTotalHits) - 400)))
+    const approachRateTotalHitsFactor = 1 / (1 + Math.exp(-(0.007 * (numTotalHits) - 400)))
 
-    let approachRateBonus = 1 + (0.03 + 0.37 * approachRateTotalHitsFactor) * approachRateFactor
+    const approachRateBonus = 1 + (0.03 + 0.37 * approachRateTotalHitsFactor) * approachRateFactor
 
     if (mods & Mods.Bit.Hidden)
         _aimValue *= 1 + 0.04 * (12 - approachRate)
@@ -99,34 +99,34 @@ function Aim (score: Score, beatmap: Beatmap) {
 }
 
 function Speed (score: Score, beatmap: Beatmap) {
-    let difficulty = beatmap.Difficulty
-    let counts = score.Counts
-    let mods = score.Mods
-    let rawSpeed = difficulty.Speed.raw
+    const difficulty = beatmap.Difficulty
+    const counts = score.Counts
+    const mods = score.Mods
+    const rawSpeed = difficulty.Speed.raw
 
     let _speedValue = Math.pow(5 * Math.max(1, rawSpeed / 0.0675) - 4, 3) / 100000
 
-    let numTotalHits = TotalHits(counts)
+    const numTotalHits = TotalHits(counts)
 
-    let lengthBonus = 0.95 + 0.4 * Math.min(1, numTotalHits / 2000) +
+    const lengthBonus = 0.95 + 0.4 * Math.min(1, numTotalHits / 2000) +
         (numTotalHits > 2000 ? Math.log10(numTotalHits / 2000) * 0.5 : 0)
     _speedValue *= lengthBonus
 
     if (counts.miss > 0)
         _speedValue *= 0.97 * Math.pow(1 - Math.pow(counts.miss / numTotalHits, 0.775), Math.pow(counts.miss, 0.875))
 
-    let maxCombo = beatmap.MaxCombo
-    let combo = score.Combo
+    const maxCombo = beatmap.MaxCombo
+    const combo = score.Combo
 
     if (maxCombo > 0)
         _speedValue *= Math.min(Math.pow(combo, 0.8) / Math.pow(maxCombo, 0.8), 1)
 
-    let approachRate = difficulty.Approach.raw
+    const approachRate = difficulty.Approach.raw
     let approachRateFactor = 0
     if (approachRate > 10.33)
         approachRateFactor = approachRate - 10.33
 
-    let approachRateTotalHitsFactor = 1 / (1 + Math.exp(-(0.007 * (numTotalHits - 400))))
+    const approachRateTotalHitsFactor = 1 / (1 + Math.exp(-(0.007 * (numTotalHits - 400))))
 
     _speedValue *= 1 + (0.03 + 0.37 * approachRateTotalHitsFactor) * approachRateFactor
 
@@ -142,13 +142,13 @@ function Speed (score: Score, beatmap: Beatmap) {
 }
 
 function Acc (score: Score, beatmap: Beatmap) {
-    let difficulty = beatmap.Difficulty
-    let counts = score.Counts
-    let mods = score.Mods
-    let objects = beatmap.Objects
+    const difficulty = beatmap.Difficulty
+    const counts = score.Counts
+    const mods = score.Mods
+    const objects = beatmap.Objects
     let betterAccuracyPercentage: number
 
-    let numHitObjectsWithAccuracy = objects.Circle
+    const numHitObjectsWithAccuracy = objects.Circle
     if (numHitObjectsWithAccuracy > 0)
         betterAccuracyPercentage = ((counts[300] - (TotalHits(counts) - numHitObjectsWithAccuracy)) * 6 + counts[100] * 2 + counts[50]) / (numHitObjectsWithAccuracy * 6)
     else
@@ -172,13 +172,14 @@ function Acc (score: Score, beatmap: Beatmap) {
     return _accValue
 }
 
+// eslint-disable-next-line
 async function Test (userId: string) {
-    let scores = await GetTop({ u: userId, limit: 10 })
+    const scores = await GetTop({ u: userId, limit: 10 })
     logger.level = LogLevel.Debug
     for (let i = 0; i < scores.length; i++) {
         const score = scores[i]
-        let beatmap = await GetBeatmap({ b: score.MapId, mods: score.Mods })
-        let calculated = TotalValue(score, beatmap)
+        const beatmap = await GetBeatmap({ b: score.MapId, mods: score.Mods })
+        const calculated = TotalValue(score, beatmap)
         logger.info(`${score.Performance.raw} - Expected result`)
         logger.info(`${calculated.toFixed(3)} - Result`)
         if (score.Performance.raw - score.Performance.raw / 0.05 < calculated && score.Performance.raw + score.Performance.raw / 0.05 > calculated)
@@ -188,9 +189,9 @@ async function Test (userId: string) {
 }
 
 async function Test2 (userId: string) {
-    let score = (await GetTop({ u: userId, limit: 1 }))[0]
-    let beatmap = (await axios.get("https://osu.ppy.sh/osu/" + score.MapId)).data
-    let data = new parser().feed(beatmap)
+    const score = (await GetTop({ u: userId, limit: 1 }))[0]
+    const beatmap = (await axios.get("https://osu.ppy.sh/osu/" + score.MapId)).data
+    const data = new parser().feed(beatmap)
     logger.debug(data)
 }
 logger.level = LogLevel.Debug

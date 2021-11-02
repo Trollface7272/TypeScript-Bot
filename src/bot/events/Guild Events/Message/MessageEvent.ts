@@ -2,23 +2,24 @@ import { RunFunction } from "../../../../shared/interfaces/Event"
 import { Message } from "discord.js"
 import { Command } from "../../../../shared/interfaces/Command"
 import { Bot } from "../../../client/Client"
-import { Filter } from "../../../moderation/Filter"
 
 export const run: RunFunction = async (client: Bot, message: Message) => {
     if (message.author.bot || !message.guild) return
     client.database.OnMessage(client, message)
     
     //if (await Filter(client, message)) return
-    var prefix: string[]
+    let prefix: string[]
     if (process.argv.indexOf("-prefix") !== -1) prefix = [process.argv[process.argv.indexOf("-prefix") + 1]]
     else prefix = await client.database.Guilds.GetPrefix(client, message)
+
     RunTrigger(client, message)
 
-    let isCommand = false
+    let selectedPrefix = -1
     for (let i = 0; i < prefix.length; i++)
-        if (message.content.toLocaleLowerCase().startsWith(prefix[i])) isCommand = true
-    if (!isCommand) return
-    const args: string[] = message.content.slice(prefix.length).trim().split(/ +/g)
+        if (message.content.toLocaleLowerCase().startsWith(prefix[i])) selectedPrefix = i
+    
+    if (selectedPrefix == -1) return
+    const args: string[] = message.content.slice(prefix[selectedPrefix].length).trim().split(/ +/g)
 
     RunCommand(client, message, args)
     
@@ -30,6 +31,7 @@ const RunCommand = (client: Bot, message: Message, args: string[]) => {
     
     if (!command) return
     client.database.OnCommand(client, message)
+    // eslint-disable-next-line
     command.run(client, message, args).catch((reason: any) => {
         message.channel.send({embeds: [client.embed({
             description: `Unexpected error: ${reason}`
@@ -41,7 +43,7 @@ const RunCommand = (client: Bot, message: Message, args: string[]) => {
 const RunTrigger = (client: Bot, message: Message) => {
     client.triggers.forEach(el => {
         let content = el.caseSensitive ? message.content : message.content.toLowerCase()
-        let emojis = content.match(/(:[^:\s]+:|<:[^:\s]+:[0-9]+>|<a:[^:\s]+:[0-9]+>)/g)
+        const emojis = content.match(/(:[^:\s]+:|<:[^:\s]+:[0-9]+>|<a:[^:\s]+:[0-9]+>)/g)
         emojis?.forEach(e => {
             if (el.matchEmotes) content = content.replace(e.split(":")[2], "")
             else content = content.replace(e, "")
@@ -55,4 +57,4 @@ const RunTrigger = (client: Bot, message: Message) => {
     })
 }
 
-export const name: string = "messageCreate"
+export const name = "messageCreate"

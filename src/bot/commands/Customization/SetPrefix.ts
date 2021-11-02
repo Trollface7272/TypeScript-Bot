@@ -7,4 +7,4 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
     client.database.Guilds.SetPrefix(client, message, args.join(" "))
 }
 
-export const name: string = "setprefix"
+export const name = "setprefix"

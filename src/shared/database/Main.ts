@@ -1,5 +1,5 @@
-import { connect, connection, Connection, disconnect, Error } from "mongoose"
-import consola, { Consola } from "consola"
+import { connect, connection, Connection, disconnect } from "mongoose"
+import consola from "consola"
 import * as File from "../../../config.json"
 import { Config } from "../interfaces/Config"
 import { Bot } from "../../bot/client/Client"
@@ -16,7 +16,7 @@ export const Users = users
 export const Guilds = guilds
 
 export const Tracking = tracking
-export var database: Connection
+export let database: Connection
 export const Connect = async () => {
     if (database) return
     logger.info(`Connecting to database`)

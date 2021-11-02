@@ -19,6 +19,7 @@ const ParseMessage = async (client: Bot, message: Message, args: string[]) => {
     }
 }
 
+// eslint-disable-next-line
 const error = (client: Bot, message: Message, code: any) => {
     switch (code) {
         case 1: return message.channel.send({embeds: [client.embed({ description: "Invalid syntax" }, message)]})
@@ -41,7 +42,7 @@ const RemoveFilter = async (client: Bot, message: Message, name: string) => {
 }
 
 const ShowFilter = async (client: Bot, message: Message, filters: Array<Filter>) => {
-    let fields = []
+    const fields = []
     for (let i = 0; i < filters.length; i++) {
         fields.push({
             name: filters[i].name,
@@ -57,7 +58,7 @@ const ShowFilter = async (client: Bot, message: Message, filters: Array<Filter>)
 
 export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {
     try {
-        let data = await ParseMessage(client, message, args)
+        const data = await ParseMessage(client, message, args)
         if (data?.action == "add") return AddFilter(client, message, data.data as Filter)
         if (data?.action == "show") return ShowFilter(client, message, data.data as Array<Filter>)
         if (data?.action == "remove") return RemoveFilter(client, message, data.data as string)
@@ -66,4 +67,4 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
     }
 }
 
-export const name: string = "filter"
+export const name = "filter"

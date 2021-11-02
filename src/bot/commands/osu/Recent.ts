@@ -88,7 +88,7 @@ const RecentBest = async (client: Bot, message: Message, options: Args) => {
     desc += `▸ ${score.Score.Formatted} ▸ ${GetCombo(client, score.Combo, beatmap.MaxCombo, options.Flags.m)} ▸ [${GetHits(client, score.Counts, options.Flags.m)}]\n`
     desc += `▸ Score Set ${DateDiff(client, score.Date, new Date(new Date().toLocaleString('en-US', { timeZone: "UTC" })))}Ago`
 
-    let embed: MessageEmbed = new MessageEmbed()
+    const embed: MessageEmbed = new MessageEmbed()
         .setAuthor(`Top ${score.Index} ${ModNames.Name[options.Flags.m]} Play for ${profile.Name}`, GetFlagUrl(profile.Country), GetProfileLink(profile.id, options.Flags.m))
         .setDescription(desc)
         .setFooter(GetServer())
@@ -109,7 +109,7 @@ const RecentList = async (client: Bot, message: Message, options: Args) => {
 
 
 
-    let beatmaps: Beatmap[] = []
+    const beatmaps: Beatmap[] = []
     let description = ""
     for (let i = 0; i < recent.length; i++) {
         const score = recent[i];

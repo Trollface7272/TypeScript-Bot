@@ -15,26 +15,26 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
     }
     seed = 0
     args.join(" ").split("").forEach(el => seed += el.charCodeAt(0))
-    let link = `https://neverlose.cc/activate?code=${RandString(20)}`
+    const link = `https://neverlose.cc/activate?code=${RandString(20)}`
     client.database.SkeetkeyUsed(client, message)
     message.channel.send(link)
 }
 
 
 function RandString(length: number) {
-    var result = ''
-    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-    var charactersLength = characters.length
+    let result = ''
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    const charactersLength = characters.length
     
-    for (var i = 0; i < length; i++) {
+    for (let i = 0; i < length; i++) {
         result += characters.charAt(Math.floor(random() * charactersLength))
     }
     return result
 }
-var seed = 1
+let seed = 1
 function random() {
-    var x = Math.sin(seed++) * 10000
+    const x = Math.sin(seed++) * 10000
     return x - Math.floor(x)
 }
 
-export const name: string = "neverlose"
+export const name = "neverlose"

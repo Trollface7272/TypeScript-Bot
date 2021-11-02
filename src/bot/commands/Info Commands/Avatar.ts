@@ -15,4 +15,4 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
     message.channel.send(out)
 }
 
-export const name: string = "avatar"
+export const name = "avatar"

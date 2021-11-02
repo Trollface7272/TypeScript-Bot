@@ -1,4 +1,4 @@
-import { GuildMember, Message, PermissionOverwrites, Permissions, Role } from "discord.js";
+import { GuildMember, Message, Role } from "discord.js";
 import { Bot } from "../../client/Client";
 import { GetRetardRoles } from "../../../shared/database/Guilds";
 import { RunFunction } from "../../../shared/interfaces/Command";
@@ -6,8 +6,8 @@ import { RunFunction } from "../../../shared/interfaces/Command";
 
 export const run: RunFunction = async (client: Bot, message: Message) => {
     if (!message.member.permissions.has("MANAGE_ROLES")) { message.channel.send({ embeds: [client.embed({ description: "Insufficient permissions." }, message)] }); return }
-    let member = message.mentions.members.first()
-    let roles: Array<Role> = [];
+    const member = message.mentions.members.first()
+    const roles: Array<Role> = [];
     (await GetRetardRoles(client, message)).forEach(async el => {
         roles.push(message.guild.roles.cache.get(el) || await message.guild.roles.fetch(el))
     })
@@ -76,4 +76,4 @@ function HandleError(client: Bot, message: Message, err: Error, member: GuildMem
 }
 
 
-export const name: string = "retard"
+export const name = "retard"

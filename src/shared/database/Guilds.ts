@@ -1,4 +1,4 @@
-import { model, Schema, UpdateQuery } from "mongoose"
+import { model, Schema } from "mongoose"
 import { Message } from 'discord.js'
 import { Bot } from "../../bot/client/Client"
 
@@ -15,6 +15,7 @@ export interface Guild {
     messages: number,
     commands: number,
     skeetkey_uses: number,
+    social_credit_enabled: boolean,
     prefix: string[],
     retard_roles: Array<string>,
     filter: Array<Filter>,
@@ -26,6 +27,7 @@ const schema = new Schema<Guild>({
     messages: { type: Number, required: true },
     commands: { type: Number, required: true },
     skeetkey_uses: { type: Number, required: true },
+    social_credit_enabled: {type: Boolean, required: true},
     prefix: { type: Array, required: true },
     retard_roles: { type: Array, required: true },
     filter: { type: Array, required: true }
@@ -35,12 +37,13 @@ const schema = new Schema<Guild>({
 const Model = model<Guild>("Guild", schema)
 
 async function CreateGuild (message: Message): Promise<Guild> {
-    let doc = new Model({
+    const doc = new Model({
         id: message.guild.id,
         name: message.guild.name,
         messages: 1,
         commands: 0,
         skeetkey_uses: 0,
+        social_credit_enabled: false,
         prefix: ["!"],
         retard_roles: [],
         filter: []
@@ -75,7 +78,8 @@ export const GetFilter = async (client: Bot, message: Message): Promise<Array<Fi
 }
 
 export const GetPrefix = async (client: Bot, message: Message): Promise<string[]> => {
-    return (await GetCollection(client)?.findOne({ id: message.guild.id }) as Guild)?.prefix || ["!"]
+    const prefix = (await GetCollection(client)?.findOne({ id: message.guild.id }) as Guild)?.prefix
+    return (prefix ? (Array.isArray(prefix) ? prefix : [prefix]) : ["!"])
 }
 
 export const SetPrefix = async (client: Bot, message: Message, prefix: string): Promise<void> => {
@@ -91,10 +95,8 @@ export const GetRetardRoles = async (client: Bot, message: Message): Promise<Arr
 }
 
 export const AddRetardRole = async (client: Bot, message: Message, id: string, position: number): Promise<void> => {
-    let query: UpdateQuery<any>
-    if (position == -1) query = { $push: { retard_roles: { $each: [id] } } }
-    else query = { $push: { retard_roles: { $each: [id], $position: position } } }
-    GetCollection(client)?.updateOne({ id: message.guild.id }, query)
+    if (position == -1) GetCollection(client)?.updateOne({ id: message.guild.id }, { $push: { retard_roles: { $each: [id] } } })
+    else GetCollection(client)?.updateOne({ id: message.guild.id }, { $push: { retard_roles: { $each: [id], $position: position } } })
 }
 
 export const ClearRetardRoles = async (client: Bot, message: Message): Promise<void> => {
@@ -106,9 +108,13 @@ export const RemoveRetardRoleId = async (client: Bot, message: Message, id: stri
 }
 
 export const RemoveRetardRoleIndex = async (client: Bot, message: Message, index: number): Promise<string> => {
-    let id = (await GetRetardRoles(client, message))[index - 1]
+    const id = (await GetRetardRoles(client, message))[index - 1]
     GetCollection(client)?.updateOne({ id: message.guild.id }, { $pull: { retard_roles: id } })
     return id
+}
+
+export const IsSocialCreditEnabled = async (client: Bot) => {
+
 }
 
 const GetCollection = (client: Bot) => client?.database?.database?.collection("guilds")

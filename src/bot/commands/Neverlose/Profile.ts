@@ -13,4 +13,4 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
     client.logger.log(await GetProfile(args[1]))
 }
 
-export const name: string = "nl"
+export const name = "nl"

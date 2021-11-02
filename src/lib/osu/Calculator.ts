@@ -1,6 +1,6 @@
 import axios from "axios"
 import { Message } from "discord.js"
-import { existsSync, mkdirSync, readFileSync, writeFile, writeFileSync } from "fs"
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs"
 import { diff, parser, ppv2, std_accuracy } from "ojsama"
 import { DeepCopy } from "../../shared/GlobalUtils"
 import { Counts, Difficulty, Performance, Score } from "../../shared/interfaces/OsuApi"
@@ -48,9 +48,10 @@ export const GetDiffWithMods = async (client: Bot, message: Message, mapId: numb
 }
 
 export const GetFcAccuracy = (client: Bot, message: Message, counts: Counts, mode: 0 | 1 | 2 | 3) => {
+    let acc: number
     switch (mode) {
         case 0:
-            let acc = new std_accuracy({
+            acc = new std_accuracy({
                 n300: counts[300] + counts.miss,
                 n100: counts[100],
                 n50: counts[50],
@@ -103,15 +104,15 @@ const CalcStdAccuracyPerformance = async (client: Bot, message: Message, mapId: 
     if (typeof acc == "number") acc = [acc]
     const mapFile = await GetBeatmapFile(client, message, mapId)
     const mapParser = new parser().feed(mapFile)
-    let data = {
+    const data = {
         map: mapParser.map,
         mods: mods,
         acc_percent: 100
     }
-    let out: Performance[] = []
+    const out: Performance[] = []
     acc.forEach(el => {
         data.acc_percent = el
-        let performance = ppv2(data)
+        const performance = ppv2(data)
         out.push({
             Accuracy: {
                 raw: performance.acc,
@@ -141,14 +142,14 @@ const CalcStdAccuracyPerformance = async (client: Bot, message: Message, mapId: 
 const CaclStdDiffWithMods = async (client: Bot, message: Message, mapId: number, mods: number[]) => {
     const mapFile = await GetBeatmapFile(client, message, mapId)
     const mapParser = new parser().feed(mapFile)
-    let data = {
+    const data = {
         map: mapParser.map,
         mods: 0
     }
-    let out: Difficulty[] = []
+    const out: Difficulty[] = []
     mods.forEach(el => {
         data.mods = el
-        let difficulty = new diff().calc(data)
+        const difficulty = new diff().calc(data)
         out.push({
             Aim: {
                 raw: difficulty.aim,

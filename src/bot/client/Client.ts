@@ -1,5 +1,5 @@
 import { Client, Collection, Intents, Message, MessageEmbed, MessageEmbedOptions } from "discord.js"
-import consola, { Consola, LogLevel } from "consola"
+import consola, { Consola } from "consola"
 import { Command } from "../../shared/interfaces/Command"
 import { Event } from "../../shared/interfaces/Event"
 import { Config } from "../../shared/interfaces/Config"

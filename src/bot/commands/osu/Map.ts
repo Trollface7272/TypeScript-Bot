@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from "discord.js"
 import { Bot } from "../../client/Client"
 import { RunFunction } from "../../../shared/interfaces/Command"
-import { Args, ConvertBitMods, GetDifficultyEmote, GetMapLink, HandleError, ParseArgs, RoundFixed } from "../../../lib/osu/Utils"
+import { Args, ConvertBitMods, GetDifficultyEmote, GetMapLink, HandleError, ParseArgs } from "../../../lib/osu/Utils"
 import { GetBeatmap } from "../../../lib/osu/Api/Api"
 import { Beatmap } from "../../../shared/interfaces/OsuApi"
 import { GetAccuracyPerformance } from "../../../lib/osu/Calculator"
@@ -17,7 +17,7 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
     let beatmap: Beatmap
     try { beatmap = await GetBeatmap({ a: 1, m: options.Flags.m, b: options.Flags.map, mods: options.Flags.mods }) }
     catch (err) { return HandleError(client, message, err, options.Name) }
-    let mapDiffs = await GetAccuracyPerformance(client, message, beatmap.id, options.Flags.mods, options.Flags.m, [95, options.Flags.acc || 99, 100])
+    const mapDiffs = await GetAccuracyPerformance(client, message, beatmap.id, options.Flags.mods, options.Flags.m, [95, options.Flags.acc || 99, 100])
 
     let description = `**Length:** ${beatmap.Length.Total.formatted}${beatmap.Length.Drain.formatted == beatmap.Length.Total.formatted ? (" (" + beatmap.Length.Drain.formatted + "drain)") : ""} **BPM:** ${beatmap.bpm} **Mods:** ${ConvertBitMods(client, options.Flags.mods)}\n`
     description += `**Download:** [map](https://osu.ppy.sh/d/${beatmap.SetId})([no vid](https://osu.ppy.sh/d/${beatmap.SetId}n)) osu://b/${beatmap.SetId}\n`
@@ -38,4 +38,4 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
     message.channel.send({ embeds: [embed] })
 }
 
-export const name: string = "map"
+export const name = "map"

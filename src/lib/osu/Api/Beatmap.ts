@@ -15,6 +15,49 @@ const MapRanking = {
     "3": "Qualified",
     "4": "Loved"
 }
+
+interface beatmap {
+    approved:             string
+    submit_date:          string
+    approved_date:        string
+    last_update:          string
+    artist:               string
+    beatmap_id:           string
+    beatmapset_id:        string
+    bpm:                  string
+    creator:              string
+    creator_id:           string
+    difficultyrating:     string
+    diff_aim:             string
+    diff_speed:           string
+    diff_size:            string
+    diff_overall:         string
+    diff_approach:        string
+    diff_drain:           string
+    hit_length:           string
+    source:               string
+    genre_id:             string
+    language_id:          string
+    title:                string
+    total_length:         string
+    version:              string
+    file_md5:             string
+    mode:                 string
+    tags:                 string
+    favourite_count:      string
+    rating:               string
+    playcount:            string
+    passcount:            string
+    count_normal:         string
+    count_slider:         string
+    count_spinner:        string
+    max_combo:            string
+    storyboard:           string
+    video:                string
+    download_unavailable: string
+    audio_unavailable:    string
+}
+
 export async function Get(params: BeatmapParams): Promise<Beatmap> {
     return v1(params)
 }
@@ -25,14 +68,14 @@ export async function GetShort(params: BeatmapParams): Promise<ShortBeatmap> {
 }
 
 const v2 = async (params: BeatmapParams): Promise<ShortBeatmap> => {
-    let beatmap = (await axios.get("https://osu.ppy.sh/osu/" + params.b)).data
-    let parsed = new parser().feed(beatmap)
+    const beatmap = (await axios.get("https://osu.ppy.sh/osu/" + params.b)).data
+    const parsed = new parser().feed(beatmap)
     
-    let data = parsed.map
-    let diff = new std_beatmap_stats({
+    const data = parsed.map
+    const diff = new std_beatmap_stats({
         ar: data.ar, od: data.od, cs: data.cs, hp: data.hp
     }).with_mods(params.mods)
-    let star = ppv2({
+    const star = ppv2({
         map: data,
         mods: params.mods
     })
@@ -89,7 +132,7 @@ const v2 = async (params: BeatmapParams): Promise<ShortBeatmap> => {
 const v1 = async (params: BeatmapParams): Promise<Beatmap> => {
     params.a = 1
     params.mods = GetDiffMods(params.mods)
-    const data: any = (await axios.get(endpoint, { params })).data[0]
+    const data: beatmap = (await axios.get(endpoint, { params })).data[0]
     if (!data) throw { code: 3 }
     
     let multiplier = 1
@@ -98,8 +141,8 @@ const v1 = async (params: BeatmapParams): Promise<Beatmap> => {
     else if (params.mods & Mods.Bit.HalfTime)
         multiplier = 0.75
 
-    data.diff_approach = CalculateApproach(parseFloat(data.diff_approach), multiplier, 1)
-    data.diff_overall = CalculateOverall(parseFloat(data.diff_overall), multiplier, 1)
+    data.diff_approach = String(CalculateApproach(parseFloat(data.diff_approach), multiplier, 1))
+    data.diff_overall = String(CalculateOverall(parseFloat(data.diff_overall), multiplier, 1))
 
     return {
         id: parseInt(data.beatmap_id),
@@ -108,15 +151,15 @@ const v1 = async (params: BeatmapParams): Promise<Beatmap> => {
         Source: data.source,
         Title: data.title,
         Version: data.version,
-        Genre: data.genre_id,
-        Language: data.language_id,
+        Genre: parseInt(data.genre_id),
+        Language: parseInt(data.language_id),
         Tags: data.tags,
         HasStoryboard: data.storyboard == "1",
         HasVideo: data.video == "1",
         DownloadUnavailable: data.download_unavailable == "1",
         AudioUnavailable: data.audio_unavailable == "1",
 
-        FavouritedCount: data.favourite_count,
+        FavouritedCount: parseInt(data.favourite_count),
         Rating: parseFloat(data.rating),
         Playcount: {
             raw: parseInt(data.playcount),
@@ -181,9 +224,9 @@ const v1 = async (params: BeatmapParams): Promise<Beatmap> => {
             Spinner: parseInt(data.count_spinner),
         },
         MaxCombo: parseInt(data.max_combo),
-        Gamemode: data.mode,
+        Gamemode: parseInt(data.mode),
         Approved: MapRanking[data.approved],
-        ApprovedRaw: data.approved,
+        ApprovedRaw: parseInt(data.approved),
         SubmitedDate: new Date(data.submit_date),
         ApprovedDate: new Date(data.approved_date),
         LastUpdate: new Date(data.last_update),

@@ -3,7 +3,7 @@ import { Bot } from "../../client/Client"
 import { RunFunction } from "../../../shared/interfaces/Command"
 import { Beatmap, Difficulty, Profile, Score } from "../../../shared/interfaces/OsuApi"
 import { GetBeatmap, GetProfile, GetScore } from "../../../lib/osu/Api/Api"
-import { CalculateAcc, ConvertBitMods, DateDiff, GetCombo, GetHits, GetMapImage, GetMapLink, GetProfileImage, HandleError, ModNames, ParseArgs, RankingEmotes, RoundFixed } from "../../../lib/osu/Utils"
+import { CalculateAcc, ConvertBitMods, DateDiff, GetCombo, GetHits, GetMapImage, GetMapLink, GetProfileImage, HandleError, ModNames, ParseArgs, RankingEmotes } from "../../../lib/osu/Utils"
 import { GetDiffWithMods, GetFcAccuracy, GetFcPerformance } from "../../../lib/osu/Calculator"
 
 
@@ -24,14 +24,14 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
     try { beatmap = await GetBeatmap({ b: options.Flags.map, m: options.Flags.m, mods: options.Flags.mods }) }
     catch (err) { return HandleError(client, message, err, options.Name) }
     let beatmapDiffs: Difficulty[] = []
-    let modCombinatios: number[] = []
+    const modCombinatios: number[] = []
     scores.forEach(e => modCombinatios.push(e.Mods))
     beatmapDiffs = await GetDiffWithMods(client, message, beatmap.id, options.Flags.m, modCombinatios)
 
-    let descriptionArr = []
+    const descriptionArr = []
     for (let i = 0; i < scores.length; i++) {
-        let score = scores[i]
-        let diff = beatmapDiffs[i]
+        const score = scores[i]
+        const diff = beatmapDiffs[i]
 
         let fcppDisplay = ""
         if (score.Counts.miss > 0 || score.Combo < beatmap.MaxCombo - 15) fcppDisplay = `(${(await GetFcPerformance(client, message, score, options.Flags.m)).Total.Formatted}pp for ${GetFcAccuracy(client, message, score.Counts, options.Flags.m)}% FC) `
@@ -41,7 +41,7 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
         description += `▸ Score Set ${DateDiff(client, score.Date, new Date(new Date().toLocaleString('en-US', { timeZone: "UTC" })))}Ago\n`
         descriptionArr.push(description)
     }
-    let length = descriptionArr.length + 2
+    const length = descriptionArr.length + 2
     for (let i = 0; i < length; i++) {
         if (descriptionArr[i] === undefined) descriptionArr[i] = ""
     }

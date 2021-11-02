@@ -18,7 +18,7 @@ export const Filter = async (client: Bot, message: Message) => {
     client.logger.log(filter)
     for (let i = 0; i < filter.length; i++) {
         const el = filter[i];
-        let res: boolean = el.type == "regex" ? Regex(client, message, el) : Word(client, message, el)
+        const res: boolean = el.type == "regex" ? Regex(client, message, el) : Word(client, message, el)
         if (res) {
             message.delete()
             return true

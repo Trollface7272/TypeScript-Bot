@@ -45,7 +45,7 @@ export const run: RunFunction = async (client: Bot, message: Message, args: Arra
     }
 
     if (options.Flags.p) {
-        let out: Array<Score> = []
+        const out: Array<Score> = []
         for (let i = 0; i < options.Flags.p.length; i++) {
             out.push(scores[options.Flags.p[i]])
         }

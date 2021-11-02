@@ -26,7 +26,7 @@ const schema = new Schema<Tracking>({
 const Model = model<Tracking>("Tracking", schema)
 
 async function CreateTrackedUser (client: Bot, message: Message, id: number, channel: string, m: 0 | 1 | 2 | 3): Promise<Tracking> {
-    let doc = new Model({
+    const doc = new Model({
         id, m,
         channels: [channel],
         lastcheck: Date.now()
@@ -35,9 +35,10 @@ async function CreateTrackedUser (client: Bot, message: Message, id: number, cha
     return doc
 }
 
+// eslint-disable-next-line
 export const AddToTracking = async (client: Bot, message: Message, id: number, channel: string, m: 0 | 1 | 2 | 3): Promise<any> => {
-    let search = { id: id, m: m }
-    let data: Tracking = await GetCollection(client)?.findOne(search)
+    const search = { id: id, m: m }
+    const data: Tracking = await GetCollection(client)?.findOne(search)
     
     if (data) {
         for (const ch of data.channels) if (ch == channel) return message.channel.send({embeds: [client.embed({description: "User already tracked in this channel"}, message)]})
@@ -57,8 +58,8 @@ export const RemoveFromTracking = (client: Bot, message: Message, id: number, ch
 }
 
 export const GetTrackedInChannel = async (client: Bot, message: Message, channel: string): Promise<TrackedUser[]> => {
-    let tracked = await GetCollection(client)?.find({ channels: { $all: [channel] } })?.toArray()
-    let out = []
+    const tracked = await GetCollection(client)?.find({ channels: { $all: [channel] } })?.toArray()
+    const out = []
         
     for (const el of tracked) {
         out.push({ id: el.id, m: el.m })
