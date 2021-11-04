@@ -1,4 +1,4 @@
-import { Config } from "../../../shared/interfaces/Config"
+import { Config } from "../../../interfaces/Config"
 import * as File from "../../../../config.json"
 export const key: string = (File as Config).osu_token
 export const linkBase = "https://osu.ppy.sh/"
@@ -8,7 +8,7 @@ import { Get as ApiGetProfile } from "./Profile"
 import { Get as ApiGetRecent } from "./Recent"
 import { Get as ApiGetScore } from "./Score"
 import { Get as ApiGetTop } from "./Top"
-import { Beatmap, BeatmapParams, Profile, ProfileParams, RecentParams, Score, ScoreParams, ShortBeatmap, TopParams } from "../../../shared/interfaces/OsuApi"
+import { Beatmap, BeatmapParams, Profile, ProfileParams, RecentParams, Score, ScoreParams, ShortBeatmap, TopParams } from "../../../interfaces/OsuApi"
 
 export const GetBeatmap = (params: BeatmapParams): Promise<Beatmap> => {
     params.k = key

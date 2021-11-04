@@ -1,6 +1,6 @@
 import { Message } from "discord.js"
 import { Bot } from "../client/Client"
-import { Filter as FilterType } from "../../shared/database/Guilds"
+import { Filter as FilterType } from "../../database/Guilds"
 
 
 const Regex = (client: Bot, message: Message, filter: FilterType): boolean => {

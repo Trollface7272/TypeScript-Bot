@@ -1,7 +1,7 @@
 import { linkBase } from "./Api"
 import axios from "axios"
 import { RoundFixed, CommaFormat } from "../Utils"
-import { RecentParams, Score } from "../../../shared/interfaces/OsuApi"
+import { RecentParams, Score } from "../../../interfaces/OsuApi"
 
 const endpoint: string = linkBase + "api/get_user_recent"
 

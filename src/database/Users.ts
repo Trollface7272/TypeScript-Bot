@@ -1,10 +1,11 @@
 import { model, Schema } from "mongoose"
 import { Message } from 'discord.js'
-import { Bot } from "../../bot/client/Client"
+import { Bot } from "../bot/client/Client"
 
 interface User {
     id: string,
     name: string,
+    social_credit: number,
     messages: number,
     commands: number,
     osu_name: string,
@@ -14,6 +15,7 @@ interface User {
 const schema = new Schema<User>({
     id: { type: String, required: true },
     name: { type: String, required: true },
+    social_credit: {type: Number, required: true },
     messages: { type: Number, required: true },
     commands: { type: Number, required: true },
     skeetkey_uses: {type: Number, required: true},
@@ -27,6 +29,7 @@ async function CreateUser(message: Message): Promise<User> {
         id: message.author.id,
         name: message.author.tag,
         messages: 1,
+        social_credit: 1000,
         commands: 0,
         skeetkey_uses: 0
     })
@@ -53,8 +56,20 @@ export const GetOsuUsername = async (client: Bot, message: Message): Promise<str
     return (await GetCollection(client)?.findOne({id: message.author.id}) as User).osu_name || false
 }
 
-export const SetOsuUsername = async (client: Bot, message: Message, name: string): Promise<void> => {
+export const SetOsuUsername = (client: Bot, message: Message, name: string): void => {
     GetCollection(client)?.updateOne({id: message.author.id}, {$set: {osu_name: name}})
+}
+
+export const AddSocialCredit = (client: Bot, message: Message, amount: number): void => {
+    GetCollection(client)?.updateOne({id: message.author.id}, {$inc: { social_credit: amount }})
+}
+
+export const SetSocialCredit = (client: Bot, message: Message, amount: number): void => {
+    GetCollection(client)?.updateOne({id: message.author.id}, {$set: { social_credit: amount }})
+}
+
+export const GetSocialCredit = async (client: Bot, message: Message): Promise<number> => {
+    return (await GetCollection(client)?.findOne({id: message.author.id})).social_credit || 1000
 }
 
 

@@ -1,7 +1,7 @@
 import { Emoji, Message } from "discord.js"
 import { modbits } from "ojsama"
 import { Bot } from "../../bot/client/Client"
-import { Counts, Objects } from "../../shared/interfaces/OsuApi"
+import { Counts, Objects } from "../../interfaces/OsuApi"
 
 const CommandGamemodes = {
     "taiko": 1,
@@ -217,14 +217,8 @@ export const RoundFixed = (num: number, digits = 2): string => {
 }
 
 export function CommaFormat(num: number|string): string {
-    let str: string
-    str = String(num)
-    const arr = str.split(".")
-    const decimals = arr[1] ? "." + arr[1] : ""
-    str = arr[0]
-    let formatted = ""
-    for (let i = arr.length - 1; i >= 0; i--) formatted = ((i - str.length) % 3 == 0 && i > 0 ? "," : "") + arr[i] + formatted
-    return formatted + decimals
+    let n: number = typeof num == "number" ? num : parseFloat(num)
+    return n.toLocaleString()
 }
 
 export const GetFlagUrl = (country: string): string => {

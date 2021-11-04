@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from "discord.js";
 import { Bot } from "../../client/Client";
-import { RunFunction } from "../../../shared/interfaces/Command";
-import { Profile, Score } from "../../../shared/interfaces/OsuApi";
+import { RunFunction } from "../../../interfaces/Command";
+import { Profile, Score } from "../../../interfaces/OsuApi";
 import { GetProfileCache, GetTop } from "../../../lib/osu/Api/Api";
 import { Args, ConvertBitMods, ErrorIds, GetFlagUrl, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs } from "../../../lib/osu/Utils";
 

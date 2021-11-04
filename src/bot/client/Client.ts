@@ -1,12 +1,12 @@
 import { Client, Collection, Intents, Message, MessageEmbed, MessageEmbedOptions } from "discord.js"
 import consola, { Consola } from "consola"
-import { Command } from "../../shared/interfaces/Command"
-import { Event } from "../../shared/interfaces/Event"
-import { Config } from "../../shared/interfaces/Config"
+import { Command } from "../../interfaces/Command"
+import { Event } from "../../interfaces/Event"
+import { Config } from "../../interfaces/Config"
 import { promisify } from "util"
-import * as database from "../../shared/database/Main"
+import * as database from "../../database/Main"
 import glob from "glob"
-import { Trigger } from "../../shared/interfaces/Trigger"
+import { Trigger } from "../../interfaces/Trigger"
 
 const gPromise = promisify(glob)
 

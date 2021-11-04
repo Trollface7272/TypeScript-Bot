@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { Bot } from "../../client/Client";
-import { RunFunction } from "../../../shared/interfaces/Command";
+import { RunFunction } from "../../../interfaces/Command";
 import { GetProfile } from "../../../lib/Neverlose/Profile";
 
 

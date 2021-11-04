@@ -1,7 +1,7 @@
 import { Message, Role } from "discord.js"
 import { Bot } from "../../client/Client"
-import { AddRetardRole } from "../../../shared/database/Guilds"
-import { RunFunction } from "../../../shared/interfaces/Command"
+import { AddRetardRole } from "../../../database/Guilds"
+import { RunFunction } from "../../../interfaces/Command"
 
 const ErrorCodes = {
     "1": "Invalid syntax",

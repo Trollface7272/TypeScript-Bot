@@ -2,7 +2,7 @@ import { linkBase } from "./Api"
 import axios from "axios"
 import { RoundFixed, CommaFormat, GetDiffMods, Mods } from "../Utils"
 import { parser, ppv2, std_beatmap_stats } from "ojsama"
-import { Beatmap, BeatmapParams, ShortBeatmap } from "../../../shared/interfaces/OsuApi"
+import { Beatmap, BeatmapParams, ShortBeatmap } from "../../../interfaces/OsuApi"
 
 
 const endpoint: string = linkBase + "api/get_beatmaps"

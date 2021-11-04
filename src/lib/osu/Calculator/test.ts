@@ -4,7 +4,7 @@ import { Get as GetTop } from "../Api/Top"
 import { Mods } from "../Utils"
 import consola, { Consola, LogLevel } from "consola"
 import axios from "axios"
-import { Beatmap, Counts, Score } from "../../../shared/interfaces/OsuApi"
+import { Beatmap, Counts, Score } from "../../../interfaces/OsuApi"
 
 const logger: Consola = consola
 

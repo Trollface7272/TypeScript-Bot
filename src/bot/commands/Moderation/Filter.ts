@@ -1,7 +1,7 @@
 import { Message } from "discord.js"
 import { Bot } from "../../client/Client"
-import { Filter } from "../../../shared/database/Guilds"
-import { RunFunction } from "../../../shared/interfaces/Command"
+import { Filter } from "../../../database/Guilds"
+import { RunFunction } from "../../../interfaces/Command"
 
 const ParseMessage = async (client: Bot, message: Message, args: string[]) => {
     if (args[0] === "add") {

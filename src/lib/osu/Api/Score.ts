@@ -1,7 +1,7 @@
 import { linkBase } from './Api';
 import axios from 'axios';
 import { RoundFixed, CommaFormat } from '../Utils';
-import { Score, ScoreParams } from '../../../shared/interfaces/OsuApi';
+import { Score, ScoreParams } from '../../../interfaces/OsuApi';
 
 const endpoint: string = linkBase + 'api/get_scores';
 interface get_score {

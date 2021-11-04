@@ -1,9 +1,9 @@
 import { Message, MessageEmbed } from "discord.js"
 import { Bot } from "../../client/Client"
-import { RunFunction } from "../../../shared/interfaces/Command"
+import { RunFunction } from "../../../interfaces/Command"
 import { Args, ConvertBitMods, GetDifficultyEmote, GetMapLink, HandleError, ParseArgs } from "../../../lib/osu/Utils"
 import { GetBeatmap } from "../../../lib/osu/Api/Api"
-import { Beatmap } from "../../../shared/interfaces/OsuApi"
+import { Beatmap } from "../../../interfaces/OsuApi"
 import { GetAccuracyPerformance } from "../../../lib/osu/Calculator"
 
 

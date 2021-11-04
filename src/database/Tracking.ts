@@ -1,6 +1,6 @@
 import { Message } from "discord.js"
 import { model, Schema } from "mongoose"
-import { Bot } from "../../bot/client/Client"
+import { Bot } from "../bot/client/Client"
 
 
 export interface Tracking {

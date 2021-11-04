@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from "discord.js"
 import { Bot } from "../../client/Client"
-import { RunFunction } from "../../../shared/interfaces/Command"
-import { Profile } from "../../../shared/interfaces/OsuApi"
+import { RunFunction } from "../../../interfaces/Command"
+import { Profile } from "../../../interfaces/OsuApi"
 import { GetProfile } from "../../../lib/osu/Api/Api"
 import { ParseArgs, ModNames, GetFlagUrl, GetProfileLink, GetServer, GetProfileImage, HandleError } from "../../../lib/osu/Utils"
 

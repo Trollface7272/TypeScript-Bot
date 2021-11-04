@@ -1,7 +1,7 @@
 import { linkBase } from "./Api"
 import axios from "axios"
 import { CommaFormat, RoundFixed } from "../Utils"
-import { Score, TopParams } from "../../../shared/interfaces/OsuApi"
+import { Score, TopParams } from "../../../interfaces/OsuApi"
 
 interface user_best {
     beatmap_id:       string

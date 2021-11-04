@@ -1,7 +1,7 @@
 import { GuildMember, Message, Role } from "discord.js";
 import { Bot } from "../../client/Client";
-import { GetRetardRoles } from "../../../shared/database/Guilds";
-import { RunFunction } from "../../../shared/interfaces/Command";
+import { GetRetardRoles } from "../../../database/Guilds";
+import { RunFunction } from "../../../interfaces/Command";
 
 
 export const run: RunFunction = async (client: Bot, message: Message) => {

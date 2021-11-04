@@ -2,7 +2,7 @@ import { linkBase } from "./Api"
 import axios from "axios"
 import { RoundFixed, CommaFormat } from "../Utils"
 import consola from "consola"
-import { Profile, ProfileParams } from "../../../shared/interfaces/OsuApi"
+import { Profile, ProfileParams } from "../../../interfaces/OsuApi"
 
 
 interface event {          

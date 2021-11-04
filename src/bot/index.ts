@@ -1,4 +1,4 @@
-import { Config } from "../shared/interfaces/Config"
+import { Config } from "../interfaces/Config"
 import * as File from "../../config.json"
 import { Bot } from "./client/Client"
 

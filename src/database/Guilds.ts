@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose"
 import { Message } from 'discord.js'
-import { Bot } from "../../bot/client/Client"
+import { Bot } from "../bot/client/Client"
 
 export interface Filter {
     name: string,
@@ -113,8 +113,12 @@ export const RemoveRetardRoleIndex = async (client: Bot, message: Message, index
     return id
 }
 
-export const IsSocialCreditEnabled = async (client: Bot) => {
+export const IsSocialCreditEnabled = async (client: Bot, message: Message) => {
+    return (await GetCollection(client)?.findOne({id: message.guild.id}))?.social_credit_enabled
+}
 
+export const SetSocialCredit = async (client: Bot, message: Message, enabled: boolean) => {
+    (await GetCollection(client)?.updateOne({id: message.guild.id}, {$set: {social_credit_enabled: enabled}}))
 }
 
 const GetCollection = (client: Bot) => client?.database?.database?.collection("guilds")

@@ -1,6 +1,6 @@
-import { RunFunction } from "../../../../shared/interfaces/Event"
+import { RunFunction } from "../../../../interfaces/Event"
 import { Message } from "discord.js"
-import { Command } from "../../../../shared/interfaces/Command"
+import { Command } from "../../../../interfaces/Command"
 import { Bot } from "../../../client/Client"
 
 export const run: RunFunction = async (client: Bot, message: Message) => {

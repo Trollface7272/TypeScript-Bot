@@ -1,8 +1,8 @@
 import { EmbedField, Message } from "discord.js"
 import { Bot } from "../../client/Client"
-import { RunFunction } from "../../../shared/interfaces/Command"
+import { RunFunction } from "../../../interfaces/Command"
 import { HandleError, ParseArgs } from "../../../lib/osu/Utils"
-import { Profile } from "../../../shared/interfaces/OsuApi"
+import { Profile } from "../../../interfaces/OsuApi"
 import { GetProfileCache } from "../../../lib/osu/Api/Api"
 
 
