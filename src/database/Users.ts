@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose"
-import { Message } from 'discord.js'
-import { Bot } from "../bot/client/Client"
+import { GuildMember } from 'discord.js'
+import { database } from "./Main"
 
 interface User {
     id: string,
@@ -24,10 +24,10 @@ const schema = new Schema<User>({
 
 const Model = model<User>("User", schema)
 
-async function CreateUser(message: Message): Promise<User> {
+async function CreateUser(author: GuildMember): Promise<User> {
     const doc = new Model({
-        id: message.author.id,
-        name: message.author.tag,
+        id: author.user.id,
+        name: author.user.tag,
         messages: 1,
         social_credit: 1000,
         commands: 0,
@@ -37,40 +37,38 @@ async function CreateUser(message: Message): Promise<User> {
     return doc
 }
 
-export const OnMessage = async (client: Bot, message: Message) => {
-    const res = await GetCollection(client)?.updateOne({id: message.author.id}, {$inc: {messages: 1}})
-    if (res.matchedCount < 1) await CreateUser(message)
+export const OnMessage = async (author: GuildMember) => {
+    const res = await GetCollection()?.updateOne({id: author.user.id}, {$inc: {messages: 1}})
+    if (res.matchedCount < 1) await CreateUser(author)
 }
 
-export const OnCommand = async (client: Bot, message: Message) => {
-    const res = await GetCollection(client)?.updateOne({id: message.author.id}, {$inc: {commands: 1}})
-    if (res.matchedCount < 1) await CreateUser(message)
+export const OnCommand = async (userId: string) => {
+    await GetCollection()?.updateOne({id: userId}, {$inc: {commands: 1}})
 }
 
-export const SkeetkeyUsed = async (client: Bot, message: Message) => {
-    const res = await GetCollection(client)?.updateOne({id: message.author.id}, {$inc: {skeetkey_uses: 1}})
-    if (res.matchedCount < 1) await CreateUser(message)
+export const SkeetkeyUsed = async (userId: string) => {
+    await GetCollection()?.updateOne({id: userId}, {$inc: {skeetkey_uses: 1}})
 }
 
-export const GetOsuUsername = async (client: Bot, message: Message): Promise<string|false> => {
-    return (await GetCollection(client)?.findOne({id: message.author.id}) as User).osu_name || false
+export const GetOsuUsername = async (userId: string): Promise<string|false> => {
+    return (await GetCollection()?.findOne({id: userId}) as User).osu_name || false
 }
 
-export const SetOsuUsername = (client: Bot, message: Message, name: string): void => {
-    GetCollection(client)?.updateOne({id: message.author.id}, {$set: {osu_name: name}})
+export const SetOsuUsername = (userId: string, name: string): void => {
+    GetCollection()?.updateOne({id: userId}, {$set: {osu_name: name}})
 }
 
-export const AddSocialCredit = (client: Bot, message: Message, amount: number): void => {
-    GetCollection(client)?.updateOne({id: message.author.id}, {$inc: { social_credit: amount }})
+export const AddSocialCredit = (userId: string, amount: number): void => {
+    GetCollection()?.updateOne({id: userId}, {$inc: { social_credit: amount }})
 }
 
-export const SetSocialCredit = (client: Bot, message: Message, amount: number): void => {
-    GetCollection(client)?.updateOne({id: message.author.id}, {$set: { social_credit: amount }})
+export const SetSocialCredit = (userId: string, amount: number): void => {
+    GetCollection()?.updateOne({id: userId}, {$set: { social_credit: amount }})
 }
 
-export const GetSocialCredit = async (client: Bot, message: Message): Promise<number> => {
-    return (await GetCollection(client)?.findOne({id: message.author.id})).social_credit || 1000
+export const GetSocialCredit = async (userId: string): Promise<number> => {
+    return (await GetCollection()?.findOne({id: userId})).social_credit || 1000
 }
 
 
-const GetCollection = (client: Bot) => client?.database?.database?.collection("users")
+const GetCollection = () => database?.collection("users")

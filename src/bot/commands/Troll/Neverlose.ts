@@ -1,31 +1,22 @@
-import { Message } from "discord.js"
-import { Bot } from "../../client/Client"
-import { RunFunction } from "../../../interfaces/Command"
+import { ApplicationCommandData, CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString } from "discord.js"
+import { Bot } from "@client/Client"
+import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
+import { SkeetkeyUsed } from "@database/Main"
 
 
-export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {
-    if (args.length < 1) {
-        message.channel.send({
-            embeds: [client.embed(
-                {
-                    description: `Please provide your neverlose username.`
-                }, message)]
-        })
-        return
-    }
+const trollNeverlose = (author: GuildMember, guild: Guild, username: string): MessageOptions => {
     seed = 0
-    args.join(" ").split("").forEach(el => seed += el.charCodeAt(0))
+    username.split("").forEach(el => seed += el.charCodeAt(0))
     const link = `https://neverlose.cc/activate?code=${RandString(20)}`
-    client.database.SkeetkeyUsed(client, message)
-    message.channel.send(link)
+    SkeetkeyUsed(guild.id, author.user.id)
+    return { content: link }
 }
-
 
 function RandString(length: number) {
     let result = ''
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     const charactersLength = characters.length
-    
+
     for (let i = 0; i < length; i++) {
         result += characters.charAt(Math.floor(random() * charactersLength))
     }
@@ -37,4 +28,38 @@ function random() {
     return x - Math.floor(x)
 }
 
+export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
+    if (args.length < 1) {
+        return message.channel.send({
+            embeds: [client.embed(
+                {
+                    description: `Please provide your neverlose username.`
+                }, message)]
+        })
+
+    }
+    message.reply(trollNeverlose(message.member, message.guild, args.join("")))
+}
+
+export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
+    const username = interaction.options.getString("Username")
+    interaction.reply(trollNeverlose(interaction.member as GuildMember, interaction.guild, username))
+}
+
+
 export const name = "neverlose"
+
+export const commandData: ApplicationCommandData = {
+    name: "neverlose",
+    description: "Get neverlose sub halal 100.",
+    options: [{
+        name: "Username",
+        description: "Your username.",
+        type: "STRING",
+        required: true
+    }],
+    type: "CHAT_INPUT",
+    defaultPermission: true
+}
+
+export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

@@ -79,7 +79,15 @@
     "discord.js": "^13.1.0",
     "express": "^4.17.1",
     "glob": "^7.1.7",
+    "module-alias": "^2.2.2",
     "mongoose": "^5.13.3",
     "ojsama": "^2.2.0"
+  },
+  "_moduleAliases": {
+    "@database": "src/database",
+		"@interfaces": "src/interfaces",
+		"@lib": "src/lib",
+		"@commands": "src/bot/main-commands",
+		"@client": "src/bot/client"
   }
 }

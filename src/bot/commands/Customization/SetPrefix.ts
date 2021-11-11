@@ -1,10 +1,33 @@
-import { Message } from "discord.js";
-import { Bot } from "../../client/Client";
-import { RunFunction } from "../../../interfaces/Command";
+import { ApplicationCommandData, CommandInteraction, GuildMember, Message, MessageOptions, PermissionString } from "discord.js"
+import { Bot } from "@client/Client"
+import { SetPrefix as SetPrefixDb } from "@database/Guilds"
+import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 
 
-export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {
-    client.database.Guilds.SetPrefix(client, message, args.join(" "))
+export const SetPrefix = (guildId: string, prefix: string): MessageOptions => {
+    SetPrefixDb(guildId, prefix)
+    return {content: `Successfully set prefix to ${prefix}`}
+}
+
+export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
+    SetPrefix(message.guildId, args.join(" "))
+}
+
+export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
+    interaction.reply(SetPrefix(interaction.guild.id, interaction.options.getString("prefix")))
 }
 
 export const name = "setprefix"
+export const commandData: ApplicationCommandData = {
+    name: "set prefix",
+    description: "Change the default bot prefix",
+    options: [{
+        name: "prefix",
+        description: "The prefix to change to",
+        required: true,
+        type: "STRING"
+    }],
+    type: "CHAT_INPUT",
+    defaultPermission: true
+}
+export const requiredPermissions: PermissionString[] = ["ADMINISTRATOR"]

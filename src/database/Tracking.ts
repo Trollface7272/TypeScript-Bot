@@ -1,6 +1,7 @@
-import { Message } from "discord.js"
+import { GuildMember, MessageOptions } from "discord.js"
 import { model, Schema } from "mongoose"
-import { Bot } from "../bot/client/Client"
+import { Embed } from "@client/Client"
+import { database } from "./Main"
 
 
 export interface Tracking {
@@ -25,7 +26,7 @@ const schema = new Schema<Tracking>({
 
 const Model = model<Tracking>("Tracking", schema)
 
-async function CreateTrackedUser (client: Bot, message: Message, id: number, channel: string, m: 0 | 1 | 2 | 3): Promise<Tracking> {
+async function CreateTrackedUser (id: number, channel: string, m: 0 | 1 | 2 | 3): Promise<Tracking> {
     const doc = new Model({
         id, m,
         channels: [channel],
@@ -36,29 +37,30 @@ async function CreateTrackedUser (client: Bot, message: Message, id: number, cha
 }
 
 // eslint-disable-next-line
-export const AddToTracking = async (client: Bot, message: Message, id: number, channel: string, m: 0 | 1 | 2 | 3): Promise<any> => {
+export const AddToTracking = async (id: number, channel: string, m: 0 | 1 | 2 | 3, author: GuildMember): Promise<MessageOptions> => {
     const search = { id: id, m: m }
-    const data: Tracking = await GetCollection(client)?.findOne(search)
+    const data: Tracking = await GetCollection()?.findOne(search)
     
     if (data) {
-        for (const ch of data.channels) if (ch == channel) return message.channel.send({embeds: [client.embed({description: "User already tracked in this channel"}, message)]})
-        GetCollection(client)?.updateOne({ id: id, m }, {
+        for (const ch of data.channels) if (ch == channel) return ({embeds: [Embed({description: "User already tracked in this channel"}, author.user)]})
+        GetCollection()?.updateOne({ id: id, m }, {
             $push: { channels: channel }
         })
     }
-    else CreateTrackedUser(client, message, id, channel, m)
+    else CreateTrackedUser(id, channel, m)
+    return {}
 }
 
-export const ClearTracking = async (client: Bot, message: Message, channel: string): Promise<void> => {
-    GetCollection(client)?.updateMany({}, { $pull: { channels: channel } })
+export const ClearTracking = async (channel: string): Promise<void> => {
+    GetCollection()?.updateMany({}, { $pull: { channels: channel } })
 }
 
-export const RemoveFromTracking = (client: Bot, message: Message, id: number, channel: string, m: 0 | 1 | 2 | 3): void => {
-    GetCollection(client)?.updateOne({ id: id, m }, { $pull: { channels: channel } })
+export const RemoveFromTracking = (id: number, channel: string, m: 0 | 1 | 2 | 3): void => {
+    GetCollection()?.updateOne({ id: id, m }, { $pull: { channels: channel } })
 }
 
-export const GetTrackedInChannel = async (client: Bot, message: Message, channel: string): Promise<TrackedUser[]> => {
-    const tracked = await GetCollection(client)?.find({ channels: { $all: [channel] } })?.toArray()
+export const GetTrackedInChannel = async (channel: string): Promise<TrackedUser[]> => {
+    const tracked = await GetCollection()?.find({ channels: { $all: [channel] } })?.toArray()
     const out = []
         
     for (const el of tracked) {
@@ -69,4 +71,4 @@ export const GetTrackedInChannel = async (client: Bot, message: Message, channel
 }
 
 
-const GetCollection = (client: Bot) => client?.database?.database?.collection("trackings")
+const GetCollection = () => database?.collection("trackings")

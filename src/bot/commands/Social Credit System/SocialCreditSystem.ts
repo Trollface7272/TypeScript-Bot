@@ -1,25 +1,38 @@
-import { Message } from "discord.js";
-import { Bot } from "../../client/Client";
-import { RunFunction } from "../../../interfaces/Command";
-import { SetSocialCredit } from "../../../database/Guilds";
+import { ApplicationCommandData, GuildMember, Message, PermissionString } from "discord.js"
+import { Bot, Embed } from "@client/Client"
+import { SetSocialCredit } from "@database/Guilds"
+import { iOnMessage } from "@interfaces/Command"
 
 
-export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {
+const ToggleSocialCredit = (author: GuildMember, guildId: string, enable: boolean) => {
+    SetSocialCredit(guildId, enable)
+    return ({embeds: [
+        Embed({
+            description: `Successfully ${enable ? "enabled" : "disabled"} social credit system.`
+        }, author.user)
+    ]})
+}
+
+export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     switch(args[0]) {
-        case "enable":  return ToggleSocialCredit(client, message, true)
-        case "disable": return ToggleSocialCredit(client, message, false)
+        case "enable":  return message.reply(ToggleSocialCredit(message.member, message.guild.id, true))
+        case "disable": return message.reply(ToggleSocialCredit(message.member, message.guild.id, false))
     }
 }
 
-const ToggleSocialCredit = (client: Bot, message: Message, enable: boolean) => {
-    SetSocialCredit(client, message, enable)
-    message.reply({
-        embeds: [
-            client.embed({
-                description: `Successfully ${enable ? "enabled" : "disabled"} social credit system.`
-            }, message)
-        ]
-    })
+export const name: string = "socialcreditsystem"
+
+export const commandData: ApplicationCommandData = {
+    name: "social credit system toggle",
+    description: "Show your social credit.",
+    options: [{
+        name: "State",
+        description: "Enable or disable.",
+        type: "BOOLEAN",
+        required: true
+    }],
+    type: "CHAT_INPUT",
+    defaultPermission: true
 }
 
-export const name: string = "socialcreditsystem"
+export const requiredPermissions: PermissionString[] = ["ADMINISTRATOR"]

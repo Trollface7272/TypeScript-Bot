@@ -1,14 +1,16 @@
-import { Client, Collection, Intents, Message, MessageEmbed, MessageEmbedOptions } from "discord.js"
+import { Client, Collection, Intents, Message, MessageEmbed, MessageEmbedOptions, User } from "discord.js"
 import consola, { Consola } from "consola"
-import { Command } from "../../interfaces/Command"
-import { Event } from "../../interfaces/Event"
-import { Config } from "../../interfaces/Config"
+import { Command } from "@interfaces/Command"
+import { Event } from "@interfaces/Event"
+import { Config } from "@interfaces/Config"
 import { promisify } from "util"
-import * as database from "../../database/Main"
+import * as database from "@database/Main"
 import glob from "glob"
-import { Trigger } from "../../interfaces/Trigger"
+import { Trigger } from "@interfaces/Trigger"
 
-const gPromise = promisify(glob)
+export const gPromise = promisify(glob)
+
+export const logger = consola
 
 class Bot extends Client {
     public logger: Consola = consola
@@ -19,7 +21,7 @@ class Bot extends Client {
     public config: Config
     public constructor() {
         super({
-            intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_BANS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS, Intents.FLAGS.GUILD_PRESENCES],
+            intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_BANS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS],
         })
         consola.wrapStd()
         database.Connect().then(v => this.database.database = v)
@@ -31,8 +33,11 @@ class Bot extends Client {
         const commandFiles: string[] = await gPromise(`${__dirname}/../commands/**/*{.ts,.js}`)
         commandFiles.map(async (value: string) => {
             const file: Command = await import(value)
-            if (typeof file.name == "string") this.commands.set(file.name, file)
-            else for (let i = 0; i < file.name.length; i++) this.commands.set(file.name[i], file)
+            if (typeof file.name == "string") 
+                this.commands.set(file.name, file)
+            else 
+                for (let i = 0; i < file.name.length; i++) 
+                    this.commands.set(file.name[i], file)
         })
         const eventFiles: string[] = await gPromise(`${__dirname}/../events/**/*{.ts,.js}`)
         eventFiles.map(async (value: string) => {
@@ -46,10 +51,15 @@ class Bot extends Client {
             if (typeof file.name == "string") this.triggers.set(file.name, file)
             else for (let i = 0; i < file.name.length; i++) this.triggers.set(file.name[i], file)
         })
+        
     }
     public embed(options: MessageEmbedOptions, message: Message): MessageEmbed {
         return new MessageEmbed({ ...options, color: "RANDOM" }).setFooter(`${message.author.tag}`, message.author.displayAvatarURL({ format: "png", dynamic: true }))
     }
+}
+
+export const Embed = (options: MessageEmbedOptions, author: User): MessageEmbed => {
+    return new MessageEmbed({ ...options, color: "RANDOM" }).setFooter(`${author.tag}`, author.displayAvatarURL({ format: "png", dynamic: true }))
 }
 
 

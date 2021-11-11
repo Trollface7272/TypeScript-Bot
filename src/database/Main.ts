@@ -1,9 +1,8 @@
 import { connect, connection, Connection, disconnect } from "mongoose"
 import consola from "consola"
 import * as File from "../../config.json"
-import { Config } from "../interfaces/Config"
-import { Bot } from "../bot/client/Client"
-import { Message } from "discord.js"
+import { Config } from "@interfaces/Config"
+import { Guild, GuildMember } from "discord.js"
 import * as users from "./Users"
 import * as guilds from "./Guilds"
 import * as tracking from "./Tracking"
@@ -37,29 +36,29 @@ export const Disconnect = async () => {
     database = null
 }
 
-export const OnMessage = async (client: Bot, message: Message) => {
+export const OnMessage = async (guild: Guild, author: GuildMember) => {
     try {
-        await users.OnMessage(client, message)
-        await guilds.OnMessage(client, message)
+        await users.OnMessage(author)
+        await guilds.OnMessage(guild)
     } catch (err) {
-        client.logger.error(`Error writing into database => ` + err.message)
+        logger.error(`Error writing into database => ` + err.message)
     }
 }
 
-export const OnCommand = async (client: Bot, message: Message) => {
+export const OnCommand = async (guildId: string, userId: string) => {
     try {
-        await users.OnCommand(client, message)
-        await guilds.OnCommand(client, message)
+        await users.OnCommand(userId)
+        await guilds.OnCommand(guildId)
     } catch (err) {
-        client.logger.error(`Error writing into database => ` + err.message)
+        logger.error(`Error writing into database => ` + err.message)
     }
 }
 
-export const SkeetkeyUsed = async (client: Bot, message: Message) => {
+export const SkeetkeyUsed = async (guildId: string, userId: string) => {
     try {
-        await users.SkeetkeyUsed(client, message)
-        await guilds.SkeetkeyUsed(client, message)
+        await users.SkeetkeyUsed(userId)
+        await guilds.SkeetkeyUsed(guildId)
     } catch (err) {
-        client.logger.error(`Error writing into database => ` + err.message)
+        logger.error(`Error writing into database => ` + err.message)
     }
 }

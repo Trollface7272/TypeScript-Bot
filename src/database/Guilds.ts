@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose"
-import { Message } from 'discord.js'
-import { Bot } from "../bot/client/Client"
+import { Guild as dGuild } from 'discord.js'
+import { database } from "./Main"
 
 export interface Filter {
     name: string,
@@ -33,13 +33,12 @@ const schema = new Schema<Guild>({
     filter: { type: Array, required: true }
 })
 
-
 const Model = model<Guild>("Guild", schema)
 
-async function CreateGuild (message: Message): Promise<Guild> {
+async function CreateGuild (guild: dGuild): Promise<Guild> {
     const doc = new Model({
-        id: message.guild.id,
-        name: message.guild.name,
+        id: guild.id,
+        name: guild.name,
         messages: 1,
         commands: 0,
         skeetkey_uses: 0,
@@ -52,73 +51,73 @@ async function CreateGuild (message: Message): Promise<Guild> {
     return doc
 }
 
-export const OnMessage = async (client: Bot, message: Message): Promise<void> => {
-    const res = await GetCollection(client)?.updateOne({ id: message.guild.id }, { $inc: { messages: 1 } })
-    if (res.matchedCount < 1) await CreateGuild(message)
+export const OnMessage = async (guild: dGuild): Promise<void> => {
+    const res = await GetCollection()?.updateOne({ id: guild.id }, { $inc: { messages: 1 } })
+    if (res.matchedCount < 1) await CreateGuild(guild)
 }
 
-export const OnCommand = async (client: Bot, message: Message): Promise<void> => {
-    GetCollection(client)?.updateOne({ id: message.guild.id }, { $inc: { commands: 1 } })
+export const OnCommand = async (guildId: string): Promise<void> => {
+    GetCollection()?.updateOne({ id: guildId }, { $inc: { commands: 1 } })
 }
 
-export const SkeetkeyUsed = async (client: Bot, message: Message): Promise<void> => {
-    GetCollection(client)?.updateOne({ id: message.guild.id }, { $inc: { skeetkey_uses: 1 } })
+export const SkeetkeyUsed = async (guildId: string): Promise<void> => {
+    GetCollection()?.updateOne({ id: guildId }, { $inc: { skeetkey_uses: 1 } })
 }
 
-export const AddFilter = async (client: Bot, message: Message, filter: Filter): Promise<void> => {
-    GetCollection(client)?.updateOne({ id: message.guild.id }, { $push: { filter } })
+export const AddFilter = async (guildId: string, filter: Filter): Promise<void> => {
+    GetCollection()?.updateOne({ id: guildId }, { $push: { filter } })
 }
 
-export const RemoveFilter = async (client: Bot, message: Message, name: string): Promise<void> => {
-    GetCollection(client)?.updateOne({ id: message.guild.id }, { $pull: { filter: { name: name } } })
+export const RemoveFilter = async (guildId: string, name: string): Promise<void> => {
+    GetCollection()?.updateOne({ id: guildId }, { $pull: { filter: { name: name } } })
 }
 
-export const GetFilter = async (client: Bot, message: Message): Promise<Array<Filter>> => {
-    return (await GetCollection(client)?.findOne({ id: message.guild.id }) as Guild).filter || []
+export const GetFilter = async (guildId: string): Promise<Array<Filter>> => {
+    return (await GetCollection()?.findOne({ id: guildId }) as Guild).filter || []
 }
 
-export const GetPrefix = async (client: Bot, message: Message): Promise<string[]> => {
-    const prefix = (await GetCollection(client)?.findOne({ id: message.guild.id }) as Guild)?.prefix
+export const GetPrefix = async (guildId: string): Promise<string[]> => {
+    const prefix = (await GetCollection()?.findOne({ id: guildId }) as Guild)?.prefix
     return (prefix ? (Array.isArray(prefix) ? prefix : [prefix]) : ["!"])
 }
 
-export const SetPrefix = async (client: Bot, message: Message, prefix: string): Promise<void> => {
-    GetCollection(client)?.updateOne({ id: message.guild.id }, { $set: { prefix: [prefix] } })
+export const SetPrefix = async (guildId: string, prefix: string): Promise<void> => {
+    GetCollection()?.updateOne({ id: guildId }, { $set: { prefix: [prefix] } })
 }
 
-export const AddPrefix = async (client: Bot, message: Message, prefix: string) => {
-    GetCollection(client)?.updateOne({ id: message.guild.id }, { $push: { prefix } })
+export const AddPrefix = async (guildId: string, prefix: string) => {
+    GetCollection()?.updateOne({ id: guildId }, { $push: { prefix } })
 }
 
-export const GetRetardRoles = async (client: Bot, message: Message): Promise<Array<string>> => {
-    return (await GetCollection(client)?.findOne({ id: message.guild.id }) as Guild).retard_roles || []
+export const GetRetardRoles = async (guildId: string): Promise<Array<string>> => {
+    return (await GetCollection()?.findOne({ id: guildId }) as Guild).retard_roles || []
 }
 
-export const AddRetardRole = async (client: Bot, message: Message, id: string, position: number): Promise<void> => {
-    if (position == -1) GetCollection(client)?.updateOne({ id: message.guild.id }, { $push: { retard_roles: { $each: [id] } } })
-    else GetCollection(client)?.updateOne({ id: message.guild.id }, { $push: { retard_roles: { $each: [id], $position: position } } })
+export const AddRetardRole = async (guildId: string, id: string, position: number): Promise<void> => {
+    if (position == -1) GetCollection()?.updateOne({ id: guildId }, { $push: { retard_roles: { $each: [id] } } })
+    else GetCollection()?.updateOne({ id: guildId }, { $push: { retard_roles: { $each: [id], $position: position } } })
 }
 
-export const ClearRetardRoles = async (client: Bot, message: Message): Promise<void> => {
-    GetCollection(client)?.updateOne({ id: message.guild.id }, { $set: { retard_roles: [] } })
+export const ClearRetardRoles = async (guildId: string): Promise<void> => {
+    GetCollection()?.updateOne({ id: guildId }, { $set: { retard_roles: [] } })
 }
 
-export const RemoveRetardRoleId = async (client: Bot, message: Message, id: string): Promise<void> => {
-    GetCollection(client)?.updateOne({ id: message.guild.id }, { $pull: { retard_roles: id } })
+export const RemoveRetardRoleId = async (guildId: string, id: string): Promise<void> => {
+    GetCollection()?.updateOne({ id: guildId }, { $pull: { retard_roles: id } })
 }
 
-export const RemoveRetardRoleIndex = async (client: Bot, message: Message, index: number): Promise<string> => {
-    const id = (await GetRetardRoles(client, message))[index - 1]
-    GetCollection(client)?.updateOne({ id: message.guild.id }, { $pull: { retard_roles: id } })
+export const RemoveRetardRoleIndex = async (guildId: string, index: number): Promise<string> => {
+    const id = (await GetRetardRoles(guildId))[index - 1]
+    GetCollection()?.updateOne({ id: guildId }, { $pull: { retard_roles: id } })
     return id
 }
 
-export const IsSocialCreditEnabled = async (client: Bot, message: Message) => {
-    return (await GetCollection(client)?.findOne({id: message.guild.id}))?.social_credit_enabled
+export const IsSocialCreditEnabled = async (guildId: string) => {
+    return (await GetCollection()?.findOne({id: guildId}))?.social_credit_enabled
 }
 
-export const SetSocialCredit = async (client: Bot, message: Message, enabled: boolean) => {
-    (await GetCollection(client)?.updateOne({id: message.guild.id}, {$set: {social_credit_enabled: enabled}}))
+export const SetSocialCredit = async (guildId: string, enabled: boolean) => {
+    (await GetCollection()?.updateOne({id: guildId}, {$set: {social_credit_enabled: enabled}}))
 }
 
-const GetCollection = (client: Bot) => client?.database?.database?.collection("guilds")
+const GetCollection = () => database?.collection("guilds")

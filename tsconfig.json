@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"lib": ["ESNext"],
 		"module": "commonjs",
-		"moduleResolution": "node",
+		"moduleResolution": "Node",
 		"target": "ESNext",
 		"outDir": "dist",
 		"sourceMap": true,
@@ -12,8 +12,16 @@
 		"allowSyntheticDefaultImports": true,
 		"skipLibCheck": true,
 		"skipDefaultLibCheck": true,
-		"resolveJsonModule": true
+		"resolveJsonModule": true,
+		"baseUrl": "./src",
+		"paths": {
+			"@database/*": ["database/*"],
+			"@interfaces/*": ["interfaces/*"],
+			"@lib/*": ["lib/*"],
+			"@commands/*": ["bot/main-commands/*"],
+			"@client/*": ["bot/client/*"]
+		}
 	},
-	"include": ["src", "src/web/dashboard/js/jquery-3.6.0.min.js", "src/web/dashboard/js/bootstrap.bundle.min.js"],
+	"include": ["src"],
 	"exclude": ["node_modules", "**/*.spec.ts"]
 }

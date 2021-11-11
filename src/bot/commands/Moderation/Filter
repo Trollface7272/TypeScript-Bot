@@ -1,7 +1,8 @@
 import { Message } from "discord.js"
-import { Bot } from "../../client/Client"
-import { Filter } from "../../../database/Guilds"
-import { RunFunction } from "../../../interfaces/Command"
+import { Bot } from "@client/Client"
+import { Filter } from "@database/Guilds"
+import { AddFilter, RemoveFilter, ShowFilter } from "@commands/Moderation/Filter"
+import { iOnMessage } from "@interfaces/Command"
 
 const ParseMessage = async (client: Bot, message: Message, args: string[]) => {
     if (args[0] === "add") {
@@ -15,7 +16,7 @@ const ParseMessage = async (client: Bot, message: Message, args: string[]) => {
     }
 
     if (args[0] == "display" || args[0] == "show") {
-        return { action: "show", data: await client.database.Guilds.GetFilter(client, message) }
+        return { action: "show", data: await client.database.Guilds.GetFilter(message.guild.id) }
     }
 }
 
@@ -30,33 +31,7 @@ const error = (client: Bot, message: Message, code: any) => {
     }
 }
 
-const AddFilter = async (client: Bot, message: Message, filter: Filter) => {
-    if (filter.match == "") throw 1
-    await client.database.Guilds.AddFilter(client, message, filter)
-    message.channel.send({embeds: [client.embed({ description: `Successfully added \`${filter.match}\` as a ${filter.type} filter.` }, message)]})
-}
-
-const RemoveFilter = async (client: Bot, message: Message, name: string) => {
-    await client.database.Guilds.RemoveFilter(client, message, name)
-    message.channel.send({embeds: [client.embed({ description: `Successfully removed ${name} from filters.` }, message)]})
-}
-
-const ShowFilter = async (client: Bot, message: Message, filters: Array<Filter>) => {
-    const fields = []
-    for (let i = 0; i < filters.length; i++) {
-        fields.push({
-            name: filters[i].name,
-            value: `Match: \`${filters[i].match}\`\nType: ${filters[i].type}`,
-            inline: true
-        })
-    }
-    message.channel.send({embeds: [client.embed({
-        title: `Active filters for ${message.guild.name}:`,
-        fields: fields
-    }, message)]})
-}
-
-export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {
+export const run: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     try {
         const data = await ParseMessage(client, message, args)
         if (data?.action == "add") return AddFilter(client, message, data.data as Filter)

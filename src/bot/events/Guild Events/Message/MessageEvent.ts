@@ -1,16 +1,16 @@
-import { RunFunction } from "../../../../interfaces/Event"
+import { RunFunction } from "@interfaces/Event"
 import { Message } from "discord.js"
-import { Command } from "../../../../interfaces/Command"
-import { Bot } from "../../../client/Client"
+import { Command } from "@interfaces/Command"
+import { Bot } from "@client/Client"
 
 export const run: RunFunction = async (client: Bot, message: Message) => {
     if (message.author.bot || !message.guild) return
-    client.database.OnMessage(client, message)
+    client.database.OnMessage(message.guild, message.member)
     
     //if (await Filter(client, message)) return
     let prefix: string[]
     if (process.argv.indexOf("-prefix") !== -1) prefix = [process.argv[process.argv.indexOf("-prefix") + 1]]
-    else prefix = await client.database.Guilds.GetPrefix(client, message)
+    else prefix = await client.database.Guilds.GetPrefix(message.guild.id)
 
     RunTrigger(client, message)
 
@@ -30,9 +30,10 @@ const RunCommand = (client: Bot, message: Message, args: string[]) => {
     const command: Command = client.commands.get(cmd)
     
     if (!command) return
-    client.database.OnCommand(client, message)
+    if (!message.member.permissions.has(command.requiredPermissions)) return message.channel.send({ embeds: [client.embed({ description: "Insufficient permissions." }, message)] })
+    client.database.OnCommand(message.guild.id, message.author.id)
     // eslint-disable-next-line
-    command.run(client, message, args).catch((reason: any) => {
+    command.onMessage(client, message, args).catch((reason: any) => {
         message.channel.send({embeds: [client.embed({
             description: `Unexpected error: ${reason}`
         }, message)]})

@@ -1,0 +1,32 @@
+import { ApplicationCommandData, Guild, GuildMember, Message, PermissionString } from "discord.js"
+import { Bot } from "@client/Client"
+import { SkeetkeyUsed } from "@database/Main"
+import { iOnMessage } from "@interfaces/Command"
+import { Random } from "@lib/GlobalUtils"
+
+const trollSkeetKey = (author: GuildMember, guild: Guild) => {
+    SkeetkeyUsed(guild.id, author.user.id)
+    return {content: `GIFT-${RandString(5)}-${RandString(5)}-${RandString(5)}`}
+}
+
+function RandString(len: number) {
+    let out = ""
+    for(;len > 0; len--) out += String.fromCharCode(Random(65,91))
+    return out
+}
+
+
+export const onMessage: iOnMessage = async (client: Bot, message: Message) => {
+    message.reply(trollSkeetKey(message.member, message.guild))
+}
+
+export const name = "skeetkey"
+
+export const commandData: ApplicationCommandData = {
+    name: "skeet invite",
+    description: "Get skeet invite novirus.",
+    type: "CHAT_INPUT",
+    defaultPermission: true
+}
+
+export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

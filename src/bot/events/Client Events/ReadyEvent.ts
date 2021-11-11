@@ -1,6 +1,8 @@
-import { Bot } from "../../client/Client";
-import { RunFunction } from "../../../interfaces/Event";
-export const run: RunFunction = async (client) => {
+import { Bot } from "@client/Client"
+import { Command } from "@interfaces/Command"
+import { RunFunction } from "@interfaces/Event"
+
+export const run: RunFunction = async (client: Bot) => {
     client.logger.success(`Logged on as ${client.user.tag}!`)
     client.user.setPresence({status: "online"})
     client.user.setActivity({
@@ -10,6 +12,23 @@ export const run: RunFunction = async (client) => {
     DisplayGuilds(client)
     //LogStatusLinks(client)
     //FunnyBansThing(client)
+    AddSlashCommands(client)
+}
+
+const AddSlashCommands = async (client: Bot) => {
+    const commands = {}
+    let cmds: Command[] = []
+    client.commands.map((value: Command) => commands[value.commandData.name] = value)
+    for (const [key, value] of Object.entries(commands)) {
+        cmds.push(value as Command)
+    }
+    let int = setInterval(() => {
+        let cmd = cmds.pop().commandData
+        client.guilds.cache.get("341153679992160266").commands.create(cmd)
+        console.log(cmd);
+        
+        if (cmds.length == 0) clearInterval(int)
+    }, 1000)
 }
 
 const DisplayGuilds = async (client: Bot) => {

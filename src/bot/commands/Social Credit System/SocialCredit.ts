@@ -1,23 +1,40 @@
-import { Message } from "discord.js";
-import { Bot } from "../../client/Client";
-import { RunFunction } from "../../../interfaces/Command";
-import { GetSocialCredit } from "../../../database/Users";
-import { IsSocialCreditEnabled } from "../../../database/Guilds";
+import { ApplicationCommandData, CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString } from "discord.js"
+import { Bot, Embed } from "@client/Client"
+import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
+import { IsSocialCreditEnabled } from "@database/Guilds"
+import { GetSocialCredit } from "@database/Users"
 
 
-export const run: RunFunction = async (client: Bot, message: Message) => {
-    if (!(await IsSocialCreditEnabled(client, message))) return message.reply({embeds: [
-        client.embed({
+const SocialCredit = async (author: GuildMember, guild: Guild): Promise<MessageOptions> => {
+    if (!(await IsSocialCreditEnabled(guild.id))) return ({embeds: [
+        Embed({
             description: "Social credit system is not enabled on this server!"
-        }, message)
+        }, author.user)
     ]})
-    const credit = await GetSocialCredit(client, message)
-    message.reply({embeds: [
-        client.embed({
-            author: {name: "Glory to CCP"},
+    const credit = await GetSocialCredit(author.user.id)
+    return ({embeds: [
+        Embed({
+            author: {name: "Glory to CCP!"},
             description: `Your current social credit score is \`${credit}\``
-        }, message)
+        }, author.user)
     ]})
 }
 
+export const onMessage: iOnMessage = async (client: Bot, message: Message) => {
+    message.reply(await SocialCredit(message.member, message.guild))
+}
+
+export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
+    interaction.reply(await SocialCredit(interaction.member as GuildMember, interaction.guild))
+}
+
 export const name: string[] = ["sc", "socialcredit"]
+
+export const commandData: ApplicationCommandData = {
+    name: "social credit",
+    description: "Show your social credit.",
+    type: "CHAT_INPUT",
+    defaultPermission: true
+}
+
+export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

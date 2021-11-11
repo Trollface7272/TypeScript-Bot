@@ -1,6 +1,6 @@
-import { Message } from "discord.js";
-import { Bot } from "../client/Client";
-import { RunFunction } from "../../interfaces/Trigger";
+import { Message } from "discord.js"
+import { Bot } from "@client/Client"
+import { RunFunction } from "@interfaces/Trigger"
 
 const messages = [
     "727", "When you see it", "WHEN YOU SEE IT", "When you fucking see it", "WYSI", "727 WYSI", "WHEN YOU FUCKING SEE IT"

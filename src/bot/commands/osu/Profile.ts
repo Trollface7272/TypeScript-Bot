@@ -1,17 +1,18 @@
-import { Message, MessageEmbed } from "discord.js"
-import { Bot } from "../../client/Client"
-import { RunFunction } from "../../../interfaces/Command"
-import { Profile } from "../../../interfaces/OsuApi"
-import { GetProfile } from "../../../lib/osu/Api/Api"
-import { ParseArgs, ModNames, GetFlagUrl, GetProfileLink, GetServer, GetProfileImage, HandleError } from "../../../lib/osu/Utils"
+import { ApplicationCommandData, CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
+import { Bot } from "@client/Client"
+import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
+import { GetOsuUsername } from "@database/Users"
+import { osuGamemodeOption, osuUsernameOption } from "@lib/Constants"
+import { Profile } from "@interfaces/OsuApi"
+import { GetProfile } from "@lib/osu/Api/Api"
+import { ModNames, GetFlagUrl, GetProfileLink, GetServer, GetProfileImage, HandleError, Args, ParseArgs } from "@lib/osu/Utils"
 
-export const run: RunFunction = async (client: Bot, message: Message, args: string[]) => {
-    const options = await ParseArgs(client, message, args)
-    if (!options.Name) return HandleError(client, message, {code: 1}, options.Name)
+const osuProfile = async (author: GuildMember, { Name, Flags: { m } }: Args): Promise<MessageOptions> => {
+    if (!Name) return HandleError(author, { code: 1 }, Name)
 
     let profile: Profile
-    try { profile = await GetProfile({ u: options.Name, m: options.Flags.m }) }
-    catch (err) { return HandleError(client, message, err, options.Name) }
+    try { profile = await GetProfile({ u: Name, m: m }) }
+    catch (err) { return HandleError(author, err, Name) }
 
     let description = `**▸ Official Rank:** #${profile.Rank.Global.Formatted} (${profile.Country}#${profile.Rank.Country.Formatted})\n`
     description += `**▸ Level:** ${profile.Level.Level} (${profile.Level.Progress}%)\n`
@@ -20,11 +21,37 @@ export const run: RunFunction = async (client: Bot, message: Message, args: stri
     description += `**▸ Playcount:** ${profile.Playcount.Formatted}`
 
     const embed = new MessageEmbed()
-        .setAuthor(`${ModNames.Name[options.Flags.m]} Profile for ${profile.Name}`, GetFlagUrl(profile.Country), GetProfileLink(profile.id, options.Flags.m))
+        .setAuthor(`${ModNames.Name[m]} Profile for ${profile.Name}`, GetFlagUrl(profile.Country), GetProfileLink(profile.id, m))
         .setDescription(description)
         .setFooter(GetServer())
         .setThumbnail(GetProfileImage(profile.id))
-    message.channel.send({ embeds: [embed] })
+    return ({ embeds: [embed] })
 }
 
-export const name: Array<string> = ["profile", "osu", "mania", "taiko", "ctb"]
+export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
+    const options = await ParseArgs(message, args)
+    message.reply(await osuProfile(message.member, options))
+}
+
+export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
+    let username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
+    if (!username) interaction.reply(HandleError(interaction.member as GuildMember, { code: 1 }, ""))
+    const options: Args = {
+        Name: username as string,
+        Flags: {
+            m: interaction.options.getNumber("mode") as 0 | 1 | 2 | 3
+        }
+    }
+    interaction.reply(await osuProfile(interaction.member as GuildMember, options))
+}
+
+export const name: string[] = ["profile", "osu", "mania", "taiko", "ctb"]
+
+export const commandData: ApplicationCommandData = {
+    name: "osu profile",
+    description: "Get osu profile.",
+    options: [osuUsernameOption, osuGamemodeOption],
+    type: "CHAT_INPUT",
+    defaultPermission: true
+}
+export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

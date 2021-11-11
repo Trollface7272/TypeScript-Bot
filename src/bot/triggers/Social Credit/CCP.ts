@@ -16,13 +16,13 @@ Your social credit score has lowered by \`10\`, continue like this and we will h
 
 
 export const run: RunFunction = async (client: Bot, message: Message) => {
-    if (!(await IsSocialCreditEnabled(client, message))) return
+    if (!(await IsSocialCreditEnabled(message.guild.id))) return
     let lcMsg = message.content.toLowerCase()
-    if (lcMsg.match(/(taiwan|:flag_tw:|🇹🇼).*(is not|isn.t).*(country|real)/) || lcMsg.match(/(taiwan|:flag_tw:|🇹🇼).*(is).*(?!not).*(china|🇨🇳)/) || lcMsg.match(/(taiwan|:flag_tw:|🇹🇼).*(does not|doesn.t).*(exist)/)) {
-        AddSocialCredit(client, message, 5)
+    if (lcMsg.match(/(taiwan|:flag_tw:|🇹🇼).*(is not|isn.t).*(country|real)/) || lcMsg.match(/(taiwan|:flag_tw:|🇹🇼).*(is).*(?!not|n't|nt|n t).*(china|🇨🇳)/) || lcMsg.match(/(taiwan|:flag_tw:|🇹🇼).*(does not|doesn.t).*(exist)/)) {
+        AddSocialCredit(message.author.id, 5)
         message.reply(good)
     } else {
-        AddSocialCredit(client, message, -10)
+        AddSocialCredit(message.author.id, -10)
         message.reply(bad)
     }
 }

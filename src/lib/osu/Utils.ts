@@ -1,7 +1,8 @@
-import { Emoji, Message } from "discord.js"
+import { Emoji, GuildMember, Message, MessageOptions, TextBasedChannels } from "discord.js"
 import { modbits } from "ojsama"
-import { Bot } from "../../bot/client/Client"
-import { Counts, Objects } from "../../interfaces/OsuApi"
+import { Bot, Embed, logger } from "@client/Client"
+import { Counts, Objects } from "@interfaces/OsuApi"
+import { GetOsuUsername } from "@database/Users"
 
 const CommandGamemodes = {
     "taiko": 1,
@@ -117,26 +118,26 @@ export const ModNames = {
 }
 
 export interface Args {
-    Name: null,
+    Name: string,
     Flags: Flags
 }
 export interface Flags {
     m: 0 | 1 | 2 | 3
-    b: boolean
-    rv: boolean
-    g: number | false
-    p: Array<number> | false
-    mods: number
-    acc: number
-    map: number
-    rand: boolean
-    l: boolean
+    b?: boolean
+    rv?: boolean
+    g?: number | false
+    p?: Array<number> | false
+    mods?: number
+    acc?: number
+    map?: number
+    rand?: boolean
+    l?: boolean
 }
 interface Error {
     code: number
 }
 
-export const ParseArgs = async (client: Bot, message: Message, args: string[]) => {
+export const ParseArgs = async (message: Message, args: string[]) => {
     const cmd = message.content.toLocaleLowerCase().split(" ")[0].substr(1)
     const out = {
         Name: null,
@@ -178,22 +179,22 @@ export const ParseArgs = async (client: Bot, message: Message, args: string[]) =
             else out.Flags.m = parseInt(out.Flags.m)
             i++
         }
-        else if (el.startsWith("+")) out.Flags.mods |= GetModsFromString(client, message, el.substr(1))
+        else if (el.startsWith("+")) out.Flags.mods |= GetModsFromString(el.substr(1))
         else if (el.includes("osu.ppy.sh")) out.Flags.map = parseInt(el.split("/").pop())
         else if (el.length >= 3) out.Name = el
     }
     if (cmd == "map" || cmd == "m" || cmd == "c" || cmd == "compare") {
-        if (!out.Flags.map) out.Flags.map = await FindMapInConversation(message)
+        if (!out.Flags.map) out.Flags.map = await FindMapInConversation(message.channel)
     }
     if (!out.Name) {
-        out.Name = await client.database.Users.GetOsuUsername(client, message)
+        out.Name = await GetOsuUsername(message.author.id)
     }
-    client.logger.info(out)
+    logger.info(out)
     return out
 }
 
-const FindMapInConversation = async (msgs: Message): Promise<string> => {
-    const messages = await msgs.channel.messages.fetch({ limit: 50 })
+export const FindMapInConversation = async (channel: TextBasedChannels): Promise<string> => {
+    const messages = await channel.messages.fetch({ limit: 50 })
     let map: string
     messages.forEach(msg => {
         if (msg.embeds.length < 1 || map) return
@@ -237,37 +238,37 @@ export const GetProfileImage = (id: number): string => {
     return `http://s.ppy.sh/a/${id}?newFix=${new Date().getTime()}`
 }
 
-export const HandleError = (client: Bot, message: Message, err: Error, name: string): void => {
-    if (err.code) message.channel.send({ embeds: [client.embed({ description: Errors[err.code].replace("${Name}", name) }, message)] })
-    else client.logger.error(new Error(JSON.stringify(err)))
+export const HandleError = (author: GuildMember, err: Error, name: string): MessageOptions => {
+    if (err.code) return ({ embeds: [Embed({ description: Errors[err.code].replace("${Name}", name) }, author.user)] })
+    else logger.error(new Error(JSON.stringify(err)))
 }
 
-export const RankingEmotes = (client: Bot, ranking: string): Emoji => {
+export const RankingEmotes = (ranking: string): string => {
     switch (ranking) {
         case "XH":
-            return client.emojis.resolve("585737970816909322")
+            return "<:XH:585737970816909322>"
         case "SH":
-            return client.emojis.resolve("585737970246615050")
+            return "<:SH:585737970246615050>"
         case "X":
-            return client.emojis.resolve("585737970384896017")
+            return "<:X:585737970384896017>"
         case "S":
-            return client.emojis.resolve("585737969885904897")
+            return "<:S:585737969885904897>"
         case "A":
-            return client.emojis.resolve("585737969927716866")
+            return "<:A:585737969927716866>"
         case "B":
-            return client.emojis.resolve("585737970150277131")
+            return "<:B:585737970150277131>"
         case "C":
-            return client.emojis.resolve("585737970200477696")
+            return "<:C:585737970200477696>"
         case "D":
         case "F":
-            return client.emojis.resolve("585737969877385217")
+            return "<:F:585737969877385217>"
         default:
-            client.logger.error(`Unknown emoji ${ranking}`)
-            return client.emojis.resolve("585737969877385217")
+            logger.error(`Unknown emoji ${ranking}`)
+            return "<:F:585737969877385217>"
     }
 }
 
-export const CalculateAcc = (client: Bot, counts: Counts, mode: number): string => {
+export const CalculateAcc = (counts: Counts, mode: number): string => {
     switch (mode) {
         case 0:
             return RoundFixed((counts[300] * 300 + counts[100] * 100 + counts[50] * 50) / ((counts[300] + counts[100] + counts[50] + counts.miss) * 300) * 100)
@@ -278,12 +279,12 @@ export const CalculateAcc = (client: Bot, counts: Counts, mode: number): string 
         case 3:
             return RoundFixed((300 * (counts[300] + counts.geki) + 200 * counts.katu + 100 * counts[100] + 50 * counts[50]) / (300 * (counts.geki + counts[300] + counts.katu + counts[100] + counts[50] + counts.miss)) * 100)
         default:
-            client.logger.error(`Unknown gamemode: ${mode}`)
+            logger.error(`Unknown gamemode: ${mode}`)
             return "Unknown"
     }
 }
 
-export const GetHits = (client: Bot, counts: Counts, mode: number): string => {
+export const GetHits = (counts: Counts, mode: number): string => {
     switch (mode) {
         case 1:
         case 0:
@@ -293,12 +294,12 @@ export const GetHits = (client: Bot, counts: Counts, mode: number): string => {
         case 3:
             return `${counts.geki}/${counts[300]}/${counts.katu}/${counts[100]}/${counts[50]}/${counts.miss}`
         default:
-            client.logger.error(`Unknown gamemode: ${mode}`)
+            logger.error(`Unknown gamemode: ${mode}`)
             return "Unknown"
     }
 }
 
-export const CalculateProgress = (client: Bot, counts: Counts, objects: Objects, mode: number): string => {
+export const CalculateProgress = (counts: Counts, objects: Objects, mode: number): string => {
     switch (mode) {
         case 1:
         case 0:
@@ -308,12 +309,12 @@ export const CalculateProgress = (client: Bot, counts: Counts, objects: Objects,
         case 3:
             return RoundFixed((counts.geki + counts[300] + counts.katu + counts[100] + counts[50] + counts.miss + counts.katu) / (objects.Circle + objects.Slider + objects.Spinner) * 100)
         default:
-            client.logger.error(`Unknown gamemode: ${mode}`)
+            logger.error(`Unknown gamemode: ${mode}`)
             return "Unknown"
     }
 }
 
-export const ConvertBitMods = (client: Bot, mods: number): string => {
+export const ConvertBitMods = (mods: number): string => {
     if (mods == 0) return "No Mod"
 
     let resultMods = ""
@@ -334,7 +335,7 @@ export const GetMapImage = (id: number): string => {
     return `https://b.ppy.sh/thumb/${id}l.jpg`
 }
 
-export const DateDiff = (client: Bot, date1: Date, date2: Date) => {
+export const DateDiff = (date1: Date, date2: Date) => {
     const diff: number = date2.getTime() - date1.getTime()
     const out: Array<string> = []
     const years: number = Math.floor(diff / 1000 / 60 / 60 / 24 / 30 / 12)
@@ -362,21 +363,22 @@ export const GetDiffMods = (mods: number) => {
     return (mods & Mods.Bit.DoubleTime | mods & Mods.Bit.HalfTime | mods & Mods.Bit.HardRock | mods & Mods.Bit.Easy)
 }
 
-export const GetCombo = (client: Bot, combo: number, maxCombo: number, mode: number): string => {
+export const GetCombo = (combo: number, maxCombo: number, mode: number): string => {
     if (mode == 3) return `x${combo}`
     return `x${combo}/${maxCombo}`
 }
 
-export const GetModsFromString = (client: Bot, message: Message, mods: string) => {
+export const GetModsFromString = (mods: string) => {
+    if (!mods.startsWith("+")) mods += "+"
     return modbits.from_string(mods)
 }
 
-export const GetDifficultyEmote = (client: Bot, message: Message, mode: 0|1|2|3, star: number) => {
+export const GetDifficultyEmote = (mode: 0|1|2|3, star: number) => {
     let difficulty = 0
     if (star > 2) difficulty++
     if (star > 2.7) difficulty++
     if (star > 4) difficulty++
     if (star > 5.3) difficulty++
     if (star > 6.5) difficulty++
-    return client.emojis.cache.get(DifficultyEmoteIds[mode][difficulty])
+    return `<:Black:${DifficultyEmoteIds[mode][difficulty]}>`
 }

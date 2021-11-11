@@ -1,0 +1,16 @@
+import { Message } from "discord.js"
+import { Bot } from "@client/Client"
+import { NlProfile } from "@commands/Neverlose/Profile"
+import { iOnMessage } from "@interfaces/Command"
+
+
+export const run: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
+    if (args.length !== 1) return message.channel.send({
+        embeds: [
+            client.embed({description: "Please provide valid username."}, message)
+        ]
+    })
+    NlProfile(args[1])
+}
+
+export const name = "nl"

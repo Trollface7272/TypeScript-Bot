@@ -253,7 +253,7 @@ export interface ProfileParams {
 
 export interface RecentParams {
     k?: string
-    u: number
+    u: number | string
     m?: 0 | 1 | 2 | 3
     limit?: number
     type?: "string" | "id"

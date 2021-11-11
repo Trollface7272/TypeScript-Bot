@@ -1,34 +1,7 @@
-import { GuildMember, Message, Role } from "discord.js";
-import { Bot } from "../../client/Client";
-import { GetRetardRoles } from "../../../database/Guilds";
-import { RunFunction } from "../../../interfaces/Command";
-
-
-export const run: RunFunction = async (client: Bot, message: Message) => {
-    if (!message.member.permissions.has("MANAGE_ROLES")) { message.channel.send({ embeds: [client.embed({ description: "Insufficient permissions." }, message)] }); return }
-    const member = message.mentions.members.first()
-    const roles: Array<Role> = [];
-    (await GetRetardRoles(client, message)).forEach(async el => {
-        roles.push(message.guild.roles.cache.get(el) || await message.guild.roles.fetch(el))
-    })
-    if (!member) return SendResponse(client, message, { code: 3 })
-    for (let j = 0; j < roles.length; j++) {
-        const role = roles[j]
-        if (member.roles.cache.find(r => r.id == role?.id)) {
-            if (j == 0) {
-                await member.roles.remove(role)
-                return SendResponse(client, message, { username: member.user.username, code: 4 })
-            } else try {
-                await member.roles.remove(role)
-                await member.roles.add(roles[j - 1])
-                return SendResponse(client, message, { username: member.user.username, role: roles[j - 1].name, code: 0 })
-            } catch (err) {
-                return HandleError(client, message, err, member)
-            }
-        }
-    }
-    return SendResponse(client, message, { username: member.user.username, code: 1 })
-}
+import { ApplicationCommandData, CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString, Role } from "discord.js"
+import { Bot, Embed } from "@client/Client"
+import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
+import { GetRetardRoles } from "@database/Guilds"
 
 interface Response {
     code: number
@@ -37,9 +10,32 @@ interface Response {
     message?: string
 }
 
-const SendResponse = (client: Bot, message: Message, response: Response) => {
+const Unretard = async (author: GuildMember, guild: Guild, member: GuildMember): Promise<MessageOptions> => {
+    if (!author.permissions.has("MANAGE_ROLES")) return SendResponse(author, { username: member.user.username, code: 2 })
+    const roles: Array<Role> = [];
+    (await GetRetardRoles(guild.id)).forEach(async el => {
+        roles.push(guild.roles.cache.get(el) || await guild.roles.fetch(el))
+    })
+    for (let j = 0; j < roles.length; j++) {
+        const role = roles[j]
+        if (member.roles.cache.find(r => r.id == role?.id)) {
+            if (j == 0) {
+                await member.roles.remove(role)
+                return SendResponse(author, { username: member.user.username, code: 4 })
+            } else try {
+                await member.roles.remove(role)
+                await member.roles.add(roles[j - 1])
+                return SendResponse(author, { username: member.user.username, role: roles[j - 1].name, code: 0 })
+            } catch (err) {
+                return HandleError(author, err, member)
+            }
+        }
+    }
+    return SendResponse(author, { username: member.user.username, code: 1 })
+}
+
+const SendResponse = (author: GuildMember, response: Response): MessageOptions => {
     let out = ""
-    client.logger.debug(response)
     switch (response.code) {
         case 0:
             out = `Successfully set **${response.username}'s** role to \`${response.role}\`.`
@@ -64,16 +60,42 @@ const SendResponse = (client: Bot, message: Message, response: Response) => {
             break
     }
 
-    message.channel.send({ embeds: [client.embed({ description: out }, message)] })
+    return ({ embeds: [Embed({ description: out }, author.user)] })
 }
 
-function HandleError(client: Bot, message: Message, err: Error, member: GuildMember) {
+function HandleError(author: GuildMember, err: Error, member: GuildMember) {
     if (err.message.includes("Missing Permissions")) {
-        return SendResponse(client, message, { username: member.user.username, code: 2 })
+        return SendResponse(author, { username: member.user.username, code: 2 })
     }
 
-    return SendResponse(client, message, { message: err.message, code: 999 })
+    return SendResponse(author, { message: err.message, code: 999 })
 }
 
 
+export const onMessage: iOnMessage = async (client: Bot, message: Message) => {
+    const member = message.mentions.members.first()
+
+    if (!member) return message.channel.send({ embeds: [client.embed({ description: `No user mentioned.` }, message)] })
+    message.reply(await Unretard(message.member, message.guild, member))
+}
+
+export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
+    const member = interaction.options.getUser("user")
+
+    interaction.reply(await Unretard(interaction.member as GuildMember, interaction.guild, interaction.guild.members.cache.get(member.id) || await interaction.guild.members.fetch(member.id)))
+}
+
 export const name = "unretard"
+export const commandData: ApplicationCommandData = {
+    name: "unretard",
+    description: "Unretard.",
+    options: [{
+        name: "user",
+        description: "Target user.",
+        type: "USER",
+        required: true
+    }],
+    type: "CHAT_INPUT",
+    defaultPermission: true
+}
+export const requiredPermissions: PermissionString[] = ["MANAGE_ROLES"]
