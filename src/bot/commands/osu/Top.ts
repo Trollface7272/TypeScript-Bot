@@ -1,22 +1,21 @@
-import { ApplicationCommandData, CommandInteraction, GuildMember, Message, MessageEmbed, PermissionString } from "discord.js"
+import { CommandInteraction, GuildMember, Message, MessageEmbed, PermissionString } from "discord.js"
 import { Bot, Embed } from "@client/Client"
 import { Beatmap, Profile, Score } from "@interfaces/OsuApi"
 import { GetBeatmap, GetProfileCache, GetTop } from "@lib/osu/Api/Api"
 import { Args, CalculateAcc, ConvertBitMods, DateDiff, GetCombo, GetFlagUrl, GetHits, GetMapLink, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs, RankingEmotes, RoundFixed } from "@lib/osu/Utils"
 import { GetFcAccuracy, GetFcPerformance } from "@lib/osu/Calculator"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
-import { osuGamemodeOption, osuUsernameOption } from "@lib/Constants"
 import { GetOsuUsername } from "@database/Users"
 
 const osuTopPlays = async (author: GuildMember, options: Args) => {
-    if (!options.Name) return HandleError(author, {code: 1}, options.Name)
+    if (!options.Name) return HandleError(author, { code: 1 }, options.Name)
 
     if ((options.Flags.g) && !(options.Flags.b || options.Flags.rv)) return GreaterCount(author, options)
     return Normal(author, options)
-    
+
 }
 
-const Normal = async (author: GuildMember, {Name, Flags: {m, rv, g, b, p, rand}}: Args) => {
+const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand } }: Args) => {
     let profile: Profile
     try { profile = await GetProfileCache({ u: Name, m: m }) }
     catch (err) { HandleError(author, err, Name) }
@@ -56,7 +55,7 @@ const Normal = async (author: GuildMember, {Name, Flags: {m, rv, g, b, p, rand}}
     return ({ embeds: [embed] })
 }
 
-const FormatTopPlay = async (author: GuildMember, m: 0|1|2|3, score: Score): Promise<string> => {
+const FormatTopPlay = async (author: GuildMember, m: 0 | 1 | 2 | 3, score: Score): Promise<string> => {
     let beatmap: Beatmap
     try { beatmap = await GetBeatmap({ b: score.MapId, m: m, mods: score.Mods }) }
     catch (err) { HandleError(author, err, score.Username); return "" }
@@ -80,30 +79,32 @@ const GreaterCount = async (author: GuildMember, options: Args) => {
     try { scores = await GetTop({ u: options.Name, m: options.Flags.m, limit: 100 }) }
     catch (err) { HandleError(author, err, profile.Name) }
 
-    scores = scores.filter(e => 
+    scores = scores.filter(e =>
         options.Flags.rv ? (e.Performance.raw < options.Flags.g) : (e.Performance.raw > options.Flags.g)
     )
 
-    return ({embeds: [Embed({ description: `**${profile.Name} has ${scores.length} plays worth more than ${RoundFixed(parseFloat(options.Flags.g + ""))}pp**` }, author.user)]})
+    return ({ embeds: [Embed({ description: `**${profile.Name} has ${scores.length} plays worth more than ${RoundFixed(parseFloat(options.Flags.g + ""))}pp**` }, author.user)] })
 }
 
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: Array<string>) => {
     const options: Args = await ParseArgs(message, args)
 
-    message.reply(await osuTopPlays(message.member, options))
+    return await osuTopPlays(message.member, options)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
     let username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
     if (!username) interaction.reply(HandleError(interaction.member as GuildMember, { code: 1 }, ""))
-    let specific = [interaction.options.getNumber("specific")]
+    
+    let specific = [interaction.options.getInteger("specific")]
+    
     const options: Args = {
         Name: username as string,
         Flags: {
-            m: interaction.options.getNumber("mode") as 0 | 1 | 2 | 3,
+            m: (interaction.options.getInteger("mode") as 0 | 1 | 2 | 3) || 0,
             b: interaction.options.getBoolean("best"),
-            g: interaction.options.getNumber("greater than"),
+            g: interaction.options.getNumber("greater_than"),
             rv: interaction.options.getBoolean("reversed"),
             rand: interaction.options.getBoolean("random"),
             p: specific.length > 0 ? specific : false
@@ -116,37 +117,6 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 
 export const name: string[] = ["top", "osutop", "maniatop", "taikotop", "ctbtop"]
 
-export const commandData: ApplicationCommandData = {
-    name: "osu top",
-    description: "get top 5 plays.",
-    options: [osuUsernameOption, osuGamemodeOption, {
-        name: "best",
-        description: "Newest top plays.",
-        type: "BOOLEAN",
-        required: false
-    }, {
-        name: "greater than",
-        description: "Top plays above selected number.",
-        type: "NUMBER",
-        required: false
-    }, {
-        name: "reversed",
-        description: "Reverse selection.",
-        type: "BOOLEAN",
-        required: false
-    }, {
-        name: "specific",
-        description: "Which top play (1-100).",
-        type: "NUMBER",
-        required: false
-    }, {
-        name: "random",
-        description: "Random top play",
-        type: "BOOLEAN",
-        required: false
-    }],
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+export const interactionName = "osu top"
 
 export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

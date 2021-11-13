@@ -1,10 +1,9 @@
-import { ApplicationCommandData, CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
+import { CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
 import { Bot } from "@client/Client"
 import { Args, ConvertBitMods, ErrorIds, GetFlagUrl, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs } from "@lib/osu/Utils"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 import { Profile, Score } from "@interfaces/OsuApi"
 import { GetProfileCache, GetTop } from "@lib/osu/Api/Api"
-import { osuGamemodeOption, osuUsernameOption } from "@lib/Constants"
 import { GetOsuUsername } from "@database/Users"
 
 const osuCountMods = async (author: GuildMember, {Name, Flags: {m}}: Args): Promise<MessageOptions> => {
@@ -44,29 +43,27 @@ const osuCountMods = async (author: GuildMember, {Name, Flags: {m}}: Args): Prom
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     const options: Args = await ParseArgs(message, args)
 
-    message.reply(await osuCountMods(message.member, options))
+    return await osuCountMods(message.member, options)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
     let username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
     if (!username) interaction.reply(HandleError(interaction.member as GuildMember, { code: 1 }, ""))
+    
     const options: Args = {
         Name: username as string,
         Flags: {
-            m: (interaction.options.getNumber("mode") as 0 | 1 | 2 | 3) || 0,
+            m: (interaction.options.getInteger("mode") as 0 | 1 | 2 | 3) || 0,
             mods: 0
         }
     }
 
     interaction.reply(await osuCountMods(interaction.member as GuildMember, options))
 }
+
 export const name = "countmods"
-export const commandData: ApplicationCommandData = {
-    name: "osu countmods",
-    description: "Show mod combinations in top 100.",
-    options: [osuUsernameOption, osuGamemodeOption],
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+
+export const interactionName = "osu countmods"
+
 export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]
 

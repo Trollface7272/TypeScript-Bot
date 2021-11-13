@@ -21,7 +21,7 @@ const SocialCredit = async (author: GuildMember, guild: Guild): Promise<MessageO
 }
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message) => {
-    message.reply(await SocialCredit(message.member, message.guild))
+    return await SocialCredit(message.member, message.guild)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
@@ -30,11 +30,6 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 
 export const name: string[] = ["sc", "socialcredit"]
 
-export const commandData: ApplicationCommandData = {
-    name: "social credit",
-    description: "Show your social credit.",
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+export const interactionName = "socialcredit"
 
 export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

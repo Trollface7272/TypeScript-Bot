@@ -7,7 +7,7 @@ const Ping = async (client: Bot, msg: Message) => {
 }
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message) => {
-    Ping(client, await message.channel.send("Pinging!"))
+    Ping(client, await message.reply("Pinging!"))
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
@@ -15,10 +15,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 }
 
 export const name = "ping"
-export const commandData: ApplicationCommandData = {
-    name: "ping",
-    description: "Check bots ping to discord servers.",
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+
+export const interactionName = "ping"
+
 export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

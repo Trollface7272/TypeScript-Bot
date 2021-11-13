@@ -1,4 +1,4 @@
-import { ApplicationCommandData, CommandInteraction, Message, MessageOptions, PermissionString, User } from "discord.js"
+import { CommandInteraction, Message, MessageOptions, PermissionString, User } from "discord.js"
 import { Bot } from "@client/Client"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 
@@ -9,8 +9,8 @@ const Avatar = (member: User): MessageOptions => {
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     if (message.mentions.users.size < 1) 
-        return message.reply(Avatar(message.author))
-    message.reply(Avatar(message.mentions.users.first()))
+        return Avatar(message.author)
+    return Avatar(message.mentions.users.first())
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
@@ -19,16 +19,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 }
 
 export const name = "avatar"
-export const commandData: ApplicationCommandData = {
-    name: "avatar",
-    description: "Get url of someones avatar.",
-    options: [{
-        name: "user",
-        description: "Target user.",
-        type: "USER",
-        required: false
-    }],
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+
+export const interactionName = "avatar"
+
 export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

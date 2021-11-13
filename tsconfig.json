@@ -18,8 +18,10 @@
 			"@database/*": ["database/*"],
 			"@interfaces/*": ["interfaces/*"],
 			"@lib/*": ["lib/*"],
+			"@bot/*": ["bot/*"],
 			"@commands/*": ["bot/main-commands/*"],
-			"@client/*": ["bot/client/*"]
+			"@client/*": ["bot/client/*"],
+			"@interactions/*": ["bot/interactions/*"]
 		}
 	},
 	"include": ["src"],

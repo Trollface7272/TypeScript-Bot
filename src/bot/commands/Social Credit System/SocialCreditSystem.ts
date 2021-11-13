@@ -1,7 +1,7 @@
-import { ApplicationCommandData, GuildMember, Message, PermissionString } from "discord.js"
+import { ApplicationCommandData, CommandInteraction, GuildMember, Message, PermissionString } from "discord.js"
 import { Bot, Embed } from "@client/Client"
 import { SetSocialCredit } from "@database/Guilds"
-import { iOnMessage } from "@interfaces/Command"
+import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 
 
 const ToggleSocialCredit = (author: GuildMember, guildId: string, enable: boolean) => {
@@ -15,24 +15,17 @@ const ToggleSocialCredit = (author: GuildMember, guildId: string, enable: boolea
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     switch(args[0]) {
-        case "enable":  return message.reply(ToggleSocialCredit(message.member, message.guild.id, true))
-        case "disable": return message.reply(ToggleSocialCredit(message.member, message.guild.id, false))
+        case "enable":  return ToggleSocialCredit(message.member, message.guild.id, true)
+        case "disable": return ToggleSocialCredit(message.member, message.guild.id, false)
     }
+}
+
+export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
+
 }
 
 export const name: string = "socialcreditsystem"
 
-export const commandData: ApplicationCommandData = {
-    name: "social credit system toggle",
-    description: "Show your social credit.",
-    options: [{
-        name: "State",
-        description: "Enable or disable.",
-        type: "BOOLEAN",
-        required: true
-    }],
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+export const interactionName = "socialcreditsystem"
 
 export const requiredPermissions: PermissionString[] = ["ADMINISTRATOR"]

@@ -32,11 +32,6 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 
 export const name = "skeetinvite"
 
-export const commandData: ApplicationCommandData = {
-    name: "skeetinvite",
-    description: "Get skeet invite novirus.",
-    type: 1,
-    defaultPermission: true
-}
+export const interactionName = "skeet invite"
 
 export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

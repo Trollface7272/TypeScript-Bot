@@ -1,4 +1,4 @@
-import { ApplicationCommandData, CommandInteraction, Message, PermissionString } from "discord.js"
+import { CommandInteraction, Message, PermissionString } from "discord.js"
 import { Bot } from "@client/Client"
 import { GuildMember, MessageEmbed, MessageOptions } from "discord.js"
 import { GetBeatmap, GetProfileCache, GetRecent, GetTop } from "@lib/osu/Api/Api"
@@ -6,7 +6,6 @@ import { ModNames, GetFlagUrl, GetProfileLink, GetServer, GetProfileImage, Handl
 import { Beatmap, Profile, Score } from "@interfaces/OsuApi"
 import { GetFcAccuracy, GetFcPerformance, GetPlayPerformance } from "@lib/osu/Calculator"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
-import { osuGamemodeOption, osuUsernameOption } from "@lib/Constants"
 import { GetOsuUsername } from "@database/Users"
 
 
@@ -19,7 +18,7 @@ const osuRecent = async (author: GuildMember, options: Args): Promise<MessageOpt
     return Normal(author, options)
 }
 
-const Normal = async (author: GuildMember, {Name, Flags: {m}}: Args) => {
+const Normal = async (author: GuildMember, { Name, Flags: { m } }: Args) => {
     let profile: Profile
     try { profile = await GetProfileCache({ u: Name, m: m }) }
     catch (err) { return HandleError(author, err, Name) }
@@ -64,9 +63,9 @@ const Normal = async (author: GuildMember, {Name, Flags: {m}}: Args) => {
         .setDescription(desc)
         .setFooter(`Try #${tries} | ${DateDiff(score.Date, new Date(new Date().toLocaleString('en-US', { timeZone: "UTC" })))}Ago ${GetServer()}`)
     return ({ embeds: [embed] })
-} 
+}
 
-const RecentBest = async (author: GuildMember, {Name, Flags: {m, g, rv}}: Args): Promise<MessageOptions> => {
+const RecentBest = async (author: GuildMember, { Name, Flags: { m, g, rv } }: Args): Promise<MessageOptions> => {
     let profile: Profile
     try { profile = await GetProfileCache({ u: Name, m: m }) }
     catch (err) { return HandleError(author, err, Name) }
@@ -101,7 +100,7 @@ const RecentBest = async (author: GuildMember, {Name, Flags: {m, g, rv}}: Args):
     return ({ embeds: [embed] })
 }
 
-const RecentList = async (author: GuildMember, {Name, Flags: {m}}: Args): Promise<MessageOptions> => {
+const RecentList = async (author: GuildMember, { Name, Flags: { m } }: Args): Promise<MessageOptions> => {
     let profile: Profile
     try { profile = await GetProfileCache({ u: Name, m: m }) }
     catch (err) { return HandleError(author, err, Name) }
@@ -156,56 +155,32 @@ const RecentList = async (author: GuildMember, {Name, Flags: {m}}: Args): Promis
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     const options: Args = await ParseArgs(message, args)
-    
-    message.reply(await osuRecent(message.member, options))
+
+    return await osuRecent(message.member, options)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
     let username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
     if (!username) interaction.reply(HandleError(interaction.member as GuildMember, { code: 1 }, ""))
+    
     const options: Args = {
         Name: username as string,
         Flags: {
-            m: interaction.options.getNumber("mode") as 0|1|2|3,
+            m: (interaction.options.getInteger("mode") as 0 | 1 | 2 | 3) || 0,
             l: interaction.options.getBoolean("list"),
             b: interaction.options.getBoolean("best"),
-            g: interaction.options.getNumber("greater than"),
+            g: interaction.options.getNumber("greater_than"),
             rv: interaction.options.getBoolean("reversed"),
         }
     }
-    
+
     interaction.reply(await osuRecent(interaction.member as GuildMember, options))
 }
 
 
 export const name: string[] = ["r", "rs", "recent"]
 
-export const commandData: ApplicationCommandData = {
-    name: "osu recent",
-    description: "Get recent osu play.",
-    options: [osuUsernameOption, osuGamemodeOption, {
-        name: "list",
-        description: "List of 5 recent plays.",
-        type: "BOOLEAN",
-        required: false
-    }, {
-        name: "best",
-        description: "Newest top play.",
-        type: "BOOLEAN",
-        required: false
-    }, {
-        name: "greater than",
-        description: "Only with Best enabled, newest top play above selected number.",
-        type: "NUMBER",
-        required: false
-    }, {
-        name: "reversed",
-        description: "Only with Best enabled, reverse selection.",
-        type: "BOOLEAN",
-        required: false
-    }],
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+export const interactionName = "osu recent"
+
 export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]
 

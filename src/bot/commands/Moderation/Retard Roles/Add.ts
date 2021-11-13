@@ -35,7 +35,7 @@ export const onMessage: iOnMessage = async (client: Bot, message: Message, args:
         role = message.guild.roles.cache.get(id) || await message.guild.roles.fetch(id)
     }
     if (!role) return HandleError(client, message, 2)
-    return message.reply(await Add(message.member, message.guild, position, role))
+    return await Add(message.member, message.guild, position, role)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
@@ -47,21 +47,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 
 
 export const name = "retardroles add"
-export const commandData: ApplicationCommandData = {
-    name: "retard roles add",
-    description: "List retard roles.",
-    type: "CHAT_INPUT",
-    options: [{
-        name: "role",
-        description: "Role to add to retard roles.",
-        type: "ROLE",
-        required: true
-    }, {
-        name: "position",
-        description: "Position of this role.",
-        type: "NUMBER",
-        required: false
-    }],
-    defaultPermission: true
-}
+
+export const interactionName = "retardroles add"
+
 export const requiredPermissions: PermissionString[] = ["ADMINISTRATOR"]

@@ -19,7 +19,7 @@ const Prntsc = (): MessageOptions => {
 }
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message) => {
-    message.reply(Prntsc())
+    return Prntsc()
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
@@ -27,10 +27,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 }
 
 export const name: string = "prntsc"
-export const commandData: ApplicationCommandData = {
-    name: "prntsc",
-    description: "Get a random screenshot from prnt.sc website.",
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+
+export const interactionName = "prntsc"
+
 export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

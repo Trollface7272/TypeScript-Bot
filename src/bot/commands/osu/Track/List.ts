@@ -24,7 +24,7 @@ const ListTracking = async (author: GuildMember, guild: Guild, channelId: string
 }
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message) => {
-    return message.reply(await ListTracking(message.member, message.guild, message.channel.id))
+    return await ListTracking(message.member, message.guild, message.channel.id)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
@@ -32,10 +32,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 }
 
 export const name: string[] = ["track list", "tracking list"]
-export const commandData: ApplicationCommandData = {
-    name: "osu track list",
-    description: "List all tracked users in this channel.",
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+
+export const interactionName = "osu track list"
+
 export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

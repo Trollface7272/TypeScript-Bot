@@ -1,9 +1,9 @@
 import { Bot } from "@client/Client"
-import { ApplicationCommandData, CommandInteraction, Message, PermissionString } from "discord.js"
+import { CommandInteraction, Message, MessageOptions, PermissionString } from "discord.js"
 
 export interface iOnMessage {
     // eslint-disable-next-line
-    (client: Bot, message: Message, args: string[]): Promise<any>
+    (client: Bot, message: Message, args: string[]): Promise<string | MessageOptions | void>
 }
 
 export interface iOnSlashCommand {
@@ -11,8 +11,8 @@ export interface iOnSlashCommand {
 }
 
 export interface Command {
-    name: string | Array<string>,
-    commandData: ApplicationCommandData,
+    name: string | string[]
+    interactionName: string
     requiredPermissions: PermissionString[]
     category: string,
     onMessage: iOnMessage

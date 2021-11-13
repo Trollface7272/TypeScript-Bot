@@ -1,7 +1,7 @@
 import { Bot, Embed } from "@client/Client"
 import { RemoveRetardRoleId, RemoveRetardRoleIndex } from "@database/Guilds"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
-import { ApplicationCommandData, CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString } from "discord.js"
+import { CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString } from "discord.js"
 
 const ErrorCodes = {
     "1": "Invalid syntax",
@@ -11,7 +11,7 @@ const ErrorCodes = {
 
 const HandleError = (client: Bot, message: Message, error: any) => {
     client.logger.debug(ErrorCodes[error] ? ErrorCodes[error] : error)
-    message.reply({embeds: [client.embed({description: ErrorCodes[error]}, message)]})
+    return {embeds: [client.embed({description: ErrorCodes[error]}, message)]}
 }
 
 const Remove = async (author: GuildMember, guild: Guild, id: string): Promise<MessageOptions> => {
@@ -30,10 +30,9 @@ export const onMessage: iOnMessage = async (client: Bot, message: Message, args:
     else if (args[1] == "id") id = args[2]
     else if (isNaN(parseInt(args[1]))) return HandleError(client, message, 1)
     else {
-        message.reply(await RemoveIndex(message.member, message.guild, parseInt(args[1])))
-        return
+        return await RemoveIndex(message.member, message.guild, parseInt(args[1]))
     }    
-    return message.reply(await Remove(message.member, message.guild, id))
+    return await Remove(message.member, message.guild, id)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
@@ -43,16 +42,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 
 
 export const name = "retardroles remove"
-export const commandData: ApplicationCommandData = {
-    name: "retard roles remove",
-    description: "Remove retard roles.",
-    type: "CHAT_INPUT",
-    options: [{
-        name: "role",
-        description: "Role to remove",
-        type: "ROLE",
-        required: true
-    }],
-    defaultPermission: true
-}
+
+export const interactionName = "retardroles remove"
+
 export const requiredPermissions: PermissionString[] = ["ADMINISTRATOR"]

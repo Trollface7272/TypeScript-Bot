@@ -7,7 +7,7 @@ const Invite = (): MessageOptions => {
 }
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message) => {
-    message.reply(Invite())
+    return Invite()
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
@@ -15,10 +15,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 }
 
 export const name = "invite"
-export const commandData: ApplicationCommandData = {
-    name: "invite",
-    description: "Get bot invite.",
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+
+export const interactionName = "invite"
+
 export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

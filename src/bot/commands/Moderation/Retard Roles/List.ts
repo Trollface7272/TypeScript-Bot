@@ -18,15 +18,12 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 }
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message) => {
-    return message.reply(await List(message.member, message.guild))
+    return await List(message.member, message.guild)
 } 
 
 
 export const name = "retardroles list"
-export const commandData: ApplicationCommandData = {
-    name: "retard roles list",
-    description: "List retard roles.",
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+
+export const interactionName = "retardroles list"
+
 export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

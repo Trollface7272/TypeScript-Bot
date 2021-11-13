@@ -74,9 +74,9 @@ function HandleError(err: Error, member: GuildMember, author: GuildMember): Mess
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message) => {
     const member = message.mentions.members.first()
-    if (!member) return message.reply({ embeds: [client.embed({ description: `No user mentioned.` }, message)] })
+    if (!member) return { embeds: [client.embed({ description: `No user mentioned.` }, message)] }
 
-    message.reply(await Retard(message.member, message.guild, member))
+    return await Retard(message.member, message.guild, member)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
@@ -85,16 +85,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 }
 
 export const name = "retard"
-export const commandData: ApplicationCommandData = {
-    name: "retard",
-    description: "Retard.",
-    options: [{
-        name: "user",
-        description: "Target user.",
-        type: "USER",
-        required: true
-    }],
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+
+export const interactionName = "retard"
+
 export const requiredPermissions: PermissionString[] = ["MANAGE_ROLES"]

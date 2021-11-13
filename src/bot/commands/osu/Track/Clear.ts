@@ -17,10 +17,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 }
 
 export const name: string[] = ["track clear", "tracking clear"]
-export const commandData: ApplicationCommandData = {
-    name: "osu track clear",
-    description: "Clear tracking in this channel.",
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+
+export const interactionName = "osu track clear"
+
 export const requiredPermissions: PermissionString[] = ["MANAGE_CHANNELS"]

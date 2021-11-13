@@ -25,15 +25,12 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message) => {
     if (!message.member.permissions.has("ADMINISTRATOR")) return HandleError(client, message, 3)
-        return message.reply(await Clear(message.member, message.guild))
+        return await Clear(message.member, message.guild)
 }
 
 
 export const name = "retardroles clear"
-export const commandData: ApplicationCommandData = {
-    name: "retard roles clear",
-    description: "Clear retard roles.",
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+
+export const interactionName = "retardroles clear"
+
 export const requiredPermissions: PermissionString[] = ["ADMINISTRATOR"]

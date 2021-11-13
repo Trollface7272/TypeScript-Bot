@@ -1,12 +1,12 @@
-import { ApplicationCommandData, CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
+import { CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
 import { Bot } from "@client/Client"
 import { Args, CalculateAcc, ConvertBitMods, DateDiff, FindMapInConversation, GetCombo, GetHits, GetMapImage, GetMapLink, GetProfileImage, HandleError, ModNames, ParseArgs, RankingEmotes } from "@lib/osu/Utils"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 import { GetBeatmap, GetProfile, GetScore } from "@lib/osu/Api/Api"
 import { Beatmap, Difficulty, Profile, Score } from "@interfaces/OsuApi"
 import { GetDiffWithMods, GetFcAccuracy, GetFcPerformance } from "@lib/osu/Calculator"
-import { osuGamemodeOption, osuUsernameOption } from "@lib/Constants"
 import { GetOsuUsername } from "@database/Users"
+
 
 const OsuCompare = async (author: GuildMember, {Name, Flags: {m, mods, map}}: Args): Promise<MessageOptions> => {
     if (!Name) return HandleError(author, {code: 1}, Name)
@@ -60,18 +60,20 @@ const OsuCompare = async (author: GuildMember, {Name, Flags: {m, mods, map}}: Ar
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     const options = await ParseArgs(message, args)
 
-    message.reply(await OsuCompare(message.member, options))
+    return await OsuCompare(message.member, options)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
     let username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
     if (!username) interaction.reply(HandleError(interaction.member as GuildMember, { code: 1 }, ""))
+
     let map = await FindMapInConversation(interaction.channel)
     if (map == "Not Found") interaction.reply(HandleError(interaction.member as GuildMember, { code: 3 }, ""))
+
     const options: Args = {
         Name: username as string,
         Flags: {
-            m: (interaction.options.getNumber("mode") as 0 | 1 | 2 | 3) || 0,
+            m: (interaction.options.getInteger("mode") as 0 | 1 | 2 | 3) || 0,
             mods: 0,
             map: parseInt(map)
         }
@@ -81,12 +83,8 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 }
 
 export const name: string[] = ["c", "compare"]
-export const commandData: ApplicationCommandData = {
-    name: "osu compare",
-    description: "Show score on the last map in conversation.",
-    options: [osuUsernameOption, osuGamemodeOption],
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+
+export const interactionName = "osu compare"
+
 export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]
 

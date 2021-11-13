@@ -30,36 +30,24 @@ function random() {
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     if (args.length < 1) {
-        return message.channel.send({
-            embeds: [client.embed(
-                {
-                    description: `Please provide your neverlose username.`
-                }, message)]
-        })
+        return {
+            embeds: [client.embed({
+                description: `Please provide your neverlose username.`
+            }, message)]
+        }
 
     }
-    message.reply(trollNeverlose(message.member, message.guild, args.join("")))
+    return trollNeverlose(message.member, message.guild, args.join(""))
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
-    const username = interaction.options.getString("Username")
+    const username = interaction.options.getString("username")
     interaction.reply(trollNeverlose(interaction.member as GuildMember, interaction.guild, username))
 }
 
 
 export const name = "neverlose"
 
-export const commandData: ApplicationCommandData = {
-    name: "neverlose",
-    description: "Get neverlose sub halal 100.",
-    options: [{
-        name: "Username",
-        description: "Your username.",
-        type: "STRING",
-        required: true
-    }],
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+export const interactionName = "neverlose"
 
 export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

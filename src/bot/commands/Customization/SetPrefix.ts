@@ -10,7 +10,7 @@ export const SetPrefix = (guildId: string, prefix: string): MessageOptions => {
 }
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
-    SetPrefix(message.guildId, args.join(" "))
+    return SetPrefix(message.guildId, args.join(" "))
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
@@ -18,16 +18,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 }
 
 export const name = "setprefix"
-export const commandData: ApplicationCommandData = {
-    name: "set prefix",
-    description: "Change the default bot prefix",
-    options: [{
-        name: "prefix",
-        description: "The prefix to change to",
-        required: true,
-        type: "STRING"
-    }],
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+
+export const interactionName = "set prefix"
+
 export const requiredPermissions: PermissionString[] = ["ADMINISTRATOR"]

@@ -1,8 +1,7 @@
-import { ApplicationCommandData, CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
+import { CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
 import { Bot } from "@client/Client"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 import { GetOsuUsername } from "@database/Users"
-import { osuGamemodeOption, osuUsernameOption } from "@lib/Constants"
 import { Profile } from "@interfaces/OsuApi"
 import { GetProfile } from "@lib/osu/Api/Api"
 import { ModNames, GetFlagUrl, GetProfileLink, GetServer, GetProfileImage, HandleError, Args, ParseArgs } from "@lib/osu/Utils"
@@ -30,16 +29,17 @@ const osuProfile = async (author: GuildMember, { Name, Flags: { m } }: Args): Pr
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     const options = await ParseArgs(message, args)
-    message.reply(await osuProfile(message.member, options))
+    return await osuProfile(message.member, options)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
     let username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
     if (!username) interaction.reply(HandleError(interaction.member as GuildMember, { code: 1 }, ""))
+    
     const options: Args = {
         Name: username as string,
         Flags: {
-            m: interaction.options.getNumber("mode") as 0 | 1 | 2 | 3
+            m: (interaction.options.getInteger("mode") as 0 | 1 | 2 | 3) || 0
         }
     }
     interaction.reply(await osuProfile(interaction.member as GuildMember, options))
@@ -47,11 +47,6 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 
 export const name: string[] = ["profile", "osu", "mania", "taiko", "ctb"]
 
-export const commandData: ApplicationCommandData = {
-    name: "osu profile",
-    description: "Get osu profile.",
-    options: [osuUsernameOption, osuGamemodeOption],
-    type: "CHAT_INPUT",
-    defaultPermission: true
-}
+export const interactionName = "osu profile"
+
 export const requiredPermissions: PermissionString[] = ["SEND_MESSAGES"]

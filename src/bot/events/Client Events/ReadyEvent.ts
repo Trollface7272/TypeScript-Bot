@@ -1,6 +1,8 @@
 import { Bot } from "@client/Client"
 import { Command } from "@interfaces/Command"
 import { RunFunction } from "@interfaces/Event"
+import InteractionList from "@interactions/List"
+import { ApplicationCommand, ApplicationCommandData } from "discord.js"
 
 export const run: RunFunction = async (client: Bot) => {
     client.logger.success(`Logged on as ${client.user.tag}!`)
@@ -13,22 +15,48 @@ export const run: RunFunction = async (client: Bot) => {
     //LogStatusLinks(client)
     //FunnyBansThing(client)
     AddSlashCommands(client)
+    RemoveSlashCommands(client)
 }
 
 const AddSlashCommands = async (client: Bot) => {
-    const commands = {}
-    let cmds: Command[] = []
-    client.commands.map((value: Command) => commands[value.commandData.name] = value)
-    for (const [key, value] of Object.entries(commands)) {
-        cmds.push(value as Command)
-    }
-    let int = setInterval(() => {
-        let cmd = cmds.pop().commandData
-        client.guilds.cache.get("341153679992160266").commands.create(cmd)
-        console.log(cmd);
+    let guild = process.env.NODE_ENV === "development" ? (await client.guilds.cache.get("341153679992160266").commands.fetch(undefined, {force: true}) as unknown as ApplicationCommand[]) : []
+    let global = await client.application.commands.fetch(undefined, {force: true}) as unknown as ApplicationCommand[]
+    const commands = [...guild, ...global]
+    const addInteraction = (data: ApplicationCommandData) => {
+        if (commands.find(e => e.name === data.name)) return
         
-        if (cmds.length == 0) clearInterval(int)
-    }, 1000)
+        console.log(`Created command`, data)
+        if (process.env.NODE_ENV === "development") client.guilds.cache.get("341153679992160266").commands.create(data)
+        else client.application.commands.create(data)
+    }
+    // let i = 0
+    // const addInteractionInterval = () => {
+    //     addInteraction(InteractionList[i])
+    //     i++
+    //     if (i >= InteractionList.length) clearInterval(interval)
+    // }
+    // let interval = setInterval(addInteractionInterval, 500)
+    InteractionList.map(addInteraction)
+}
+
+const RemoveSlashCommands = async (client: Bot) => {
+    let guild = process.env.NODE_ENV === "development" ? (await client.guilds.cache.get("341153679992160266").commands.fetch(undefined, {force: true}) as unknown as ApplicationCommand[]) : []
+    let global = await client.application.commands.fetch(undefined, {force: true}) as unknown as ApplicationCommand[]
+    const commands = [...guild, ...global]
+    
+    const removeSlashCommand = (data: ApplicationCommand) => {
+        if (!commands.find(e => e.name === data.name)) return
+        data.delete()
+    }
+    InteractionList.map(removeSlashCommand)
+}
+
+const DeleteAllSlashCommands = async (client: Bot) => {
+    const commands = await client.guilds.cache.get("341153679992160266").commands.fetch()
+    commands.map(e => {
+        console.log("deleting command -> " + e.name)
+        e.delete()
+    })
 }
 
 const DisplayGuilds = async (client: Bot) => {
