@@ -91,6 +91,6 @@
     "@bot": "src/bot",
     "@commands": "src/bot/main-commands",
     "@client": "src/bot/client",
-    "@interactions": "src/bot/interactions"
+    "@interactions": "src/bot/Interactions"
   }
 }

@@ -21,7 +21,7 @@
 			"@bot/*": ["bot/*"],
 			"@commands/*": ["bot/main-commands/*"],
 			"@client/*": ["bot/client/*"],
-			"@interactions/*": ["bot/interactions/*"]
+			"@interactions/*": ["bot/Interactions/*"]
 		}
 	},
 	"include": ["src"],
