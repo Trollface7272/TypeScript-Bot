@@ -1,5 +1,5 @@
 import { RunFunction } from "@interfaces/Event"
-import { Message, MessageOptions } from "discord.js"
+import { Message, MessageEmbed, MessageOptions } from "discord.js"
 import { Command } from "@interfaces/Command"
 import { Bot } from "@client/Client"
 
@@ -39,6 +39,7 @@ const RunCommand = async (client: Bot, message: Message, args: string[]) => {
                 description: `Unexpected error: ${reason}`
             }, message)]
         })
+        client.logChannel.send({embeds: [new MessageEmbed().setDescription(`Unexpected error: ${reason}`)]})
         client.logger.error((reason))
     })
     if (resp) Reply(message, resp as string | MessageOptions)
