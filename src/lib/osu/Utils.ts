@@ -246,25 +246,25 @@ export const HandleError = (author: GuildMember, err: Error, name: string): Mess
 export const RankingEmotes = (ranking: string): string => {
     switch (ranking) {
         case "XH":
-            return "<:XH:585737970816909322>"
+            return "<:RankingXH:585737970816909322>"
         case "SH":
-            return "<:SH:585737970246615050>"
+            return "<:RankingSH:585737970246615050>"
         case "X":
-            return "<:X:585737970384896017>"
+            return "<:RankingX:585737970384896017>"
         case "S":
-            return "<:S:585737969885904897>"
+            return "<:RankingS:585737969885904897>"
         case "A":
-            return "<:A:585737969927716866>"
+            return "<:RankingA:585737969927716866>"
         case "B":
-            return "<:B:585737970150277131>"
+            return "<:RankingB:585737970150277131>"
         case "C":
-            return "<:C:585737970200477696>"
+            return "<:RankingC:585737970200477696>"
         case "D":
         case "F":
-            return "<:F:585737969877385217>"
+            return "<:RankingF:585737969877385217>"
         default:
             logger.error(`Unknown emoji ${ranking}`)
-            return "<:F:585737969877385217>"
+            return "<:RankingF:585737969877385217>"
     }
 }
 

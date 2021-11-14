@@ -18,7 +18,7 @@ Your social credit score has lowered by \`10\`, continue like this and we will h
 export const run: RunFunction = async (client: Bot, message: Message) => {
     if (!(await IsSocialCreditEnabled(message.guild.id))) return
     let lcMsg = message.content.toLowerCase()
-    if (lcMsg.match(/(taiwan|:flag_tw:|🇹🇼).*(is not|isn.t).*(country|real)/) || lcMsg.match(/(taiwan|:flag_tw:|🇹🇼).*(is).*(?!not|n't|nt|n t).*(china|🇨🇳)/) || lcMsg.match(/(taiwan|:flag_tw:|🇹🇼).*(does not|doesn.t).*(exist)/)) {
+    if (lcMsg.match(/(taiwan|:flag_tw:|🇹🇼).*(is not|isn.t).*(country|real)/) || lcMsg.match(/(taiwan|:flag_tw:|🇹🇼).*(is).*(?!not|n't|nt|n t).*(china|🇨🇳|ccp)/) || lcMsg.match(/(taiwan|:flag_tw:|🇹🇼).*(|does(.)n(o)?t).*(exist)/)) {
         AddSocialCredit(message.author.id, 5)
         message.reply(good)
     } else {
