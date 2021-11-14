@@ -1,6 +1,6 @@
-import { Emoji, GuildMember, Message, MessageOptions, TextBasedChannels } from "discord.js"
+import { GuildMember, Message, MessageOptions, TextBasedChannels } from "discord.js"
 import { modbits } from "ojsama"
-import { Bot, Embed, logger } from "@client/Client"
+import { Embed, logger } from "@client/Client"
 import { Counts, Objects } from "@interfaces/OsuApi"
 import { GetOsuUsername } from "@database/Users"
 

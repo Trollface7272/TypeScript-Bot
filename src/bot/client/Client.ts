@@ -1,4 +1,4 @@
-import { Client, Collection, Intents, Message, MessageEmbed, MessageEmbedOptions, User } from "discord.js"
+import { Client, Collection, Intents, Message, MessageEmbed, MessageEmbedOptions, TextChannel, User } from "discord.js"
 import consola, { Consola } from "consola"
 import { Command } from "@interfaces/Command"
 import { Event } from "@interfaces/Event"
@@ -19,12 +19,14 @@ class Bot extends Client {
     public events: Collection<string, Event> = new Collection()
     public triggers: Collection<string, Trigger> = new Collection()
     public config: Config
+    public logChannel: TextChannel
     public constructor() {
         super({
             intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_BANS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS],
         })
         consola.wrapStd()
         database.Connect().then(v => this.database.database = v)
+        this.guilds.fetch("341153679992160266").then(guild=> guild.channels.fetch("909270388624732160").then(channel => this.logChannel = channel as TextChannel))
         //consola.level = LogLevel.Debug
     }
     public async Start(config: Config): Promise<void> {

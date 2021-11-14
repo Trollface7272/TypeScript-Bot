@@ -1,4 +1,5 @@
-import { ApplicationCommandChoicesData, ApplicationCommandNonOptionsData } from "discord.js"
+import { Client } from "@bot/index"
+import { ApplicationCommandChoicesData, ApplicationCommandNonOptionsData, TextChannel } from "discord.js"
 
 const InteractionOsuGamemodeChoices = [{
     name: "standard",

@@ -1,5 +1,5 @@
 import { Bot } from "@client/Client"
-import { CommandInteraction, Message, MessageOptions, PermissionString } from "discord.js"
+import { ButtonInteraction, CommandInteraction, Message, MessageOptions, PermissionString } from "discord.js"
 
 export interface iOnMessage {
     // eslint-disable-next-line
@@ -8,6 +8,10 @@ export interface iOnMessage {
 
 export interface iOnSlashCommand {
     (interaction: CommandInteraction): Promise<void>
+}
+
+export interface iOnButton {
+    (interaction: ButtonInteraction): Promise<void>
 }
 
 export interface Command {

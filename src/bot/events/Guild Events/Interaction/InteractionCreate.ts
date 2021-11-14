@@ -1,11 +1,14 @@
-import { CommandInteraction, GuildMember, Interaction } from "discord.js"
+import { ButtonInteraction, CommandInteraction, GuildMember, Interaction, MessageEmbed } from "discord.js"
 import { Bot, Embed, logger } from "@client/Client"
 import { OnCommand } from "@database/Main"
 import { Command } from "@interfaces/Command"
+import { onButton } from "@bot/Interactions/Buttons"
 
 export const run = async ({}, interaction: Interaction) => {
     if (interaction.isCommand())
         RunCommand(interaction as CommandInteraction)
+    else if (interaction.isButton())
+        onButton(interaction as ButtonInteraction)
 }
 
 const RunCommand = (interaction: CommandInteraction) => {
@@ -26,6 +29,7 @@ const RunCommand = (interaction: CommandInteraction) => {
                 description: `Unexpected error: ${reason}`
             }, interaction.user)]
         })
+        ;(interaction.client as Bot).logChannel.send({embeds: [new MessageEmbed().setDescription(`Unexpected error: ${reason}`)]})
         logger.error((reason))
     })
 }
