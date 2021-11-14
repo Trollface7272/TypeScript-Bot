@@ -30,7 +30,6 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
     let scores: Array<Score>
     try { scores = await GetTop({ u: Name, m: m, limit: 100, useCache: cache }) }
     catch (err) { HandleError(author, err, profile.Name) }
-    console.log(p);
     
     if (g) scores = scores.filter(e => rv ? (e.Performance.raw < g) : (e.Performance.raw > g))
 
@@ -52,8 +51,6 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
     
     let desc = ""
     for (let i = offset; i < Math.min(offset + scores.length, offset + 5); i++) {
-        console.log(i, scores);
-        
         desc += await FormatTopPlay(author, m, scores[i])
     }
 
