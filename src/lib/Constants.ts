@@ -1,5 +1,5 @@
-import { Client } from "@bot/index"
 import { ApplicationCommandChoicesData, ApplicationCommandNonOptionsData, TextChannel } from "discord.js"
+import { join } from "path"
 
 const InteractionOsuGamemodeChoices = [{
     name: "standard",
@@ -127,3 +127,5 @@ export const CommanOptions = {
 }
 
 export const BrokenInteraction = "This is not a command if you see this something is broken!"
+
+export const cachePath = `${join(__dirname, "..", "cache")}`

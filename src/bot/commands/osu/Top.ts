@@ -14,7 +14,7 @@ interface iButton extends Args {
 }
 
 
-const osuTopPlays = async (author: GuildMember, options: Args) => {
+export const osuTopPlays = async (author: GuildMember, options: Args) => {
     if (!options.Name) return HandleError(author, { code: 1 }, options.Name)
 
     if ((options.Flags.g) && !(options.Flags.b || options.Flags.rv)) return GreaterCount(author, options)
@@ -30,7 +30,8 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
     let scores: Array<Score>
     try { scores = await GetTop({ u: Name, m: m, limit: 100, useCache: cache }) }
     catch (err) { HandleError(author, err, profile.Name) }
-
+    console.log(p);
+    
     if (g) scores = scores.filter(e => rv ? (e.Performance.raw < g) : (e.Performance.raw > g))
 
     if (b) scores.sort((a, b) => b.Date.getTime() - a.Date.getTime())
@@ -51,6 +52,8 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
     
     let desc = ""
     for (let i = offset; i < Math.min(offset + scores.length, offset + 5); i++) {
+        console.log(i, scores);
+        
         desc += await FormatTopPlay(author, m, scores[i])
     }
 
@@ -114,7 +117,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
     let username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
     if (!username) interaction.reply(HandleError(interaction.member as GuildMember, { code: 1 }, ""))
 
-    let specific = [interaction.options.getInteger("specific")]
+    let specific = interaction.options.getInteger("specific") 
 
     const options: Args = {
         Name: username as string,
@@ -124,19 +127,21 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
             g: interaction.options.getNumber("greater_than"),
             rv: interaction.options.getBoolean("reversed"),
             rand: interaction.options.getBoolean("random"),
-            p: specific.length > 0 ? specific : false
+            p: specific ? [specific] : false
         }
     }
 
     interaction.reply(await osuTopPlays(interaction.member as GuildMember, options))
+
     AddMessageToButtons(await interaction.fetchReply() as Message)
 }
 
 export const onButton: iOnButton = async (interaction: ButtonInteraction) => {
     const button: iButton = GetButtonData(interaction.customId)
     button.Flags.cache = true
-    
+
     const reply = await button.message.edit(await osuTopPlays(interaction.member as GuildMember, button))
+
     AddMessageToButtons(reply)
     interaction.reply({}).catch(err => null)
 }

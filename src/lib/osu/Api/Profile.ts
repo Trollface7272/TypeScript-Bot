@@ -38,15 +38,13 @@ interface user {
     events:               event[]
 }
 
+const cache = {}
 
 const endpoint: string = linkBase + "api/get_user"
 export async function Get(params: ProfileParams): Promise<Profile> {
-    consola.debug({endpoint,params})
-    
     const data: user = (await axios.get(endpoint, { params })).data[0]
     if (!data) throw { code: 4 }
-    consola.debug({data})
-    return {
+    const parsed = {
         code: 0,
         id: parseInt(data.user_id),
         Name: data.username,
@@ -108,8 +106,11 @@ export async function Get(params: ProfileParams): Promise<Profile> {
             },
         },
     }
+    cache[params.u] = parsed
+    return parsed
 }
 
 export async function GetCached(params: ProfileParams): Promise<Profile> {
+    if (cache[params.u]) return cache[params.u]
     return await Get(params)
 }

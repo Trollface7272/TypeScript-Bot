@@ -4,7 +4,7 @@ export const key: string = (File as Config).osu_token
 export const linkBase = "https://osu.ppy.sh/"
 
 import { Get as ApiGetBeatmap, GetShort as ApiGetIncompleteBeatmap } from "./Beatmap"
-import { Get as ApiGetProfile } from "./Profile"
+import { Get as ApiGetProfile, GetCached as ApiGetProfileCached } from "./Profile"
 import { Get as ApiGetRecent } from "./Recent"
 import { Get as ApiGetScore } from "./Score"
 import { Get as ApiGetTop } from "./Top"
@@ -26,7 +26,7 @@ export const GetProfile = (params: ProfileParams): Promise<Profile> => {
 
 export const GetProfileCache = (params: ProfileParams): Promise<Profile> => {
     params.k = key
-    return ApiGetProfile(params)
+    return ApiGetProfileCached(params)
 }
 
 export const GetRecent = (params: RecentParams): Promise<Array<Score>> => {

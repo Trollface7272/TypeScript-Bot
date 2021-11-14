@@ -3,6 +3,10 @@ import axios from "axios"
 import { RoundFixed, CommaFormat, GetDiffMods, Mods } from "../Utils"
 import { parser, ppv2, std_beatmap_stats } from "ojsama"
 import { Beatmap, BeatmapParams, ShortBeatmap } from "../../../interfaces/OsuApi"
+import { existsSync, writeFile } from "fs"
+import { join } from "path"
+import { cachePath } from "@lib/Constants"
+import { mkdirSync } from "fs"
 
 
 const endpoint: string = linkBase + "api/get_beatmaps"
@@ -15,6 +19,20 @@ const MapRanking = {
     "3": "Qualified",
     "4": "Loved"
 }
+
+
+let path = join(cachePath)
+if (!existsSync(path)) mkdirSync(path)
+
+path = join(path, "maps")
+if (!existsSync(path)) mkdirSync(path)
+
+for (let i = 0; i < 4; i++) {
+    if (!existsSync(join(path, i+""))) mkdirSync(join(path, i+""))
+}
+
+
+//const cache = [{},{},{},{}]
 
 interface beatmap {
     approved:             string
@@ -131,20 +149,31 @@ const v2 = async (params: BeatmapParams): Promise<ShortBeatmap> => {
 
 const v1 = async (params: BeatmapParams): Promise<Beatmap> => {
     params.a = 1
+    const oldmods = params.mods
     params.mods = GetDiffMods(params.mods)
+    const path = join(cachePath, "maps", params.m+"", params.mods+"", params.b+".json")
+    if (existsSync(path)) return require(path)
+    //if (cache[params.m]?.[params.mods]?.[params.b]) return cache[params.m][params.mods][params.b]
     const data: beatmap = (await axios.get(endpoint, { params })).data[0]
     if (!data) throw { code: 3 }
     
-    let multiplier = 1
+    let speed = 1
     if (params.mods & Mods.Bit.DoubleTime) 
-        multiplier = 1.5
+        speed = 1.5
     else if (params.mods & Mods.Bit.HalfTime)
-        multiplier = 0.75
+        speed = 0.75
+    let multiplier = 1
+    // if (oldmods & Mods.Bit.HardRock)
+    //     multiplier = 1.4
+    // else if (oldmods & Mods.Bit.Easy)
+    //     multiplier = 0.5
 
-    data.diff_approach = String(CalculateApproach(parseFloat(data.diff_approach), multiplier, 1))
-    data.diff_overall = String(CalculateOverall(parseFloat(data.diff_overall), multiplier, 1))
+    data.diff_approach = (CalculateApproach(parseFloat(data.diff_approach), speed, multiplier)).toString()
+    data.diff_overall = (CalculateOverall(parseFloat(data.diff_overall), speed, multiplier)).toString()
+    data.diff_size = (parseFloat(data.diff_overall) * (multiplier === 1.4 ? 1.3 : multiplier)).toString()
 
-    return {
+    if (!existsSync(join(cachePath, "maps", params.m+"", params.mods+""))) mkdirSync(join(cachePath, "maps", params.m+"", params.mods+""))
+    const parsed = {
         id: parseInt(data.beatmap_id),
         SetId: parseInt(data.beatmapset_id),
         Artist: data.artist,
@@ -232,6 +261,9 @@ const v1 = async (params: BeatmapParams): Promise<Beatmap> => {
         LastUpdate: new Date(data.last_update),
         Hash: data.file_md5,
     }
+    if (parsed.Approved == 4 || parsed.Approved == 1) writeFile(path, JSON.stringify(parsed), {encoding: "utf-8"}, () => {})
+
+    return parsed
 }
 
 function ZeroFill(num: number): string {

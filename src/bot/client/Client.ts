@@ -24,7 +24,7 @@ class Bot extends Client {
         super({
             intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_BANS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS],
         })
-        consola.wrapStd()
+        consola.wrapAll()
         database.Connect().then(v => this.database.database = v)
         this.guilds.fetch("341153679992160266").then(guild=> guild.channels.fetch("909270388624732160").then(channel => this.logChannel = channel as TextChannel))
         //consola.level = LogLevel.Debug

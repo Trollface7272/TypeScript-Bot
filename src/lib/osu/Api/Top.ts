@@ -32,7 +32,7 @@ export async function Get({useCache=false, ...params}: TopParams): Promise<Array
     
     const data: user_best[] = (await axios.get(endpoint, { params })).data
     if (!data || data.length < 1) throw { code: 5 }
-    const out: Array<Score> = []
+    const out: Score[] = []
 
     for (let i = 0; i < data.length; i++) {
         const el = data[i]

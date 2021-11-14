@@ -32,7 +32,7 @@ const osuMap = async (author: GuildMember, {Name, Flags: {m, map, mods, acc}}: A
         .setAuthor(`${beatmap.Artist} - ${beatmap.Title} by ${beatmap.Mapper}`, ``, GetMapLink(beatmap.id))
         .setThumbnail(GetMapLink(beatmap.SetId))
         .setDescription(description)
-        .setFooter(`${beatmap.Approved} | ${beatmap.FavouritedCount} ❤︎ ${beatmap.ApprovedRaw > 0 ? ("| Approved" + beatmap.ApprovedDate.toDateString()) : ""}`)
+        .setFooter(`${beatmap.Approved} | ${beatmap.FavouritedCount} ❤︎ ${beatmap.ApprovedRaw > 0 ? ("| Approved " + new Date(beatmap.ApprovedDate).toISOString().slice(0,10).replaceAll("-", " ")) : ""}`)
 
     return ({ embeds: [embed] })
 }
