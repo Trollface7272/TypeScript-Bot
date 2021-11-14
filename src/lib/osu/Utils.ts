@@ -1,8 +1,12 @@
-import { GuildMember, Message, MessageOptions, TextBasedChannels } from "discord.js"
+import { GuildMember, Message, MessageActionRow, MessageButton, MessageOptions, TextBasedChannels } from "discord.js"
 import { modbits } from "ojsama"
 import { Embed, logger } from "@client/Client"
 import { Counts, Objects } from "@interfaces/OsuApi"
 import { GetOsuUsername } from "@database/Users"
+import { randomBytes } from "crypto"
+import { SHA256 } from "crypto-js"
+import { AddButtonData } from "@bot/Interactions/Buttons/Data"
+import { RegisterButton } from "@bot/Interactions/Buttons"
 
 const CommandGamemodes = {
     "taiko": 1,
@@ -132,6 +136,7 @@ export interface Flags {
     map?: number
     rand?: boolean
     l?: boolean
+    offset?: number
 }
 interface Error {
     code: number
@@ -217,7 +222,7 @@ export const RoundFixed = (num: number, digits = 2): string => {
     return (Math.round(num * Math.pow(10, digits)) / Math.pow(10, digits)).toFixed(digits)
 }
 
-export function CommaFormat(num: number|string): string {
+export function CommaFormat(num: number | string): string {
     let n: number = typeof num == "number" ? num : parseFloat(num)
     return n.toLocaleString()
 }
@@ -373,7 +378,7 @@ export const GetModsFromString = (mods: string) => {
     return modbits.from_string(mods)
 }
 
-export const GetDifficultyEmote = (mode: 0|1|2|3, star: number) => {
+export const GetDifficultyEmote = (mode: 0 | 1 | 2 | 3, star: number) => {
     let difficulty = 0
     if (star > 2) difficulty++
     if (star > 2.7) difficulty++
@@ -381,4 +386,27 @@ export const GetDifficultyEmote = (mode: 0|1|2|3, star: number) => {
     if (star > 5.3) difficulty++
     if (star > 6.5) difficulty++
     return `<:Black:${DifficultyEmoteIds[mode][difficulty]}>`
+}
+
+export const AddButtons = ({ Name, Flags: { m, acc, b, g, l, map, mods, offset, p, rand, rv } }: Args, scoreCount: number, callback: Function) => {
+    const buttons = []
+
+    if (offset !== 0) buttons.push(AddButton("⬅️", { Name, Flags: { m, acc, b, g, l, map, mods, offset: offset - 5, p, rand, rv } }, callback))
+    if (offset + 5 < scoreCount) buttons.push(AddButton("➡️", { Name, Flags: { m, acc, b, g, l, map, mods, offset: offset + 5, p, rand, rv } }, callback))
+    const components = [new MessageActionRow().addComponents(buttons)]
+
+    return components
+}
+
+export const AddButton = (emoji: string, options: Args, callback: Function) => {
+    const button = new MessageButton()
+        .setCustomId(SHA256(randomBytes(32).toString()).toString())
+        .setEmoji(emoji)
+        .setStyle("PRIMARY")
+
+    AddButtonData(button.customId, {
+        ...options
+    })
+    RegisterButton(button.customId, callback)
+    return button
 }

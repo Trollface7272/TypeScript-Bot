@@ -1,11 +1,18 @@
-import { CommandInteraction, GuildMember, Message, MessageEmbed, PermissionString } from "discord.js"
+import { ButtonInteraction, CommandInteraction, GuildMember, Message, MessageActionRow, MessageButton, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
 import { Bot, Embed } from "@client/Client"
 import { Beatmap, Profile, Score } from "@interfaces/OsuApi"
 import { GetBeatmap, GetProfileCache, GetTop } from "@lib/osu/Api/Api"
-import { Args, CalculateAcc, ConvertBitMods, DateDiff, GetCombo, GetFlagUrl, GetHits, GetMapLink, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs, RankingEmotes, RoundFixed } from "@lib/osu/Utils"
+import { AddButtons, Args, CalculateAcc, ConvertBitMods, DateDiff, GetCombo, GetFlagUrl, GetHits, GetMapLink, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs, RankingEmotes, RoundFixed } from "@lib/osu/Utils"
 import { GetFcAccuracy, GetFcPerformance } from "@lib/osu/Calculator"
-import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
+import { iOnButton, iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 import { GetOsuUsername } from "@database/Users"
+import { AddMessageToButtons, GetButtonData } from "@bot/Interactions/Buttons/Data"
+
+
+interface iButton extends Args {
+    message?: Message
+}
+
 
 const osuTopPlays = async (author: GuildMember, options: Args) => {
     if (!options.Name) return HandleError(author, { code: 1 }, options.Name)
@@ -15,7 +22,7 @@ const osuTopPlays = async (author: GuildMember, options: Args) => {
 
 }
 
-const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand } }: Args) => {
+const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand, offset = 0 } }: Args) => {
     let profile: Profile
     try { profile = await GetProfileCache({ u: Name, m: m }) }
     catch (err) { HandleError(author, err, Name) }
@@ -41,19 +48,25 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
     }
 
     if (rand) scores = [scores[Math.floor(Math.random() * (scores.length - 1) + 1)]]
-
-
+    
     let desc = ""
-    for (let i = 0; i < Math.min(scores.length, 5); i++) {
+    for (let i = offset; i < Math.min(offset + scores.length, offset + 5); i++) {
         desc += await FormatTopPlay(author, m, scores[i])
     }
+
+    const components = AddButtons({ Name, Flags: { m, rv, g, b, p, rand, offset } }, scores.length, onButton)
+
     const embed = new MessageEmbed()
         .setAuthor(`Top ${Math.min(scores.length, 5)} ${ModNames.Name[m]} Plays for ${profile.Name}`, GetFlagUrl(profile.Country), GetProfileLink(profile.id, m))
         .setDescription(desc)
         .setFooter(GetServer())
         .setThumbnail(GetProfileImage(profile.id))
-    return ({ embeds: [embed] })
+    return ({ embeds: [embed],
+        components: (components[0].components.length !== 0 ? components : undefined) 
+    })
 }
+
+
 
 const FormatTopPlay = async (author: GuildMember, m: 0 | 1 | 2 | 3, score: Score): Promise<string> => {
     let beatmap: Beatmap
@@ -87,18 +100,22 @@ const GreaterCount = async (author: GuildMember, options: Args) => {
 }
 
 
-export const onMessage: iOnMessage = async (client: Bot, message: Message, args: Array<string>) => {
+export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     const options: Args = await ParseArgs(message, args)
 
-    return await osuTopPlays(message.member, options)
+    const resp = await osuTopPlays(message.member, options) as MessageOptions
+    resp.allowedMentions = { repliedUser: false }
+    const reply = await message.reply(resp)
+
+    AddMessageToButtons(reply)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
     let username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
     if (!username) interaction.reply(HandleError(interaction.member as GuildMember, { code: 1 }, ""))
-    
+
     let specific = [interaction.options.getInteger("specific")]
-    
+
     const options: Args = {
         Name: username as string,
         Flags: {
@@ -112,8 +129,16 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
     }
 
     interaction.reply(await osuTopPlays(interaction.member as GuildMember, options))
+    AddMessageToButtons(await interaction.fetchReply() as Message)
 }
 
+export const onButton: iOnButton = async (interaction: ButtonInteraction) => {
+    const button: iButton = GetButtonData(interaction.customId)
+    
+    const reply = await button.message.edit(await osuTopPlays(interaction.member as GuildMember, button))
+    AddMessageToButtons(reply)
+    interaction.reply({}).catch(err => null)
+}
 
 export const name: string[] = ["top", "osutop", "maniatop", "taikotop", "ctbtop"]
 
