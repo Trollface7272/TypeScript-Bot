@@ -69,8 +69,8 @@ const OsuCompare = async (author: GuildMember, { Name, Flags: { m, mods, map } }
             .setAuthor(`Top ${ModNames.Name[m]} Plays for ${profile.Name} on ${beatmap.Title} [${beatmap.Version}]`, GetProfileImage(profile.id), GetMapLink(beatmap.id))
             .setDescription(descriptionArr[0] + descriptionArr[1] + descriptionArr[2])
             .setThumbnail(GetMapImage(beatmap.SetId))
-            .setFooter(`On osu! Official Server | Page 1 of ${Math.ceil(scores.length / 3)}`)],
-        components
+            .setFooter(`On osu! Official Server | Page ${(scores.length/(offset || 1))} of ${Math.ceil(scores.length / 3)}`)],
+        components: (components[0].components.length !== 0 ? components : undefined)
     })
 }
 
@@ -101,7 +101,7 @@ const AddButton = (emoji: string, offset: number, userId: number, beatmapId: num
 }
 
 const AddMessageToButtons = (message: Message) => {
-    const [b1, b2] = message.components[0].components
+    const [b1, b2] = message.components[0]?.components || [null, null]
     
     if (b1) Buttons[b1.customId].message = message
     if (b2) Buttons[b2.customId].message = message

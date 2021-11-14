@@ -25,7 +25,7 @@ const AddSlashCommands = async (client: Bot) => {
     const addInteraction = (data: ApplicationCommandData) => {
         if (commands.find(e => e.name === data.name)) return
         
-        console.log(`Created command`, data)
+        //console.log(`Created command`, data)
         if (process.env.NODE_ENV === "development") client.guilds.cache.get("341153679992160266").commands.create(data)
         else client.application.commands.create(data)
     }
