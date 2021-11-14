@@ -1,6 +1,5 @@
-import { Bot } from "@bot/client/Client"
 import { iOnButton } from "@interfaces/Command"
-import { ButtonInteraction, MessageEmbed } from "discord.js"
+import { ButtonInteraction } from "discord.js"
 
 const RegisteredButtons = {}
 

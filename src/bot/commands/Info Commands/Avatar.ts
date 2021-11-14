@@ -1,10 +1,10 @@
 import { CommandInteraction, Message, MessageOptions, PermissionString, User } from "discord.js"
-import { Bot } from "@client/Client"
+import { Bot, Embed } from "@client/Client"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 
 
 const Avatar = (member: User): MessageOptions => {
-    return {content: member.avatarURL({dynamic: true})}
+    return {embeds: [Embed({image: {url: member.avatarURL({dynamic: true}) + "?size=1024", width: 1024, height: 1024}}, member)]}
 }
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
