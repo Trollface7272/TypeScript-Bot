@@ -275,6 +275,7 @@ export interface TopParams {
     m?: 0 | 1 | 2 | 3
     limit?: number
     type?: "string" | "id"
+    useCache?: boolean
 }
 
 export interface Performance {

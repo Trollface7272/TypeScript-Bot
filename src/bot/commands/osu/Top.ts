@@ -10,7 +10,7 @@ import { AddMessageToButtons, GetButtonData } from "@bot/Interactions/Buttons/Da
 
 
 interface iButton extends Args {
-    message?: Message
+    message?: Message,
 }
 
 
@@ -22,13 +22,13 @@ const osuTopPlays = async (author: GuildMember, options: Args) => {
 
 }
 
-const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand, offset = 0 } }: Args) => {
+const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand, offset = 0, cache=false } }: Args) => {
     let profile: Profile
     try { profile = await GetProfileCache({ u: Name, m: m }) }
     catch (err) { HandleError(author, err, Name) }
 
     let scores: Array<Score>
-    try { scores = await GetTop({ u: Name, m: m, limit: 100 }) }
+    try { scores = await GetTop({ u: Name, m: m, limit: 100, useCache: cache }) }
     catch (err) { HandleError(author, err, profile.Name) }
 
     if (g) scores = scores.filter(e => rv ? (e.Performance.raw < g) : (e.Performance.raw > g))
@@ -134,6 +134,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 
 export const onButton: iOnButton = async (interaction: ButtonInteraction) => {
     const button: iButton = GetButtonData(interaction.customId)
+    button.Flags.cache = true
     
     const reply = await button.message.edit(await osuTopPlays(interaction.member as GuildMember, button))
     AddMessageToButtons(reply)

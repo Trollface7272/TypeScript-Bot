@@ -137,6 +137,7 @@ export interface Flags {
     rand?: boolean
     l?: boolean
     offset?: number
+    cache?: boolean
 }
 interface Error {
     code: number

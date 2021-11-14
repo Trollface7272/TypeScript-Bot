@@ -25,7 +25,11 @@ interface user_best {
 
 const endpoint: string = linkBase + "api/get_user_best"
 
-export async function Get(params: TopParams): Promise<Array<Score>> {
+const cache = {}
+
+export async function Get({useCache=false, ...params}: TopParams): Promise<Array<Score>> {
+    if (useCache && cache[params.u]) return cache[params.u]
+    
     const data: user_best[] = (await axios.get(endpoint, { params })).data
     if (!data || data.length < 1) throw { code: 5 }
     const out: Array<Score> = []
@@ -61,6 +65,8 @@ export async function Get(params: TopParams): Promise<Array<Score>> {
             Downloadable: el.replay_available == "1"
         })
     }
+
+    cache[params.u] = out
 
     return out
 }
