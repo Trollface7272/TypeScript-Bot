@@ -7,6 +7,7 @@ import { randomBytes } from "crypto"
 import { SHA256 } from "crypto-js"
 import { RegisterButton } from "@bot/Interactions/Buttons"
 import { AddButtonData } from "@bot/Interactions/Buttons/Data"
+import { GenCustomId } from "@lib/GlobalUtils"
 
 const CommandGamemodes = {
     "taiko": 1,
@@ -402,7 +403,7 @@ export const AddButtons = ({ Name, Flags: { m, acc, b, g, l, map, mods, offset, 
 
 export const AddButton = (emoji: string, options: Args, callback: Function) => {
     const button = new MessageButton()
-        .setCustomId(SHA256(randomBytes(32).toString()).toString())
+        .setCustomId(GenCustomId())
         .setEmoji(emoji)
         .setStyle("PRIMARY")
 

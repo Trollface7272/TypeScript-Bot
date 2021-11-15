@@ -1,13 +1,18 @@
-import { CommandInteraction, Message, PermissionString } from "discord.js"
+import { ButtonInteraction, CommandInteraction, Message, MessageActionRow, MessageButton, PermissionString } from "discord.js"
 import { Bot } from "@client/Client"
 import { GuildMember, MessageEmbed, MessageOptions } from "discord.js"
 import { GetBeatmap, GetProfileCache, GetRecent, GetTop } from "@lib/osu/Api/Api"
-import { ModNames, GetFlagUrl, GetProfileLink, GetServer, GetProfileImage, HandleError, RankingEmotes, CalculateAcc, GetHits, CalculateProgress, ConvertBitMods, GetMapLink, GetMapImage, DateDiff, ErrorIds, Args, GetCombo, ParseArgs } from "@lib/osu/Utils"
+import { ModNames, GetFlagUrl, GetProfileLink, GetServer, GetProfileImage, HandleError, RankingEmotes, CalculateAcc, GetHits, CalculateProgress, ConvertBitMods, GetMapLink, GetMapImage, DateDiff, ErrorIds, Args, GetCombo, ParseArgs, AddButtons } from "@lib/osu/Utils"
 import { Beatmap, Profile, Score } from "@interfaces/OsuApi"
 import { GetFcAccuracy, GetFcPerformance, GetPlayPerformance } from "@lib/osu/Calculator"
-import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
+import { iOnButton, iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 import { GetOsuUsername } from "@database/Users"
+import { GenCustomId } from "@lib/GlobalUtils"
+import { AddMessageToButtons, GetButtonData } from "@bot/Interactions/Buttons/Data"
 
+interface iButtonData extends Args {
+    message: Message
+}
 
 const osuRecent = async (author: GuildMember, options: Args): Promise<MessageOptions> => {
     if (!options.Name) return HandleError(author, { code: ErrorIds.NoUsername }, "")
@@ -18,30 +23,28 @@ const osuRecent = async (author: GuildMember, options: Args): Promise<MessageOpt
     return Normal(author, options)
 }
 
-const Normal = async (author: GuildMember, { Name, Flags: { m } }: Args) => {
+const Normal = async (author: GuildMember, { Name, Flags: { m, offset = 0 } }: Args): Promise<MessageOptions> => {
+    let realOffset = offset / 5
     let profile: Profile
     try { profile = await GetProfileCache({ u: Name, m: m }) }
     catch (err) { return HandleError(author, err, Name) }
 
-    let recent: Array<Score>
+    let recent: Score[]
     try { recent = await GetRecent({ u: Name, m: m, limit: 50 }) }
     catch (err) { return HandleError(author, err, profile.Name) }
 
     if (recent.length == 0) return HandleError(author, { code: 5 }, profile.Name)
 
-    const score: Score = recent[0]
+    const score: Score = recent[realOffset]
 
 
     let beatmap: Beatmap
     try { beatmap = await GetBeatmap({ b: score.MapId, m: m, mods: score.Mods }) }
-    catch (err) {
-        console.log(err)
-        return HandleError(author, err, profile.Name)
-    }
+    catch (err) { return HandleError(author, err, profile.Name) }
 
 
     let tries = 0
-    for (let i = 0; i < recent.length; i++) {
+    for (let i = realOffset; i < recent.length; i++) {
         if (recent[i].MapId === score.MapId) tries++
         else break
     }
@@ -62,15 +65,18 @@ const Normal = async (author: GuildMember, { Name, Flags: { m } }: Args) => {
         .setThumbnail(GetMapImage(beatmap.SetId))
         .setDescription(desc)
         .setFooter(`Try #${tries} | ${DateDiff(score.Date, new Date(new Date().toLocaleString('en-US', { timeZone: "UTC" })))}Ago ${GetServer()}`)
-    return ({ embeds: [embed] })
+    const button = AddButtons({ Name, Flags: { m, offset } }, recent.length * 5, onButton)
+
+    return ({ embeds: [embed], components: button, allowedMentions: { repliedUser: false } })
 }
 
-const RecentBest = async (author: GuildMember, { Name, Flags: { m, g, rv } }: Args): Promise<MessageOptions> => {
+const RecentBest = async (author: GuildMember, { Name, Flags: { m, g, rv, offset = 0, b, l } }: Args): Promise<MessageOptions> => {
+    let realOffset = offset / 5
     let profile: Profile
     try { profile = await GetProfileCache({ u: Name, m: m }) }
     catch (err) { return HandleError(author, err, Name) }
 
-    let scores: Array<Score>
+    let scores: Score[]
     try { scores = await GetTop({ u: Name, m: m, limit: 100 }) }
     catch (err) { return HandleError(author, err, profile.Name) }
 
@@ -78,14 +84,14 @@ const RecentBest = async (author: GuildMember, { Name, Flags: { m, g, rv } }: Ar
 
     scores.sort((a, b) => rv ? a.Date.getTime() - b.Date.getTime() : b.Date.getTime() - a.Date.getTime())
 
-    const score: Score = scores[0]
+    const score: Score = scores[realOffset]
 
     let beatmap: Beatmap
     try { beatmap = await GetBeatmap({ b: score.MapId, m: m, mods: score.Mods }) }
     catch (err) { return HandleError(author, err, profile.Name) }
 
     let fcppDisplay = ""
-    if (score.Combo < beatmap.MaxCombo - 15 || score.Counts.miss > 0) fcppDisplay = `(${await GetFcPerformance(score, m)}pp for ${GetFcAccuracy(score.Counts, m)}% FC) `
+    if (score.Combo < beatmap.MaxCombo - 15 || score.Counts.miss > 0) fcppDisplay = `(${(await GetFcPerformance(score, m)).Total.Formatted}pp for ${GetFcAccuracy(score.Counts, m)}% FC) `
 
     let desc = `**${score.Index}. [${beatmap.Title} [${beatmap.Version}]](${GetMapLink(beatmap.id)}) +${ConvertBitMods(score.Mods)}** [${beatmap.Difficulty.Star.Formatted}★]\n`
     desc += `▸ ${RankingEmotes(score.Rank)} ▸ **${score.Performance.Formatted}pp** ${fcppDisplay}▸ ${CalculateAcc(score.Counts, m)}%\n`
@@ -97,16 +103,19 @@ const RecentBest = async (author: GuildMember, { Name, Flags: { m, g, rv } }: Ar
         .setDescription(desc)
         .setFooter(GetServer())
         .setThumbnail(GetProfileImage(profile.id))
-    return ({ embeds: [embed] })
+
+    const button = AddButtons({ Name, Flags: { m, g, rv, offset, b, l } }, scores.length * 5, onButton)
+
+    return ({ embeds: [embed], components: button, allowedMentions: { repliedUser: false } })
 }
 
-const RecentList = async (author: GuildMember, { Name, Flags: { m } }: Args): Promise<MessageOptions> => {
+const RecentList = async (author: GuildMember, { Name, Flags: { m, offset = 0, l, b } }: Args): Promise<MessageOptions> => {
     let profile: Profile
     try { profile = await GetProfileCache({ u: Name, m: m }) }
     catch (err) { return HandleError(author, err, Name) }
 
     let recent: Array<Score>
-    try { recent = await GetRecent({ u: Name, m: m, limit: 5 }) }
+    try { recent = await GetRecent({ u: Name, m: m, limit: offset + 6 }) }
     catch (err) { return HandleError(author, err, profile.Name) }
 
     if (recent.length == 0) return HandleError(author, { code: 5 }, profile.Name)
@@ -115,17 +124,14 @@ const RecentList = async (author: GuildMember, { Name, Flags: { m } }: Args): Pr
 
     const beatmaps: Beatmap[] = []
     let description = ""
-    for (let i = 0; i < recent.length; i++) {
-        const score = recent[i];
+    for (let i = offset; i < Math.min(recent.length, offset + 5); i++) {
+        const score = recent[offset];
         let beatmap: Beatmap
         if (beatmaps[score.MapId]) beatmap = beatmaps[score.MapId]
         else try {
             beatmap = await GetBeatmap({ b: score.MapId, m: m, mods: score.Mods })
             beatmaps[score.MapId] = beatmap
-        } catch (err) {
-            console.log(err)
-            return HandleError(author, err, profile.Name)
-        }
+        } catch (err) { return HandleError(author, err, profile.Name) }
 
         let fcppDisplay = ""
         if (score.Counts.miss > 0 || score.Combo < beatmap.MaxCombo - 15)
@@ -136,10 +142,6 @@ const RecentList = async (author: GuildMember, { Name, Flags: { m } }: Args): Pr
         description += `▸ ${RankingEmotes(score.Rank)} ▸ **${(await GetPlayPerformance(score, m)).Total.Formatted}pp** ${fcppDisplay}▸ ${CalculateAcc(score.Counts, m)}%\n`
         description += `▸ ${score.Score.Formatted} ▸ ${GetCombo(score.Combo, beatmap.MaxCombo, m)} ▸ [${GetHits(score.Counts, m)}]\n`
         description += `▸ Score Set ${DateDiff(score.Date, new Date(new Date().toLocaleString('en-US', { timeZone: "UTC" })))}Ago\n`
-        /*desc += `${beatmap.Title} [${beatmap.Version}] +${ConvertBitMods(client, score.Mods)} [${beatmap.Difficulty.Star.Formatted}★]\n`
-        desc += `▸ ${RankingEmotes(client, score.Rank)} ▸ **${(await GetPlayPerformance(client, message, score, options.Flags.m)).Total.Formatted}pp** ${fcppDisplay}▸ ${CalculateAcc(client, score.Counts, options.Flags.m)}%\n`
-        desc += `▸ ${score.Score.Formatted} ▸ x${score.Combo}/${beatmap.MaxCombo} ▸ [${GetHits(client, score.Counts, options.Flags.m)}]\n`
-        desc += `${DateDiff(client, score.Date, new Date(new Date().toLocaleString('en-US', { timeZone: "UTC" })))}Ago`*/
 
         if (score.Rank == "F")
             description += `▸ **Map Completion:** ${CalculateProgress(score.Counts, beatmap.Objects, m)}%\n`
@@ -149,20 +151,23 @@ const RecentList = async (author: GuildMember, { Name, Flags: { m } }: Args): Pr
         .setThumbnail(GetProfileImage(profile.id))
         .setDescription(description)
         .setFooter(`${GetServer()}`)
-    return ({ embeds: [embed] })
-}
+    const button = AddButtons({ Name, Flags: { m, offset, l, b } }, recent.length * 5, onButton)
 
+    return ({ embeds: [embed], components: button, allowedMentions: { repliedUser: false } })
+}
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     const options: Args = await ParseArgs(message, args)
 
-    return await osuRecent(message.member, options)
+    const reply = await message.reply(await osuRecent(message.member, options))
+
+    AddMessageToButtons(reply)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
     let username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
     if (!username) interaction.reply(HandleError(interaction.member as GuildMember, { code: 1 }, ""))
-    
+
     const options: Args = {
         Name: username as string,
         Flags: {
@@ -175,6 +180,17 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
     }
 
     interaction.reply(await osuRecent(interaction.member as GuildMember, options))
+    AddMessageToButtons(await interaction.fetchReply() as Message)
+}
+
+export const onButton: iOnButton = async (interaction: ButtonInteraction) => {
+    const options = GetButtonData(interaction.customId) as iButtonData
+
+    const reply = await options.message.edit(await osuRecent(interaction.member as GuildMember, options))
+    
+    AddMessageToButtons(reply)
+
+    interaction.reply({}).catch(() => null)
 }
 
 

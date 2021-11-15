@@ -1,3 +1,6 @@
+import { randomBytes } from "crypto";
+import { SHA256 } from "crypto-js";
+
 // eslint-disable-next-line
 export const DeepCopy = (obj: any) => {
     // eslint-disable-next-line
@@ -38,3 +41,5 @@ export const DeepCopy = (obj: any) => {
 export const Random = (min: number, max: number) => {
     return Math.random() * (max - min) + min
 }
+
+export const GenCustomId = () => SHA256(randomBytes(32).toString()).toString()

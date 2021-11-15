@@ -10,6 +10,7 @@ import { SHA256 } from "crypto-js"
 import { randomBytes } from "crypto"
 import { AddDropdownData, AddMessageToDropdown, GetDropdownData } from "@bot/Interactions/Select Menu/Data"
 import { RegisterSelectMenu } from "@bot/Interactions/Select Menu/info"
+import { GenCustomId } from "@lib/GlobalUtils"
 
 interface iDropdownn extends Args {
     message?: Message,
@@ -43,7 +44,7 @@ const osuProfile = async (author: GuildMember, { Name, Flags: { m } }: Args): Pr
 const getDropdown = (data: iDropdownn): MessageSelectMenu => {
     const dropdown = new
         MessageSelectMenu()
-        .setCustomId(SHA256(randomBytes(32).toString()).toString())
+        .setCustomId(GenCustomId())
         .addOptions(getOsuSelectGamemodes(data.Flags.m))
 
     AddDropdownData(dropdown.customId, data)
@@ -82,7 +83,7 @@ export const onDropdown: iOnSelectMenu = async (interaction: SelectMenuInteracti
     const reply = await data.message.edit(await osuProfile(interaction.member as GuildMember, data))
 
     AddMessageToDropdown(reply)
-    interaction.reply({}).catch(err => null)
+    interaction.reply({}).catch(() => null)
 }
 
 export const name: string[] = ["profile", "osu", "mania", "taiko", "ctb"]
