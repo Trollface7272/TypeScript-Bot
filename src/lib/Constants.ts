@@ -1,5 +1,6 @@
-import { ApplicationCommandChoicesData, ApplicationCommandNonOptionsData, MessageSelectOption, MessageSelectOptionData, TextChannel } from "discord.js"
+import { ApplicationCommandChoicesData, ApplicationCommandNonOptionsData, MessageSelectOption, MessageSelectOptionData, SelectMenuInteraction, TextChannel } from "discord.js"
 import { join } from "path"
+import { Mods } from "./osu/Utils"
 
 const InteractionOsuGamemodeChoices = [{
     name: "standard",
@@ -126,24 +127,80 @@ export const CommanOptions = {
     Misc
 }
 
-export const getOsuSelectGamemodes = (m: 0 | 1 | 2 | 3) => {
+export const getOsuSelectGamemodes = (m: 0 | 1 | 2 | 3): MessageSelectOptionData[] => {
     return [{
         default: m == 0,
         label: "Standard",
-        value: "0"
+        value: "0",
+        emoji: "<:Osu:909904224631001129>"
     }, {
         default: m == 1,
         label: "Taiko",
-        value: "1"
+        value: "1",
+        emoji: "<:Taiko:909904240858771476>"
     }, {
         default: m == 2,
         label: "Catch the beat",
-        value: "2"
+        value: "2",
+        emoji: "<:Fruits:909904199519703110>"
     }, {
         default: m == 3,
         label: "Mania",
-        value: "3"
+        value: "3",
+        emoji: "<:Mania:909904211800637450>"
     }]
+}
+
+export const getOsuSelectMods = (mods: number): MessageSelectOptionData[] => {
+    return [{
+        default: (mods & 1) > 0,
+        label: "NoFail",
+        value: "1",
+        emoji: "<:NoFail:586217719632887808>"
+    }, {
+        default: (mods & 2) > 0,
+        label: "Easy",
+        value: "2",
+        emoji: "<:Easy:586217683188580377>"
+    }, {
+        default: (mods & 8) > 0,
+        label: "Hidden",
+        value: "8",
+        emoji: "<:Hidden:586217719129440256>"
+    }, {
+        default: (mods & 16) > 0,
+        label: "Hard Rock",
+        value: "16",
+        emoji: "<:HardRock:586217719125245952>"
+    }, {
+        default: (mods & 64) > 0,
+        label: "Double Time",
+        value: "64",
+        emoji: "<:DoubleTime:586217676276367361>"
+    }, {
+        default: (mods & 256) > 0,
+        label: "Half Time",
+        value: "256",
+        emoji: "<:HalfTime:586217719104405504>"
+    }, {
+        default: (mods & 1024) > 0,
+        label: "Flashlight",
+        value: "1024",
+        emoji: "<:Flashlight:586217710371733536>"
+    }, {
+        default: (mods & 4096) > 0,
+        label: "Spun Out",
+        value: "4096",
+        emoji: "<:SpunOut:586217719318315030>"
+    }]
+}
+
+export const ParseSelectedMods = (interaction: SelectMenuInteraction) => {
+    let res = 0
+    interaction.values.forEach(val => res += parseInt(val))
+    if (res & Mods.Bit.Easy && res & Mods.Bit.HardRock) res = res & (~Mods.Bit.Easy)
+    if (res & Mods.Bit.HalfTime && res & Mods.Bit.DoubleTime) res = res & (~Mods.Bit.HalfTime)
+    return res
 }
 
 export const BrokenInteraction = "This is not a command if you see this something is broken!"

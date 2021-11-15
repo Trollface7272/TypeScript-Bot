@@ -1,12 +1,17 @@
-import { CommandInteraction, Message, PermissionString } from "discord.js"
+import { CommandInteraction, Message, MessageActionRow, MessageSelectMenu, PermissionString, SelectMenuInteraction } from "discord.js"
 import { Bot } from "@client/Client"
-import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
+import { iOnMessage, iOnSelectMenu, iOnSlashCommand } from "@interfaces/Command"
 import { GuildMember, MessageEmbed, MessageOptions } from "discord.js"
 import { Embed } from "@client/Client"
 import { ParseArgs, Args, ConvertBitMods, GetDifficultyEmote, GetMapLink, HandleError, FindMapInConversation, GetModsFromString } from "@lib/osu/Utils"
 import { GetBeatmap } from "@lib/osu/Api/Api"
 import { Beatmap } from "@interfaces/OsuApi"
 import { GetAccuracyPerformance } from "@lib/osu/Calculator"
+import { SHA256 } from "crypto-js"
+import { randomBytes } from "crypto"
+import { getOsuSelectMods, ParseSelectedMods } from "@lib/Constants"
+import { AddDropdownData, AddMessage, AddMessageToDropdown, GetDropdownData } from "@bot/Interactions/Select Menu/Data"
+import { RegisterSelectMenu } from "@bot/Interactions/Select Menu/info"
 
 const osuMap = async (author: GuildMember, {Name, Flags: {m, map, mods, acc}}: Args): Promise<MessageOptions> => {
     if (!map) {
@@ -28,19 +33,35 @@ const osuMap = async (author: GuildMember, {Name, Flags: {m, map, mods, acc}}: A
     description += `○ **${mapDiffs[1].AccuracyPercent.Formatted}%-**${mapDiffs[1].Total.Formatted}`
     description += `○ **${mapDiffs[2].AccuracyPercent.Formatted}%-**${mapDiffs[2].Total.Formatted}`
 
+    const dropdown = new MessageActionRow().addComponents(GetDropdown({Name, Flags: {m, map, mods, acc}}))
+
     const embed = new MessageEmbed()
         .setAuthor(`${beatmap.Artist} - ${beatmap.Title} by ${beatmap.Mapper}`, ``, GetMapLink(beatmap.id))
         .setThumbnail(GetMapLink(beatmap.SetId))
         .setDescription(description)
         .setFooter(`${beatmap.Approved} | ${beatmap.FavouritedCount} ❤︎ ${beatmap.ApprovedRaw > 0 ? ("| Approved " + new Date(beatmap.ApprovedDate).toISOString().slice(0,10).replaceAll("-", " ")) : ""}`)
+        .setImage("https://i.imgur.com/g1pszyN.png")
+        
+    return ({ embeds: [embed], components: [dropdown], allowedMentions: {repliedUser: false} })
+}
 
-    return ({ embeds: [embed] })
+const GetDropdown = (options: Args) => {
+    const dropdown = new
+        MessageSelectMenu()
+            .setCustomId(SHA256(randomBytes(32).toString()).toString())
+            .setMinValues(0)
+            .setMaxValues(6)
+            .addOptions(getOsuSelectMods(options.Flags.mods))
+    AddDropdownData(dropdown.customId, options)
+    RegisterSelectMenu(dropdown.customId, onDropdown)
+    return dropdown
 }
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     const options: Args = await ParseArgs(message, args)
     
-    return await osuMap(message.member, options)
+    const reply = await message.reply(await osuMap(message.member, options))
+    AddMessageToDropdown(reply)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
@@ -58,6 +79,19 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
     }
 
     interaction.reply(await osuMap(interaction.member as GuildMember, options))
+
+    AddMessageToDropdown(await interaction.fetchReply() as Message)
+}
+
+export const onDropdown: iOnSelectMenu = async (interaction: SelectMenuInteraction) => {
+    const id = interaction.customId
+    const data = GetDropdownData(id)
+    data.Flags.mods = ParseSelectedMods(interaction)
+    const reply = await data.message.edit(await osuMap(interaction.member as GuildMember, data))
+    
+    AddMessageToDropdown(reply)
+    
+    interaction.reply({}).catch(err => null)
 }
 
 export const name = ["map", "m"]
