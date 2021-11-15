@@ -40,11 +40,13 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
     }
 
     if (p) {
+        p.sort((a,b) => a-b)
         const out: Array<Score> = []
         for (let i = 0; i < p.length; i++) {
-            out.push(scores[p[i]])
+            if (scores[p[i]]) out.push(scores[p[i]])
         }
         scores = out
+        if (out.length < 1) return HandleError(author, {code: 8, count: p[0]+1}, Name)
     }
 
     if (rand) scores = [scores[Math.floor(Math.random() * (scores.length - 1) + 1)]]

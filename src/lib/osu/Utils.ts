@@ -104,6 +104,7 @@ const Errors = [
     '**🔴 ${Name} has no recent plays.**',
     '**🔴 ${Name} has no top plays.**',
     '**🔴 ${Name} has no scores on given map.**',
+    '**🔴 ${Name} does not have `${Count}` scores.**',
 ]
 
 export const ErrorIds = {
@@ -244,8 +245,8 @@ export const GetProfileImage = (id: number): string => {
     return `http://s.ppy.sh/a/${id}?newFix=${new Date().getTime()}`
 }
 
-export const HandleError = (author: GuildMember, err: Error, name: string): MessageOptions => {
-    if (err.code) return ({ embeds: [Embed({ description: Errors[err.code].replace("${Name}", name) }, author.user)] })
+export const HandleError = (author: GuildMember, err: any, name: string): MessageOptions => {
+    if (err.code) return ({ embeds: [Embed({ description: Errors[err.code].replace("${Name}", name).replace("${Count}", err.count) }, author.user)] })
     else logger.error(new Error(JSON.stringify(err)))
 }
 
