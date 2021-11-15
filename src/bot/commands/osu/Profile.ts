@@ -31,8 +31,9 @@ const osuProfile = async (author: GuildMember, { Name, Flags: { m } }: Args): Pr
     const embed = new MessageEmbed()
         .setAuthor(`${ModNames.Name[m]} Profile for ${profile.Name}`, GetFlagUrl(profile.Country), GetProfileLink(profile.id, m))
         .setDescription(description)
-        .setFooter(GetServer() + "\u3000".repeat(21) + "")
+        .setFooter(GetServer())
         .setThumbnail(GetProfileImage(profile.id))
+        .setImage("https://i.imgur.com/g1pszyN.png")
 
     const dropdown = new MessageActionRow().addComponents(getDropdown({ Name, Flags: { m } }))
 
@@ -75,7 +76,6 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 
 export const onDropdown: iOnSelectMenu = async (interaction: SelectMenuInteraction) => {
     const data: iDropdownn = GetDropdownData(interaction.customId)
-    console.log(data)
 
     data.Flags.m = parseInt(interaction.values[0]) as 0 | 1 | 2 | 3
 
