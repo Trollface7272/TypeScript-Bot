@@ -1,4 +1,4 @@
-import { ApplicationCommandChoicesData, ApplicationCommandNonOptionsData, TextChannel } from "discord.js"
+import { ApplicationCommandChoicesData, ApplicationCommandNonOptionsData, MessageSelectOption, MessageSelectOptionData, TextChannel } from "discord.js"
 import { join } from "path"
 
 const InteractionOsuGamemodeChoices = [{
@@ -48,14 +48,14 @@ const osuMods: ApplicationCommandChoicesData = {
     name: "mods",
     description: "Mods in 2 letter per mod format.",
     type: "STRING",
-    required: false        
+    required: false
 }
 
 const osuModsRaw: ApplicationCommandChoicesData = {
     name: "mods_raw",
     description: "Mods as number.",
     type: "INTEGER",
-    required: false        
+    required: false
 }
 
 const osuList: ApplicationCommandNonOptionsData = {
@@ -124,6 +124,26 @@ const Misc = {
 export const CommanOptions = {
     osu,
     Misc
+}
+
+export const getOsuSelectGamemodes = (m: 0 | 1 | 2 | 3) => {
+    return [{
+        default: m == 0,
+        label: "Standard",
+        value: "0"
+    }, {
+        default: m == 1,
+        label: "Taiko",
+        value: "1"
+    }, {
+        default: m == 2,
+        label: "Catch the beat",
+        value: "2"
+    }, {
+        default: m == 3,
+        label: "Mania",
+        value: "3"
+    }]
 }
 
 export const BrokenInteraction = "This is not a command if you see this something is broken!"

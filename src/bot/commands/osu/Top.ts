@@ -1,4 +1,4 @@
-import { ButtonInteraction, CommandInteraction, GuildMember, Message, MessageActionRow, MessageButton, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
+import { ButtonInteraction, CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
 import { Bot, Embed } from "@client/Client"
 import { Beatmap, Profile, Score } from "@interfaces/OsuApi"
 import { GetBeatmap, GetProfileCache, GetTop } from "@lib/osu/Api/Api"

@@ -5,5 +5,12 @@ import { config } from "dotenv"
 
 config()
 
-export const Client = new Bot()
-Client.Start(File as Config)
+export let Client: Bot
+
+const crashHandle = () => {
+    try {
+        Client = new Bot()
+        Client.Start(File as Config)
+    } catch (e) {crashHandle()}
+}
+crashHandle()

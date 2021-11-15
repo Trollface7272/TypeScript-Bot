@@ -1,4 +1,4 @@
-import { ButtonInteraction, CommandInteraction, GuildMember, Interaction, Message, MessageActionRow, MessageButton, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
+import { ButtonInteraction, CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
 import { Bot } from "@client/Client"
 import { AddButtons, Args, CalculateAcc, ConvertBitMods, DateDiff, FindMapInConversation, GetCombo, GetHits, GetMapImage, GetMapLink, GetProfileImage, HandleError, ModNames, ParseArgs, RankingEmotes } from "@lib/osu/Utils"
 import { iOnButton, iOnMessage, iOnSlashCommand } from "@interfaces/Command"
@@ -6,10 +6,7 @@ import { GetBeatmap, GetProfile, GetScore } from "@lib/osu/Api/Api"
 import { Beatmap, Difficulty, Profile, Score } from "@interfaces/OsuApi"
 import { GetDiffWithMods, GetFcAccuracy, GetFcPerformance } from "@lib/osu/Calculator"
 import { GetOsuUsername } from "@database/Users"
-import { SHA256 } from "crypto-js"
-import { randomBytes } from "crypto"
-import { RegisterButton } from "@bot/Interactions/Buttons"
-import { AddButtonData, AddMessage, AddMessageToButtons, GetButtonData } from "@bot/Interactions/Buttons/Data"
+import { AddMessageToButtons, GetButtonData } from "@bot/Interactions/Buttons/Data"
 
 interface iButton extends Args {
     message: Message

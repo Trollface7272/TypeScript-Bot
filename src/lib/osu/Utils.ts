@@ -5,8 +5,8 @@ import { Counts, Objects } from "@interfaces/OsuApi"
 import { GetOsuUsername } from "@database/Users"
 import { randomBytes } from "crypto"
 import { SHA256 } from "crypto-js"
-import { AddButtonData } from "@bot/Interactions/Buttons/Data"
 import { RegisterButton } from "@bot/Interactions/Buttons"
+import { AddButtonData } from "@bot/Interactions/Buttons/Data"
 
 const CommandGamemodes = {
     "taiko": 1,

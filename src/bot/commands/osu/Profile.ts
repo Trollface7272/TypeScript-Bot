@@ -1,10 +1,19 @@
-import { CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
+import { CommandInteraction, GuildMember, Message, MessageActionRow, MessageEmbed, MessageOptions, MessageSelectMenu, PermissionString, SelectMenuInteraction } from "discord.js"
 import { Bot } from "@client/Client"
-import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
+import { iOnMessage, iOnSelectMenu, iOnSlashCommand } from "@interfaces/Command"
 import { GetOsuUsername } from "@database/Users"
 import { Profile } from "@interfaces/OsuApi"
 import { GetProfile } from "@lib/osu/Api/Api"
 import { ModNames, GetFlagUrl, GetProfileLink, GetServer, GetProfileImage, HandleError, Args, ParseArgs } from "@lib/osu/Utils"
+import { getOsuSelectGamemodes } from "@lib/Constants"
+import { SHA256 } from "crypto-js"
+import { randomBytes } from "crypto"
+import { AddDropdownData, AddMessageToDropdown, GetDropdownData } from "@bot/Interactions/Select Menu/Data"
+import { RegisterSelectMenu } from "@bot/Interactions/Select Menu/info"
+
+interface iDropdownn extends Args {
+    message?: Message,
+}
 
 const osuProfile = async (author: GuildMember, { Name, Flags: { m } }: Args): Promise<MessageOptions> => {
     if (!Name) return HandleError(author, { code: 1 }, Name)
@@ -22,20 +31,36 @@ const osuProfile = async (author: GuildMember, { Name, Flags: { m } }: Args): Pr
     const embed = new MessageEmbed()
         .setAuthor(`${ModNames.Name[m]} Profile for ${profile.Name}`, GetFlagUrl(profile.Country), GetProfileLink(profile.id, m))
         .setDescription(description)
-        .setFooter(GetServer())
+        .setFooter(GetServer() + "\u3000".repeat(21) + "")
         .setThumbnail(GetProfileImage(profile.id))
-    return ({ embeds: [embed] })
+
+    const dropdown = new MessageActionRow().addComponents(getDropdown({ Name, Flags: { m } }))
+
+    return ({ embeds: [embed], components: [dropdown], allowedMentions: { repliedUser: false } })
+}
+
+const getDropdown = (data: iDropdownn): MessageSelectMenu => {
+    const dropdown = new
+        MessageSelectMenu()
+        .setCustomId(SHA256(randomBytes(32).toString()).toString())
+        .addOptions(getOsuSelectGamemodes(data.Flags.m))
+
+    AddDropdownData(dropdown.customId, data)
+    RegisterSelectMenu(dropdown.customId, onDropdown)
+
+    return dropdown
 }
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     const options = await ParseArgs(message, args)
-    return await osuProfile(message.member, options)
+    const reply = await message.reply(await osuProfile(message.member, options))
+    AddMessageToDropdown(reply)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
     let username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
     if (!username) interaction.reply(HandleError(interaction.member as GuildMember, { code: 1 }, ""))
-    
+
     const options: Args = {
         Name: username as string,
         Flags: {
@@ -43,6 +68,21 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
         }
     }
     interaction.reply(await osuProfile(interaction.member as GuildMember, options))
+
+    AddMessageToDropdown(await interaction.fetchReply() as Message)
+    interaction.reply({}).catch(err => null)
+}
+
+export const onDropdown: iOnSelectMenu = async (interaction: SelectMenuInteraction) => {
+    const data: iDropdownn = GetDropdownData(interaction.customId)
+    console.log(data)
+
+    data.Flags.m = parseInt(interaction.values[0]) as 0 | 1 | 2 | 3
+
+    const reply = await data.message.edit(await osuProfile(interaction.member as GuildMember, data))
+
+    AddMessageToDropdown(reply)
+    interaction.reply({}).catch(err => null)
 }
 
 export const name: string[] = ["profile", "osu", "mania", "taiko", "ctb"]
