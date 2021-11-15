@@ -60,7 +60,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
     interaction.reply(await osuMap(interaction.member as GuildMember, options))
 }
 
-export const name = "map"
+export const name = ["map", "m"]
 
 export const interactionName = "osu map"
 
