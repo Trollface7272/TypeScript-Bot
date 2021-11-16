@@ -1,0 +1,72 @@
+import { linkBase } from "./Api"
+import axios from "axios"
+import { CommaFormat, RoundFixed } from "../Utils"
+import { Score, TopParams } from "../../../interfaces/OsuApi"
+
+interface user_best {
+    beatmap_id:       string
+    score_id:         string
+    score:            string
+    maxcombo:         string
+    count50:          string
+    count100:         string
+    count300:         string
+    countmiss:        string
+    countkatu:        string
+    countgeki:        string
+    perfect:          string
+    enabled_mods:     string
+    user_id:          string
+    date:             string
+    rank:             string
+    pp:               string
+    replay_available: string
+}
+
+const endpoint: string = linkBase + "api/get_user_best"
+
+const cache = {}
+
+export async function Get({useCache=false, ...params}: TopParams): Promise<Array<Score>> {
+    if (useCache && cache[params.u]) return cache[params.u]
+    
+    const data: user_best[] = (await axios.get(endpoint, { params })).data
+    if (!data || data.length < 1) throw { code: 5 }
+    const out: Score[] = []
+
+    for (let i = 0; i < data.length; i++) {
+        const el = data[i]
+        out.push({
+            Index: i + 1,
+            UserId: parseInt(el.user_id),
+            Username: null,
+            MapId: parseInt(el.beatmap_id),
+            Score: {
+                raw: parseInt(el.score),
+                Formatted: CommaFormat(parseInt(el.score)),
+            },
+            Counts: {
+                "300": parseInt(el.count300),
+                "100": parseInt(el.count100),
+                "50": parseInt(el.count50),
+                katu: parseInt(el.countkatu),
+                geki: parseInt(el.countgeki),
+                miss: parseInt(el.countmiss),
+            },
+            Combo: parseInt(el.maxcombo),
+            Perfect: (el.perfect == "1"),
+            Mods: parseInt(el.enabled_mods),
+            Date: new Date(el.date),
+            Rank: el.rank,
+            Performance: {
+                raw: parseFloat(el.pp),
+                Formatted: CommaFormat(RoundFixed(parseFloat(el.pp)))
+            },
+            Downloadable: el.replay_available == "1"
+        })
+    }
+
+    cache[params.u] = out
+
+    return out
+}
