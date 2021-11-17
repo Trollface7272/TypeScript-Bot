@@ -22,7 +22,7 @@ export const osuTopPlays = async (author: GuildMember, options: Args) => {
 
 }
 
-const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand, offset = 0, cache=false } }: Args) => {
+const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand, offset = 0, cache = false } }: Args) => {
     let profile: Profile
     try { profile = await GetProfileCache({ u: Name, m: m }) }
     catch (err) { HandleError(author, err, Name) }
@@ -30,7 +30,7 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
     let scores: Array<Score>
     try { scores = await GetTop({ u: Name, m: m, limit: 100, useCache: cache }) }
     catch (err) { HandleError(author, err, profile.Name) }
-    
+
     if (g) scores = scores.filter(e => rv ? (e.Performance.raw < g) : (e.Performance.raw > g))
 
     if (b) scores.sort((a, b) => b.Date.getTime() - a.Date.getTime())
@@ -40,17 +40,17 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
     }
 
     if (p) {
-        p.sort((a,b) => a-b)
+        p.sort((a, b) => a - b)
         const out: Array<Score> = []
         for (let i = 0; i < p.length; i++) {
             if (scores[p[i]]) out.push(scores[p[i]])
         }
         scores = out
-        if (out.length < 1) return HandleError(author, {code: 8, count: p[0]+1}, Name)
+        if (out.length < 1) return HandleError(author, { code: 8, count: p[0] + 1 }, Name)
     }
 
     if (rand) scores = [scores[Math.floor(Math.random() * (scores.length - 1) + 1)]]
-    
+
     let desc = ""
     for (let i = offset; i < Math.min(offset + scores.length, offset + 5); i++) {
         desc += await FormatTopPlay(author, m, scores[i])
@@ -63,9 +63,7 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
         .setDescription(desc)
         .setFooter(GetServer())
         .setThumbnail(GetProfileImage(profile.id))
-    return ({ embeds: [embed],
-        components: (components[0].components.length !== 0 ? components : undefined) 
-    })
+    return ({ embeds: [embed], components: components })
 }
 
 
@@ -116,7 +114,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
     const username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
     if (!username) interaction.reply(HandleError(interaction.member as GuildMember, { code: 1 }, ""))
 
-    const specific = interaction.options.getInteger("specific") 
+    const specific = interaction.options.getInteger("specific")
 
     const options: Args = {
         Name: username as string,

@@ -58,10 +58,7 @@ const OsuCompare = async (author: GuildMember, { Name, Flags: { m, mods, map, of
             .setDescription(descriptionArr[0] + descriptionArr[1] + descriptionArr[2])
             .setThumbnail(GetMapImage(beatmap.SetId))
             .setFooter(`On osu! Official Server | Page ${(scores.length/(offset || 1))} of ${Math.ceil(scores.length / 3)}`)
-    return ({
-        embeds: [embed],
-        components: (components[0].components.length !== 0 ? components : undefined)
-    })
+    return ({ embeds: [embed], components: components })
 }
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
