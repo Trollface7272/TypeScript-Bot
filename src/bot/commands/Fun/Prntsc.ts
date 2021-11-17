@@ -1,5 +1,4 @@
-import { ApplicationCommandData, CommandInteraction, Message, MessageOptions, PermissionString } from "discord.js"
-import { Bot } from "@client/Client"
+import { CommandInteraction, MessageOptions, PermissionString } from "discord.js"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 
 
@@ -18,7 +17,7 @@ const Prntsc = (): MessageOptions => {
     return {content: `https://prnt.sc/${RandString(6)}`}
 }
 
-export const onMessage: iOnMessage = async (client: Bot, message: Message) => {
+export const onMessage: iOnMessage = async () => {
     return Prntsc()
 }
 
@@ -26,7 +25,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
     interaction.reply(Prntsc())
 }
 
-export const name: string = "prntsc"
+export const name = "prntsc"
 
 export const interactionName = "prntsc"
 

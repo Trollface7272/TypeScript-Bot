@@ -1,7 +1,7 @@
 import { Bot, Embed } from "@client/Client"
 import { AddRetardRole } from "@database/Guilds"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
-import { ApplicationCommandData, CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString, Role } from "discord.js"
+import { CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString, Role } from "discord.js"
 
 const ErrorCodes = {
     "1": "Invalid syntax",
@@ -9,7 +9,7 @@ const ErrorCodes = {
     "3": "Insufficient permissions",
 }
 
-const HandleError = (client: Bot, message: Message, error: any) => {
+const HandleError = (client: Bot, message: Message, error: number) => {
     client.logger.debug(ErrorCodes[error] ? ErrorCodes[error] : error)
     message.reply({embeds: [client.embed({description: ErrorCodes[error]}, message)]})
 }
@@ -39,8 +39,8 @@ export const onMessage: iOnMessage = async (client: Bot, message: Message, args:
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
-    let position = interaction.options.getNumber("position") || -1
-    let role: Role = interaction.options.getRole("role") as Role
+    const position = interaction.options.getNumber("position") || -1
+    const role: Role = interaction.options.getRole("role") as Role
 
     return interaction.reply(await Add(interaction.member as GuildMember, interaction.guild, position, role))
 }

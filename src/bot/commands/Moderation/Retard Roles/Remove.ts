@@ -9,7 +9,7 @@ const ErrorCodes = {
     "3": "Insufficient permissions",
 }
 
-const HandleError = (client: Bot, message: Message, error: any) => {
+const HandleError = (client: Bot, message: Message, error: number) => {
     client.logger.debug(ErrorCodes[error] ? ErrorCodes[error] : error)
     return {embeds: [client.embed({description: ErrorCodes[error]}, message)]}
 }
@@ -20,7 +20,7 @@ const Remove = async (author: GuildMember, guild: Guild, id: string): Promise<Me
 }
 
 const RemoveIndex = async (author: GuildMember, guild: Guild, index: number): Promise<MessageOptions> => {
-    let id = await RemoveRetardRoleIndex(guild.id, index)
+    const id = await RemoveRetardRoleIndex(guild.id, index)
     return ({embeds: [Embed({description: `Successfully removed <@&${id}> from retard role list.` }, author.user)], allowedMentions: {roles: []}})
 }
 
@@ -36,7 +36,7 @@ export const onMessage: iOnMessage = async (client: Bot, message: Message, args:
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
-    let role = interaction.options.getRole("role")  
+    const role = interaction.options.getRole("role")  
     return interaction.reply(await Remove(interaction.member as GuildMember, interaction.guild, role.id))
 }
 

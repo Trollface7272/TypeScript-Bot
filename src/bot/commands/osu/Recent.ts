@@ -1,4 +1,4 @@
-import { ButtonInteraction, CommandInteraction, Message, MessageActionRow, MessageButton, PermissionString } from "discord.js"
+import { ButtonInteraction, CommandInteraction, Message, PermissionString } from "discord.js"
 import { Bot } from "@client/Client"
 import { GuildMember, MessageEmbed, MessageOptions } from "discord.js"
 import { GetBeatmap, GetProfileCache, GetRecent, GetTop } from "@lib/osu/Api/Api"
@@ -7,7 +7,6 @@ import { Beatmap, Profile, Score } from "@interfaces/OsuApi"
 import { GetFcAccuracy, GetFcPerformance, GetPlayPerformance } from "@lib/osu/Calculator"
 import { iOnButton, iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 import { GetOsuUsername } from "@database/Users"
-import { GenCustomId } from "@lib/GlobalUtils"
 import { AddMessageToButtons, GetButtonData } from "@bot/Interactions/Buttons/Data"
 
 interface iButtonData extends Args {
@@ -24,7 +23,7 @@ const osuRecent = async (author: GuildMember, options: Args): Promise<MessageOpt
 }
 
 const Normal = async (author: GuildMember, { Name, Flags: { m, offset = 0 } }: Args): Promise<MessageOptions> => {
-    let realOffset = offset / 5
+    const realOffset = offset / 5
     let profile: Profile
     try { profile = await GetProfileCache({ u: Name, m: m }) }
     catch (err) { return HandleError(author, err, Name) }
@@ -71,7 +70,7 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, offset = 0 } }: A
 }
 
 const RecentBest = async (author: GuildMember, { Name, Flags: { m, g, rv, offset = 0, b, l } }: Args): Promise<MessageOptions> => {
-    let realOffset = offset / 5
+    const realOffset = offset / 5
     let profile: Profile
     try { profile = await GetProfileCache({ u: Name, m: m }) }
     catch (err) { return HandleError(author, err, Name) }
@@ -165,7 +164,7 @@ export const onMessage: iOnMessage = async (client: Bot, message: Message, args:
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
-    let username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
+    const username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
     if (!username) interaction.reply(HandleError(interaction.member as GuildMember, { code: 1 }, ""))
 
     const options: Args = {

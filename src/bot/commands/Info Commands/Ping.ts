@@ -1,6 +1,6 @@
 import { Bot } from "@client/Client"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
-import { ApplicationCommandData, CommandInteraction, Message, PermissionString } from "discord.js"
+import { CommandInteraction, Message, PermissionString } from "discord.js"
 
 const Ping = async (client: Bot, msg: Message) => {
     msg.edit({embeds: [client.embed({description: `WebSocket: ${client.ws.ping}ms\n Message edit: ${msg.createdAt.getTime() - msg.createdAt.getTime()}ms`}, msg)]})

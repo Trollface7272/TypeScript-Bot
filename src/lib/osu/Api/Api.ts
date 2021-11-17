@@ -1,6 +1,4 @@
-import { Config } from "../../../interfaces/Config"
-import * as File from "../../../../config.json"
-export const key: string = (File as Config).osu_token
+export const key: string = process.env.OSU_KEY
 export const linkBase = "https://osu.ppy.sh/"
 
 import { Get as ApiGetBeatmap, GetShort as ApiGetIncompleteBeatmap } from "./Beatmap"

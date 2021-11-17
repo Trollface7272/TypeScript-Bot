@@ -3,11 +3,10 @@ import { modbits } from "ojsama"
 import { Embed, logger } from "@client/Client"
 import { Counts, Objects } from "@interfaces/OsuApi"
 import { GetOsuUsername } from "@database/Users"
-import { randomBytes } from "crypto"
-import { SHA256 } from "crypto-js"
 import { RegisterButton } from "@bot/Interactions/Buttons"
 import { AddButtonData } from "@bot/Interactions/Buttons/Data"
 import { GenCustomId } from "@lib/GlobalUtils"
+import { iOnButton } from "@interfaces/Command"
 
 const CommandGamemodes = {
     "taiko": 1,
@@ -141,9 +140,6 @@ export interface Flags {
     offset?: number
     cache?: boolean
 }
-interface Error {
-    code: number
-}
 
 export const ParseArgs = async (message: Message, args: string[]) => {
     const cmd = message.content.toLocaleLowerCase().split(" ")[0].substr(1)
@@ -226,7 +222,7 @@ export const RoundFixed = (num: number, digits = 2): string => {
 }
 
 export function CommaFormat(num: number | string): string {
-    let n: number = typeof num == "number" ? num : parseFloat(num)
+    const n: number = typeof num == "number" ? num : parseFloat(num)
     return n.toLocaleString()
 }
 
@@ -246,7 +242,7 @@ export const GetProfileImage = (id: number): string => {
     return `http://s.ppy.sh/a/${id}?newFix=${new Date().getTime()}`
 }
 
-export const HandleError = (author: GuildMember, err: any, name: string): MessageOptions => {
+export const HandleError = (author: GuildMember, err: {code: number, count?: string}, name: string): MessageOptions => {
     if (err.code) return ({ embeds: [Embed({ description: Errors[err.code].replace("${Name}", name).replace("${Count}", err.count) }, author.user)] })
     else logger.error(new Error(JSON.stringify(err)))
 }
@@ -391,17 +387,17 @@ export const GetDifficultyEmote = (mode: 0 | 1 | 2 | 3, star: number) => {
     return `<:Black:${DifficultyEmoteIds[mode][difficulty]}>`
 }
 
-export const AddButtons = ({ Name, Flags: { m, acc, b, g, l, map, mods, offset, p, rand, rv } }: Args, scoreCount: number, callback: Function) => {
+export const AddButtons = ({ Name, Flags: { m, acc, b, g, l, map, mods, offset, p, rand, rv } }: Args, scoreCount: number, callback: iOnButton) => {
     const buttons = []
 
     if (offset !== 0) buttons.push(AddButton("⬅️", { Name, Flags: { m, acc, b, g, l, map, mods, offset: offset - 5, p, rand, rv } }, callback))
     if (offset + 5 < scoreCount) buttons.push(AddButton("➡️", { Name, Flags: { m, acc, b, g, l, map, mods, offset: offset + 5, p, rand, rv } }, callback))
-    const components = [new MessageActionRow().addComponents(buttons)]
+    const components = buttons.length > 0 ? [new MessageActionRow().addComponents(buttons)] : undefined
 
     return components
 }
 
-export const AddButton = (emoji: string, options: Args, callback: Function) => {
+export const AddButton = (emoji: string, options: Args, callback: iOnButton) => {
     const button = new MessageButton()
         .setCustomId(GenCustomId())
         .setEmoji(emoji)

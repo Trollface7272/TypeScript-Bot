@@ -1,4 +1,4 @@
-import { ApplicationCommandChoicesData, ApplicationCommandNonOptionsData, MessageSelectOption, MessageSelectOptionData, SelectMenuInteraction, TextChannel } from "discord.js"
+import { ApplicationCommandChoicesData, ApplicationCommandNonOptionsData, MessageSelectOptionData, SelectMenuInteraction } from "discord.js"
 import { join } from "path"
 import { Mods } from "./osu/Utils"
 

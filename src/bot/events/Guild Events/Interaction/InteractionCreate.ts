@@ -38,9 +38,9 @@ const RunCommand = (interaction: CommandInteraction) => {
 }
 
 const GetCommandName = (interaction: CommandInteraction): string => {
-    let cmdName = interaction.commandName
-    let subCmdGroup = interaction.options.getSubcommandGroup(false)
-    let subCmd = interaction.options.getSubcommand(false)
+    const cmdName = interaction.commandName
+    const subCmdGroup = interaction.options.getSubcommandGroup(false)
+    const subCmd = interaction.options.getSubcommand(false)
     return cmdName + (subCmdGroup ? ` ${subCmdGroup}` : "") + (subCmd? ` ${subCmd}` : "")
 }
 

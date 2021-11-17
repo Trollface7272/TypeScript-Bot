@@ -19,8 +19,8 @@ export const run: RunFunction = async (client: Bot) => {
 }
 
 const AddSlashCommands = async (client: Bot) => {
-    let guild = process.env.NODE_ENV === "development" ? (await client.guilds.cache.get("341153679992160266").commands.fetch(undefined, {force: true}) as unknown as ApplicationCommand[]) : []
-    let global = await client.application.commands.fetch(undefined, {force: true}) as unknown as ApplicationCommand[]
+    const guild = process.env.NODE_ENV === "development" ? (await client.guilds.cache.get("341153679992160266").commands.fetch(undefined, {force: true}) as unknown as ApplicationCommand[]) : []
+    const global = await client.application.commands.fetch(undefined, {force: true}) as unknown as ApplicationCommand[]
     const commands = [...guild, ...global]
     const addInteraction = (data: ApplicationCommandData) => {
         if (commands.find(e => e.name === data.name)) return
@@ -40,8 +40,8 @@ const AddSlashCommands = async (client: Bot) => {
 }
 
 const RemoveSlashCommands = async (client: Bot) => {
-    let guild = process.env.NODE_ENV === "development" ? (await client.guilds.cache.get("341153679992160266").commands.fetch(undefined, {force: true}) as unknown as ApplicationCommand[]) : []
-    let global = await client.application.commands.fetch(undefined, {force: true}) as unknown as ApplicationCommand[]
+    const guild = process.env.NODE_ENV === "development" ? (await client.guilds.cache.get("341153679992160266").commands.fetch(undefined, {force: true}) as unknown as ApplicationCommand[]) : []
+    const global = await client.application.commands.fetch(undefined, {force: true}) as unknown as ApplicationCommand[]
     const commands = [...guild, ...global]
     
     const removeSlashCommand = (data: ApplicationCommand) => {

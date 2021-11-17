@@ -113,10 +113,10 @@ export const onMessage: iOnMessage = async (client: Bot, message: Message, args:
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
-    let username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
+    const username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
     if (!username) interaction.reply(HandleError(interaction.member as GuildMember, { code: 1 }, ""))
 
-    let specific = interaction.options.getInteger("specific") 
+    const specific = interaction.options.getInteger("specific") 
 
     const options: Args = {
         Name: username as string,

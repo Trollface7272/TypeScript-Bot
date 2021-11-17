@@ -1,4 +1,4 @@
-import { ApplicationCommandData, CommandInteraction, EmbedField, Guild, GuildMember, Message, MessageOptions, PermissionString } from "discord.js"
+import { CommandInteraction, EmbedField, Guild, GuildMember, Message, MessageOptions, PermissionString } from "discord.js"
 import { Bot, Embed } from "@client/Client"
 import { GetTrackedInChannel } from "@database/Tracking"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"

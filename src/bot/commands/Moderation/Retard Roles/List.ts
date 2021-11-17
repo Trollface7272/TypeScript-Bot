@@ -1,7 +1,7 @@
 import { Bot, Embed } from "@client/Client"
 import { GetRetardRoles } from "@database/Guilds"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
-import { ApplicationCommandData, CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString } from "discord.js"
+import { CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString } from "discord.js"
 
 const List = async (author: GuildMember, guild: Guild): Promise<MessageOptions> => {
     const roles = await GetRetardRoles(guild.id)

@@ -1,4 +1,4 @@
-import { ApplicationCommandData, CommandInteraction, GuildMember, Message, MessageOptions, PermissionString } from "discord.js"
+import { CommandInteraction, Message, MessageOptions, PermissionString } from "discord.js"
 import { Bot } from "@client/Client"
 import { SetPrefix as SetPrefixDb } from "@database/Guilds"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"

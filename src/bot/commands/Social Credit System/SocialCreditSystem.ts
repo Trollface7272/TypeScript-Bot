@@ -24,7 +24,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
 
 }
 
-export const name: string = "socialcreditsystem"
+export const name = "socialcreditsystem"
 
 export const interactionName = "socialcreditsystem"
 

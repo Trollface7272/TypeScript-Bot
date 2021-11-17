@@ -75,10 +75,10 @@ export const onMessage: iOnMessage = async (client: Bot, message: Message, args:
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
-    let username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
+    const username = interaction.options.getString("username") || await GetOsuUsername(interaction.user.id)
     if (!username) interaction.reply(HandleError(interaction.member as GuildMember, { code: 1 }, ""))
 
-    let map = await FindMapInConversation(interaction.channel)
+    const map = await FindMapInConversation(interaction.channel)
     if (map == "Not Found") interaction.reply(HandleError(interaction.member as GuildMember, { code: 3 }, ""))
 
     const options: Args = {
@@ -100,7 +100,7 @@ export const onButton: iOnButton = async (interaction: ButtonInteraction) => {
     
     const reply = await button.message.edit(await OsuCompare(interaction.member as GuildMember, button))
     AddMessageToButtons(reply)
-    interaction.reply({}).catch(err => null)
+    interaction.reply({}).catch(() => null)
 }
 
 export const name: string[] = ["c", "compare"]

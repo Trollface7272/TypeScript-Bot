@@ -5,7 +5,7 @@ const ToCollect = [{get: ProfileCache, set: SetProfile}]
 export const GarbageCollect = () => {
     ToCollect.map(el => {
         const cached = el.get()
-        let out = {}
+        const out = {}
         Object.keys(cached).every(key => {
             if (cached[key].expire > Date.now()) out[key] = cached[key]
         })

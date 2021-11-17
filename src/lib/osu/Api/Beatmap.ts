@@ -149,7 +149,6 @@ const v2 = async (params: BeatmapParams): Promise<ShortBeatmap> => {
 
 const v1 = async (params: BeatmapParams): Promise<Beatmap> => {
     params.a = 1
-    const oldmods = params.mods
     params.mods = GetDiffMods(params.mods)
     const path = join(cachePath, "maps", params.m+"", params.mods+"", params.b+".json")
     if (existsSync(path)) return require(path)
@@ -162,15 +161,10 @@ const v1 = async (params: BeatmapParams): Promise<Beatmap> => {
         speed = 1.5
     else if (params.mods & Mods.Bit.HalfTime)
         speed = 0.75
-    let multiplier = 1
-    // if (oldmods & Mods.Bit.HardRock)
-    //     multiplier = 1.4
-    // else if (oldmods & Mods.Bit.Easy)
-    //     multiplier = 0.5
 
-    data.diff_approach = (CalculateApproach(parseFloat(data.diff_approach), speed, multiplier)).toString()
-    data.diff_overall = (CalculateOverall(parseFloat(data.diff_overall), speed, multiplier)).toString()
-    data.diff_size = (parseFloat(data.diff_overall) * (multiplier === 1.4 ? 1.3 : multiplier)).toString()
+
+    data.diff_approach = (CalculateApproach(parseFloat(data.diff_approach), speed, 1)).toString()
+    data.diff_overall = (CalculateOverall(parseFloat(data.diff_overall), speed, 1)).toString()
 
     if (!existsSync(join(cachePath, "maps", params.m+"", params.mods+""))) mkdirSync(join(cachePath, "maps", params.m+"", params.mods+""))
     const parsed = {
@@ -261,7 +255,7 @@ const v1 = async (params: BeatmapParams): Promise<Beatmap> => {
         LastUpdate: new Date(data.last_update),
         Hash: data.file_md5,
     }
-    if (parsed.Approved == 4 || parsed.Approved == 1) writeFile(path, JSON.stringify(parsed), {encoding: "utf-8"}, () => {})
+    if (parsed.Approved == 4 || parsed.Approved == 1) writeFile(path, JSON.stringify(parsed), {encoding: "utf-8"}, () => null)
 
     return parsed
 }

@@ -1,4 +1,4 @@
-import { ApplicationCommandData, CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString, Role } from "discord.js"
+import { CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString, Role } from "discord.js"
 import { Bot, Embed } from "@client/Client"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 import { GetRetardRoles } from "@database/Guilds"

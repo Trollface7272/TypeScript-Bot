@@ -1,7 +1,7 @@
 import { Bot, Embed } from "@client/Client"
 import { ClearRetardRoles } from "@database/Guilds"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
-import { ApplicationCommandData, CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString } from "discord.js"
+import { CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString } from "discord.js"
 
 const ErrorCodes = {
     "1": "Invalid syntax",
@@ -9,7 +9,7 @@ const ErrorCodes = {
     "3": "Insufficient permissions",
 }
 
-const HandleError = (client: Bot, message: Message, error: any) => {
+const HandleError = (client: Bot, message: Message, error: number) => {
     client.logger.debug(ErrorCodes[error] ? ErrorCodes[error] : error)
     message.reply({embeds: [client.embed({description: ErrorCodes[error]}, message)]})
 }

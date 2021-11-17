@@ -1,4 +1,4 @@
-import { ApplicationCommandData, CommandInteraction, Message, MessageOptions, PermissionString, Sticker as dSticker } from "discord.js"
+import { Message, MessageOptions, PermissionString, Sticker as dSticker } from "discord.js"
 import { Bot } from "@client/Client"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 
@@ -11,8 +11,8 @@ const Emoji = (id: string, animated: boolean): MessageOptions => {
     return {content: `https://cdn.discordapp.com/emojis/${id}.${animated ? "gif" : "png"}?v=1` }
 }
 
-export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
-    const emoji = interaction.options.getString("emoji")
+export const onInteraction: iOnSlashCommand = async (/*interaction: CommandInteraction*/) => {
+    //const emoji = interaction.options.getString("emoji")
 }
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {

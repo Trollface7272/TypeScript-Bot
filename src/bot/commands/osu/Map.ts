@@ -10,7 +10,7 @@ import { GetAccuracyPerformance } from "@lib/osu/Calculator"
 import { SHA256 } from "crypto-js"
 import { randomBytes } from "crypto"
 import { getOsuSelectMods, ParseSelectedMods } from "@lib/Constants"
-import { AddDropdownData, AddMessage, AddMessageToDropdown, GetDropdownData } from "@bot/Interactions/Select Menu/Data"
+import { AddDropdownData, AddMessageToDropdown, GetDropdownData } from "@bot/Interactions/Select Menu/Data"
 import { RegisterSelectMenu } from "@bot/Interactions/Select Menu/info"
 
 const osuMap = async (author: GuildMember, {Name, Flags: {m, map, mods, acc}}: Args): Promise<MessageOptions> => {
@@ -65,7 +65,7 @@ export const onMessage: iOnMessage = async (client: Bot, message: Message, args:
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
-    let map = interaction.options.getNumber("map_id") || parseInt(interaction.options.getString("map_link").split("/").pop()) || parseInt(await FindMapInConversation(interaction.channel))
+    const map = interaction.options.getNumber("map_id") || parseInt(interaction.options.getString("map_link").split("/").pop()) || parseInt(await FindMapInConversation(interaction.channel))
     if (!map || isNaN(map)) interaction.reply(HandleError(interaction.member as GuildMember, { code: 3 }, ""))
     
     const options: Args = {
@@ -91,7 +91,7 @@ export const onDropdown: iOnSelectMenu = async (interaction: SelectMenuInteracti
     
     AddMessageToDropdown(reply)
     
-    interaction.reply({}).catch(err => null)
+    interaction.reply({}).catch(() => null)
 }
 
 export const name = ["map", "m"]
