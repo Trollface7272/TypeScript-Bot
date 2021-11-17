@@ -1,9 +1,14 @@
+import { OsuProfile } from "../Profile";
+
 interface iProfileEventRaw {
     display_html:         string
     beatmap_id:           string
     beatmapset_id:        string
     date:                 string
     epicfactor:           string
+}
+export interface iProfileCache {
+    [key: string]: {profile: OsuProfile, expire: number}
 }
 
 export interface iProfileRaw {

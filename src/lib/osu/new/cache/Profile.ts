@@ -1,6 +1,9 @@
+import { iProfileCache } from "../interfaces/Profile"
 import { OsuProfile } from "../Profile"
 
-let cached = {}
+
+
+let cached: iProfileCache = {}
 
 const expireSpeed = 1000 * 60 * 10
 export const AddToCache = (profile: OsuProfile) => {
@@ -8,4 +11,4 @@ export const AddToCache = (profile: OsuProfile) => {
 }
 
 export const GetFullCache = () => cached
-export const SetCache = (inp: any) => cached = inp
+export const SetCache = (inp: iProfileCache) => cached = inp

@@ -124,7 +124,7 @@ const RecentList = async (author: GuildMember, { Name, Flags: { m, offset = 0, l
     const beatmaps: Beatmap[] = []
     let description = ""
     for (let i = offset; i < Math.min(recent.length, offset + 5); i++) {
-        const score = recent[offset];
+        const score = recent[i];
         let beatmap: Beatmap
         if (beatmaps[score.MapId]) beatmap = beatmaps[score.MapId]
         else try {
