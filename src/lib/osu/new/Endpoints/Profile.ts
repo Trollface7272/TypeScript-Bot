@@ -1,7 +1,7 @@
 import axios from "axios"
-import { CommaFormat, RoundFixed } from "./Functions"
-import { osuApiKey, url } from "./Constants"
-import { iProfileParams, iProfileRaw } from "./interfaces/Profile"
+import { CommaFormat, RoundFixed } from "../Functions"
+import { osuApiKey, url } from "../Constants"
+import { iProfileFormatted, iProfileHitcounts, iProfileParams, iProfileRank, iProfileRanks, iProfileRaw, iProfileScore } from "../interfaces/Profile"
 
 export class OsuProfile {
     public id: number
@@ -11,27 +11,18 @@ export class OsuProfile {
     public PlayCount: number
     public Level: number
     public Performance: number
-    public Rank: { Country: number, Global: number }
+    public Rank: iProfileRank
     public Accuracy: number
     public Playtime: number
-    public Hitcounts: { "300": number, "100": number, "50": number }
-    public Ranks: { X: number, XH: number, S: number, SH: number, A: number }
-    public Score: { Total: number, Ranked: number }
-    public Formatted: {
-        Registered: string, PlayCount: string, Level: string, Performence: string,
-        Accuracy: string, Playtime: string,
-        Hitcounts: { "300": string, "100": string, "50": string }
-        Ranks: { X: string, XH: string, S: string, SH: string, A: string },
-        Rank: { Country: string, Global: string },
-        Score: { Total: string, Ranked: string },
-
-    }
+    public Hitcounts: iProfileHitcounts
+    public Ranks: iProfileRanks
+    public Score: iProfileScore
+    public Formatted: iProfileFormatted
 
     private endPoint = url + "get_user"
 
     public async Load(params: iProfileParams) {
         if (!params.k) params.k = osuApiKey
-        console.log(this.endPoint, { params });
         
         const data = (await axios.get(this.endPoint, { params })).data[0]
         if (!data) throw { code: 3, description: "User not found!" }
@@ -39,6 +30,7 @@ export class OsuProfile {
         this.FormatData()
         return this
     }
+
     private FormatData() {
         this.Formatted = {
             Accuracy: this.Accuracy.toFixed(2),

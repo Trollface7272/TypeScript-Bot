@@ -77,6 +77,7 @@ interface beatmap {
 }
 
 export async function Get(params: BeatmapParams): Promise<Beatmap> {
+    if (params.m == undefined) params.m = 0
     return v1(params)
 }
 

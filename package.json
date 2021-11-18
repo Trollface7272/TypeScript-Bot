@@ -8,7 +8,8 @@
     "start": "ts-node ./src/index.ts",
     "lint": "eslint . --ext .ts",
     "lint-fix": "eslint . --ext .ts --fix",
-    "build": "tsc"
+    "build": "tsc",
+    "random-test": "ts-node-dev --respawn --transpile-only --poll ./src/test.ts"
   },
   "author": "",
   "license": "ISC",

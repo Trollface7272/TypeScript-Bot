@@ -7,7 +7,7 @@ import { getOsuSelectGamemodes } from "@lib/Constants"
 import { AddDropdownData, AddMessageToDropdown, GetDropdownData } from "@bot/Interactions/Select Menu/Data"
 import { RegisterSelectMenu } from "@bot/Interactions/Select Menu/info"
 import { GenCustomId } from "@lib/GlobalUtils"
-import { OsuProfile } from "@lib/osu/new/Profile"
+import { OsuProfile } from "@lib/osu/new/Endpoints/Profile"
 
 interface iDropdownn extends Args {
     message?: Message,

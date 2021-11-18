@@ -1,5 +1,5 @@
 import { iProfileCache } from "../interfaces/Profile"
-import { OsuProfile } from "../Profile"
+import { OsuProfile } from "../Endpoints/Profile"
 
 
 

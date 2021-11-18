@@ -242,8 +242,8 @@ export const GetProfileImage = (id: number): string => {
     return `http://s.ppy.sh/a/${id}?newFix=${new Date().getTime()}`
 }
 
-export const HandleError = (author: GuildMember, err: {code: number, count?: string}, name: string): MessageOptions => {
-    if (err.code) return ({ embeds: [Embed({ description: Errors[err.code].replace("${Name}", name).replace("${Count}", err.count) }, author.user)] })
+export const HandleError = (author: GuildMember, err: {code: number, count?: number}, name: string): MessageOptions => {
+    if (err.code) return ({ embeds: [Embed({ description: Errors[err.code].replace("${Name}", name).replace("${Count}", err.count.toString()) }, author.user)] })
     else logger.error(new Error(JSON.stringify(err)))
 }
 
