@@ -41,7 +41,8 @@ export interface iProfileParams {
     u: number | string
     m?: 0 | 1 | 2 | 3
     type?: "string" | "id"
-    event_days?: number
+    event_days?: number,
+    useCache?: boolean
 }
 
 export interface iProfileFormatted {

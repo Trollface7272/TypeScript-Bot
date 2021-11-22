@@ -39,7 +39,7 @@ export const Disconnect = async () => {
 export const OnMessage = async (guild: Guild, author: GuildMember) => {
     try {
         await users.OnMessage(author)
-        await guilds.OnMessage(guild)
+        await guilds.OnMessage(guild, author)
     } catch (err) {
         logger.error(`Error writing into database => ` + err.message)
     }

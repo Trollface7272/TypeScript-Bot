@@ -58,17 +58,5 @@ export const SetOsuUsername = (userId: string, name: string): void => {
     GetCollection()?.updateOne({id: userId}, {$set: {osu_name: name}})
 }
 
-export const AddSocialCredit = (userId: string, amount: number): void => {
-    GetCollection()?.updateOne({id: userId}, {$inc: { social_credit: amount }})
-}
-
-export const SetSocialCredit = (userId: string, amount: number): void => {
-    GetCollection()?.updateOne({id: userId}, {$set: { social_credit: amount }})
-}
-
-export const GetSocialCredit = async (userId: string): Promise<number> => {
-    return (await GetCollection()?.findOne({id: userId})).social_credit || 1000
-}
-
 
 const GetCollection = () => database?.collection("users")

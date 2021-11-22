@@ -1,11 +1,11 @@
-import { ApplicationCommandData, CommandInteraction, GuildMember, Message, PermissionString } from "discord.js"
+import { CommandInteraction, GuildMember, Message, PermissionString } from "discord.js"
 import { Bot, Embed } from "@client/Client"
-import { SetSocialCredit } from "@database/Guilds"
+import { ToggleSocialCredit as dToggleSocialCredit } from "@database/Guilds"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 
 
 const ToggleSocialCredit = (author: GuildMember, guildId: string, enable: boolean) => {
-    SetSocialCredit(guildId, enable)
+    dToggleSocialCredit(guildId, enable)
     return ({embeds: [
         Embed({
             description: `Successfully ${enable ? "enabled" : "disabled"} social credit system.`
@@ -20,6 +20,7 @@ export const onMessage: iOnMessage = async (client: Bot, message: Message, args:
     }
 }
 
+// eslint-disable-next-line
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
 
 }
