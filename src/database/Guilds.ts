@@ -151,7 +151,7 @@ export const SetSocialCredit = (guildId: string, userId: string, amount: number)
 
 export const GetSocialCredit = async (guildId: string, userId: string): Promise<number> => {
     const guild: iGuild = (await GetCollection()?.findOne({id: guildId, "users.id": userId}))    
-    return guild.users.find(el => el.id == userId).social_credit
+    return guild?.users?.find(el => el.id == userId)?.social_credit || 1000
 }
 
 const GetCollection = () => database?.collection("guilds")
