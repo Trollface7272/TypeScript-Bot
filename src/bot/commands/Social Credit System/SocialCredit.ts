@@ -4,21 +4,21 @@ import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 import { IsSocialCreditEnabled, GetSocialCredit, SetSocialCredit as dSetSocialCredit, AddSocialCredit as dAddSocialCredit } from "@database/Guilds"
 
 
-const SocialCredit = async (author: GuildMember, guild: Guild): Promise<MessageOptions> => {
+const SocialCredit = async (user: User, guild: Guild): Promise<MessageOptions> => {
     if (!(await IsSocialCreditEnabled(guild.id))) return ({
         embeds: [
             Embed({
                 description: "Social credit system is not enabled on this server!"
-            }, author.user)
+            }, user)
         ]
     })
-    const credit = await GetSocialCredit(guild.id, author.user.id)
+    const credit = await GetSocialCredit(guild.id, user.id)
     return ({
         embeds: [
             Embed({
                 author: { name: "Glory to CCP!" },
                 description: `Your current social credit score is \`${credit}\``
-            }, author.user)
+            }, user)
         ]
     })
 }
@@ -43,12 +43,14 @@ export const onMessage: iOnMessage = async (client: Bot, message: Message, args:
     switch (args[0]) {
         case "set": return await SetSocialCredit(message.member, message.guild, message.mentions.users.first(), (!isNaN(parseInt(args[1]))) ? parseInt(args[1]) : parseInt(args[2]))
         case "add": return await AddSocialCredit(message.member, message.guild, message.mentions.users.first(), (!isNaN(parseInt(args[1]))) ? parseInt(args[1]) : parseInt(args[2]))
-        default: return await SocialCredit(message.member, message.guild)
+        default: 
+            if (message.mentions.users.size == 1 && args.length == 1) return await SocialCredit(message.mentions.users.first(), message.guild) 
+            return await SocialCredit(message.author, message.guild)
     }
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
-    interaction.reply(await SocialCredit(interaction.member as GuildMember, interaction.guild))
+    interaction.reply(await SocialCredit(interaction.user, interaction.guild))
 }
 
 export const name: string[] = ["sc", "socialcredit"]
