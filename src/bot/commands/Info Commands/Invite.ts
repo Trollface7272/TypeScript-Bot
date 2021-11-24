@@ -4,7 +4,7 @@ import { Bot } from "@bot/client/Client"
 
 const Invite = (client: Bot): MessageOptions => {
     let content = ""
-    content = client.generateInvite({scopes: ["applications.commands"], permissions: ["ADMINISTRATOR"]})
+    content = client.generateInvite({scopes: ["applications.commands", "bot"], permissions: ["ADMINISTRATOR"]})
     return {content}
 }
 
