@@ -2,7 +2,6 @@ import { Client, Collection, Intents, Message, MessageEmbed, MessageEmbedOptions
 import consola, { Consola } from "consola"
 import { Command } from "@interfaces/Command"
 import { Event } from "@interfaces/Event"
-import { Config } from "@interfaces/Config"
 import { promisify } from "util"
 import * as database from "@database/Main"
 import glob from "glob"
@@ -18,7 +17,6 @@ class Bot extends Client {
     public commands: Collection<string, Command> = new Collection()
     public events: Collection<string, Event> = new Collection()
     public triggers: Collection<string, Trigger> = new Collection()
-    public config: Config
     public logChannel: TextChannel
     public constructor() {
         super({
@@ -29,9 +27,8 @@ class Bot extends Client {
         this.guilds.fetch("341153679992160266").then(guild=> guild.channels.fetch("909270388624732160").then(channel => this.logChannel = channel as TextChannel))
         //consola.level = LogLevel.Debug
     }
-    public async Start(config: Config): Promise<void> {
-        this.config = config
-        this.login(config.discord_token)
+    public async Start(token: string): Promise<void> {
+        this.login(token)
         const commandFiles: string[] = await gPromise(`${__dirname}/../commands/**/*{.ts,.js}`)
         commandFiles.map(async (value: string) => {
             const file: Command = await import(value)

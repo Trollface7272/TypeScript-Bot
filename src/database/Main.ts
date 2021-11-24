@@ -1,14 +1,11 @@
 import { connect, connection, Connection, disconnect } from "mongoose"
 import consola from "consola"
-import * as File from "../../config.json"
-import { Config } from "@interfaces/Config"
 import { Guild, GuildMember } from "discord.js"
 import * as users from "./Users"
 import * as guilds from "./Guilds"
 import * as tracking from "./Tracking"
 
 const logger = consola
-const link = (File as Config).mongo_db_url
 
 export const Users = users
 
@@ -19,7 +16,7 @@ export let database: Connection
 export const Connect = async () => {
     if (database) return
     logger.info(`Connecting to database`)
-    await connect(link, {
+    await connect(process.env.DATABASE_URL, {
         useUnifiedTopology: true,
         useNewUrlParser: true
     })
