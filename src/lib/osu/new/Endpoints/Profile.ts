@@ -30,7 +30,7 @@ export class OsuProfile {
         if (!k) k = osuApiKey
 
         const data = (await axios.get(this.endPoint, { params: { u, type, event_days, k, m } })).data[0]
-        if (!data) throw { code: 3, description: "User not found!" }
+        if (!data) throw { code: 4, description: "User not found!" }
         this.LoadData(data)
         this.FormatData()
         AddToCache(this)

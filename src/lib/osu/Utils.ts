@@ -243,7 +243,7 @@ export const GetProfileImage = (id: number): string => {
 }
 
 export const HandleError = (author: GuildMember, err: {code: number, count?: number}, name: string): MessageOptions => {
-    if (err.code) return ({ embeds: [Embed({ description: Errors[err.code].replace("${Name}", name).replace("${Count}", err.count.toString()) }, author.user)] })
+    if (err.code) return ({ embeds: [Embed({ description: Errors[err.code].replace("${Name}", name).replace("${Count}", err.count?.toString()) }, author.user)] })
     else logger.error(new Error(JSON.stringify(err)))
 }
 
