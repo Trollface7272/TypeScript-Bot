@@ -5,14 +5,16 @@ import { Profile } from "@interfaces/OsuApi"
 import { Args, HandleError, ParseArgs } from "@lib/osu/Utils"
 import { AddToTracking as dAddToTracking } from "@database/Tracking"
 import { GetOsuUsername } from "@database/Users"
+import { OsuProfile } from "@lib/osu/lib/Endpoints/Profile"
+import { HandleAwait } from "@lib/GlobalUtils"
 
-const AddToTracking = async (author: GuildMember, options: Args, channelId: string): Promise<MessageOptions> => {
+export const AddToTracking = async (author: GuildMember, options: Args, channelId: string): Promise<MessageOptions> => {
     if (!options.Name) return HandleError(author, {code: 1}, options.Name)
+    let profile: OsuProfile, err: any
+    [profile, err] = await HandleAwait(new OsuProfile().Load({u:options.Name, m: options.Flags.m, useCache: true}))
+    if (err)  return HandleError(author, err, options.Name)
 
-    let profile: Profile
-    try { profile = await GetProfileCache({u:options.Name, m: options.Flags.m})}
-    catch (err) { return HandleError(author, err, options.Name) }
-    dAddToTracking(profile.id, channelId, options.Flags.m, author)
+    dAddToTracking(profile.id, profile.Name, channelId, options.Flags.m, author)
 }
 
 
@@ -33,7 +35,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
     return interaction.reply(await AddToTracking(interaction.member as GuildMember, options, interaction.channel.id))
 }
 
-export const name: string[] = ["track add", "tracking add"]
+export const name: string[] = []
 
 export const interactionName = "osu track add"
 

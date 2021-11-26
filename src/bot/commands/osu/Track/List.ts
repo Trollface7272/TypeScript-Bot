@@ -3,15 +3,14 @@ import { Bot, Embed } from "@client/Client"
 import { GetTrackedInChannel } from "@database/Tracking"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 
-const ListTracking = async (author: GuildMember, guild: Guild, channelId: string): Promise<MessageOptions> => {
+export const ListTracking = async (author: GuildMember, guild: Guild, channelId: string): Promise<MessageOptions> => {
     const tracked = await GetTrackedInChannel(channelId)
     const fields: EmbedField[] = []
 
     for (let i = 0; i < tracked.length; i++) {
-        const e = tracked[i];
-        const profile = await GetProfileCache({u: e.id, m: e.m})
+        const e = tracked[i]
         fields.push({
-            name: profile.Name,
+            name: e.name,
             value: "\u200b",
             inline: true
         })
@@ -30,7 +29,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
     return interaction.reply(await ListTracking(interaction.member as GuildMember, interaction.guild, interaction.channel.id))
 }
 
-export const name: string[] = ["track list", "tracking list"]
+export const name: string[] = []
 
 export const interactionName = "osu track list"
 
