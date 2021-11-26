@@ -2,15 +2,17 @@ import { RunFunction } from "@interfaces/Event"
 import { Message, MessageEmbed, MessageOptions } from "discord.js"
 import { Command } from "@interfaces/Command"
 import { Bot } from "@client/Client"
+import { OnCommand, OnMessage } from "@database/Main"
+import { GetPrefix } from "@database/Guilds"
 
 export const run: RunFunction = async (client: Bot, message: Message) => {
     if (message.author.bot || !message.guild) return
-    client.database.OnMessage(message.guild, message.member)
+    OnMessage(message.guild, message.member)
 
     //if (await Filter(client, message)) return
     let prefix: string[]
     if (process.argv.indexOf("-prefix") !== -1) prefix = [process.argv[process.argv.indexOf("-prefix") + 1]]
-    else prefix = await client.database.Guilds.GetPrefix(message.guild.id)
+    else prefix = await GetPrefix(message.guild.id)
 
     RunTrigger(client, message)
 
@@ -31,7 +33,7 @@ const RunCommand = async (client: Bot, message: Message, args: string[]) => {
 
     if (!command) return
     if (!message.member.permissions.has(command.requiredPermissions)) return message.channel.send({ embeds: [client.embed({ description: "Insufficient permissions." }, message)] })
-    client.database.OnCommand(message.guild.id, message.author.id)
+    OnCommand(message.guild.id, message.author.id)
     // eslint-disable-next-line
     const resp = await command.onMessage(client, message, args).catch((reason: any) => {
         message.channel.send({

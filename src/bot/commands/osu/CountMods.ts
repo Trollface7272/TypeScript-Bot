@@ -2,24 +2,24 @@ import { CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions,
 import { Bot } from "@client/Client"
 import { Args, ConvertBitMods, ErrorIds, GetFlagUrl, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs } from "@lib/osu/Utils"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
-import { Profile, Score } from "@interfaces/OsuApi"
-import { GetProfileCache, GetTop } from "@lib/osu/Api/Api"
 import { GetOsuUsername } from "@database/Users"
+import { OsuProfile } from "@lib/osu/lib/Endpoints/Profile"
+import { OsuScore, Score } from "@lib/osu/lib/Endpoints/Score"
+import { HandleAwait } from "@lib/GlobalUtils"
 
 const osuCountMods = async (author: GuildMember, {Name, Flags: {m}}: Args): Promise<MessageOptions> => {
     if (!Name) return HandleError(author, { code: ErrorIds.NoUsername }, "")
+    let profile: OsuProfile, err: {code: number}, scores: OsuScore
+    
+    ;[profile, err] = await HandleAwait(new OsuProfile().Load({ u: Name, m: m, useCache: true }))
+    if (err) return HandleError(author, err, profile.Name)
 
-    let profile: Profile
-    try { profile = await GetProfileCache({ u: Name, m: m }) }
-    catch (err) { return HandleError(author, err, Name) }
-
-    let scores: Array<Score>
-    try { scores = await GetTop({ u: Name, m: m, limit: 100 }) }
-    catch (err) { HandleError(author, err, profile.Name) }
+    ;[scores, err] = await HandleAwait(new OsuScore().Top({ u: Name, m: m, limit: 100 }))
+    if (err) return HandleError(author, err, profile.Name)
 
     const outObj = {}
-    for (let i = 0; i < scores.length; i++)
-        outObj[scores[i].Mods] = outObj[scores[i].Mods] ? outObj[scores[i].Mods] + 1 : 1
+    for (let i = 0; i < scores.Scores.length; i++)
+        outObj[scores.Scores[i].Mods] = outObj[scores.Scores[i].Mods] ? outObj[scores.Scores[i].Mods] + 1 : 1
 
     const outArr = []
     for (const key in outObj)

@@ -1,12 +1,13 @@
 import { ButtonInteraction, CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
 import { Bot, Embed } from "@client/Client"
-import { Beatmap, Profile, Score } from "@interfaces/OsuApi"
-import { GetBeatmap, GetProfileCache, GetTop } from "@lib/osu/Api/Api"
-import { AddButtons, Args, CalculateAcc, ConvertBitMods, DateDiff, GetCombo, GetFlagUrl, GetHits, GetMapLink, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs, RankingEmotes, RoundFixed } from "@lib/osu/Utils"
-import { GetFcAccuracy, GetFcPerformance } from "@lib/osu/Calculator"
+import { AddButtons, Args, CalculateAcc, CommaFormat, ConvertBitMods, DateDiff, GetCombo, GetFlagUrl, GetHits, GetMapLink, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs, RankingEmotes, RoundFixed } from "@lib/osu/Utils"
 import { iOnButton, iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 import { GetOsuUsername } from "@database/Users"
 import { AddMessageToButtons, GetButtonData } from "@bot/Interactions/Buttons/Data"
+import { OsuScore, Score } from "@lib/osu/lib/Endpoints/Score"
+import { OsuProfile } from "@lib/osu/lib/Endpoints/Profile"
+import { HandleAwait } from "@lib/GlobalUtils"
+import { beatmap } from "ojsama"
 
 
 interface iButton extends Args {
@@ -23,15 +24,14 @@ export const osuTopPlays = async (author: GuildMember, options: Args) => {
 }
 
 const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand, offset = 0, cache = false } }: Args) => {
-    let profile: Profile
-    try { profile = await GetProfileCache({ u: Name, m: m }) }
-    catch (err) { HandleError(author, err, Name) }
-
-    let scores: Array<Score>
-    try { scores = await GetTop({ u: Name, m: m, limit: 100, useCache: cache }) }
-    catch (err) { HandleError(author, err, profile.Name) }
-
-    if (g) scores = scores.filter(e => rv ? (e.Performance.raw < g) : (e.Performance.raw > g))
+    let profile: OsuProfile, top: OsuScore, err: { code: number }
+    ;[profile, err] = await HandleAwait(new OsuProfile().Load({ u: Name, m: m }))
+    if (err) return HandleError(author, err, Name)
+    
+    ;[top, err] = await HandleAwait(new OsuScore().Top({ u: Name, m: m, limit: 100, useCache: cache }))
+    if (err) return HandleError(author, err, profile.Name)
+    let scores = top.Scores
+    if (g) scores = scores.filter(e => rv ? (e.Performance < g) : (e.Performance > g))
 
     if (b) scores.sort((a, b) => b.Date.getTime() - a.Date.getTime())
 
@@ -41,7 +41,7 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
 
     if (p) {
         p.sort((a, b) => a - b)
-        const out: Array<Score> = []
+        const out: Score[] = []
         for (let i = 0; i < p.length; i++) {
             if (scores[p[i]]) out.push(scores[p[i]])
         }
@@ -50,6 +50,8 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
     }
 
     if (rand) scores = [scores[Math.floor(Math.random() * (scores.length - 1) + 1)]]
+
+    await top.CalculateFcPerformance(offset, Math.min(offset + scores.length, offset + 5))
 
     let desc = ""
     for (let i = offset; i < Math.min(offset + scores.length, offset + 5); i++) {
@@ -69,31 +71,30 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
 
 
 const FormatTopPlay = async (author: GuildMember, m: 0 | 1 | 2 | 3, score: Score): Promise<string> => {
-    let beatmap: Beatmap
-    try { beatmap = await GetBeatmap({ b: score.MapId, m: m, mods: score.Mods }) }
-    catch (err) { HandleError(author, err, score.Username); return "" }
+    let beatmap = score.Beatmap
 
     let fcppDisplay = "", description = ""
-    if (score.Combo < beatmap.MaxCombo - 15 || score.Counts.miss > 0) fcppDisplay = `(${await (await GetFcPerformance(score, m)).Total.Formatted}pp for ${GetFcAccuracy(score.Counts, m)}% FC) `
-    description += `**${score.Index}. [${beatmap.Title} [${beatmap.Version}]](${GetMapLink(beatmap.id)}) +${ConvertBitMods(score.Mods)}** [${beatmap.Difficulty.Star.Formatted}★]\n`
-    description += `▸ ${RankingEmotes(score.Rank)} ▸ **${score.Performance.Formatted}pp** ${fcppDisplay}▸ ${CalculateAcc(score.Counts, m)}%\n`
-    description += `▸ ${score.Score.Formatted} ▸ ${GetCombo(score.Combo, beatmap.MaxCombo, m)} ▸ [${GetHits(score.Counts, m)}]\n`
+    if (score.Combo < beatmap.Combo - 15 || score.Counts.miss > 0) fcppDisplay = `(${CommaFormat(score.FcPerformance)}pp for ${RoundFixed(score.FcAccuracy)}% FC) `
+    description += `**${score.Index}. [${beatmap.Title} [${beatmap.Version}]](${GetMapLink(beatmap.id)}) +${ConvertBitMods(score.Mods)}** [${beatmap.Formatted.Difficulty.Star}★]\n`
+    description += `▸ ${RankingEmotes(score.Rank)} ▸ **${score.Formatted.Performance}pp** ${fcppDisplay}▸ ${CalculateAcc(score.Counts, m)}%\n`
+    description += `▸ ${score.Formatted.Score} ▸ ${GetCombo(score.Combo, beatmap.Combo, m)} ▸ [${GetHits(score.Counts, m)}]\n`
     description += `▸ Score Set ${DateDiff(score.Date, new Date(new Date().toLocaleString('en-US', { timeZone: "UTC" })))}Ago\n`
 
     return description
 }
 
 const GreaterCount = async (author: GuildMember, options: Args) => {
-    let profile: Profile
-    try { profile = await GetProfileCache({ u: options.Name, m: options.Flags.m }) }
-    catch (err) { HandleError(author, err, options.Name) }
+    let profile: OsuProfile, top: OsuScore, err: { code: number }
+    ;[profile, err] = await HandleAwait(new OsuProfile().Load({ u: options.Name, m: options.Flags.m }))
+    if (err) return HandleError(author, err, options.Name)
 
-    let scores: Array<Score>
-    try { scores = await GetTop({ u: options.Name, m: options.Flags.m, limit: 100 }) }
-    catch (err) { HandleError(author, err, profile.Name) }
+    ;[top, err] = await HandleAwait(new OsuScore().Top({ u: options.Name, m: options.Flags.m, limit: 100 }))
+    if (err) return HandleError(author, err, profile.Name)
+
+    let scores = top.Scores
 
     scores = scores.filter(e =>
-        options.Flags.rv ? (e.Performance.raw < options.Flags.g) : (e.Performance.raw > options.Flags.g)
+        options.Flags.rv ? (e.Performance < options.Flags.g) : (e.Performance > options.Flags.g)
     )
 
     return ({ embeds: [Embed({ description: `**${profile.Name} has ${scores.length} plays worth more than ${RoundFixed(parseFloat(options.Flags.g + ""))}pp**` }, author.user)] })

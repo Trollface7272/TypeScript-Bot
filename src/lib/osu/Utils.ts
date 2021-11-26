@@ -7,6 +7,8 @@ import { RegisterButton } from "@bot/Interactions/Buttons"
 import { AddButtonData } from "@bot/Interactions/Buttons/Data"
 import { GenCustomId } from "@lib/GlobalUtils"
 import { iOnButton } from "@interfaces/Command"
+import { iScoreHitcounts } from "./lib/interfaces/Score"
+import { iBeatmapObjects } from "./lib/interfaces/Beatmap"
 
 const CommandGamemodes = {
     "taiko": 1,
@@ -272,7 +274,7 @@ export const RankingEmotes = (ranking: string): string => {
     }
 }
 
-export const CalculateAcc = (counts: Counts, mode: number): string => {
+export const CalculateAcc = (counts: iScoreHitcounts, mode: number): string => {
     switch (mode) {
         case 0:
             return RoundFixed((counts[300] * 300 + counts[100] * 100 + counts[50] * 50) / ((counts[300] + counts[100] + counts[50] + counts.miss) * 300) * 100)
@@ -288,7 +290,7 @@ export const CalculateAcc = (counts: Counts, mode: number): string => {
     }
 }
 
-export const GetHits = (counts: Counts, mode: number): string => {
+export const GetHits = (counts: iScoreHitcounts, mode: number): string => {
     switch (mode) {
         case 1:
         case 0:
@@ -303,15 +305,15 @@ export const GetHits = (counts: Counts, mode: number): string => {
     }
 }
 
-export const CalculateProgress = (counts: Counts, objects: Objects, mode: number): string => {
+export const CalculateProgress = (counts: iScoreHitcounts, objects: iBeatmapObjects, mode: number): string => {
     switch (mode) {
         case 1:
         case 0:
-            return RoundFixed((counts[300] + counts[100] + counts[50] + counts.miss) / (objects.Circle + objects.Slider + objects.Spinner) * 100)
+            return RoundFixed((counts[300] + counts[100] + counts[50] + counts.miss) / (objects.Circles + objects.Sliders + objects.Spinners) * 100)
         case 2:
-            return RoundFixed((counts[300] + counts[100] + counts[50] + counts.miss + counts.katu) / (objects.Circle + objects.Slider + objects.Spinner) * 100)
+            return RoundFixed((counts[300] + counts[100] + counts[50] + counts.miss + counts.katu) / (objects.Circles + objects.Sliders + objects.Spinners) * 100)
         case 3:
-            return RoundFixed((counts.geki + counts[300] + counts.katu + counts[100] + counts[50] + counts.miss + counts.katu) / (objects.Circle + objects.Slider + objects.Spinner) * 100)
+            return RoundFixed((counts.geki + counts[300] + counts.katu + counts[100] + counts[50] + counts.miss + counts.katu) / (objects.Circles + objects.Sliders + objects.Spinners) * 100)
         default:
             logger.error(`Unknown gamemode: ${mode}`)
             return "Unknown"

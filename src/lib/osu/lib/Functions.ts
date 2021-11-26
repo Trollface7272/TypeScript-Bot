@@ -1,7 +1,20 @@
-import { randomBytes } from "crypto";
-import { SHA256 } from "crypto-js";
+export const RoundFixed = (num: number, digits = 2): string => {
+    return (Math.round(num * Math.pow(10, digits)) / Math.pow(10, digits)).toFixed(digits)
+}
 
-// eslint-disable-next-line
+export function CommaFormat(num: number | string): string {
+    const n: number = typeof num == "number" ? num : parseFloat(num)
+    return n.toLocaleString()
+}
+
+export const ZeroFill = (num: number): string => {
+    return num.toString().length > 1 ? num.toString() : "0" + num
+}
+
+export const Clamp = (val: number, min: number, max: number) => {
+    return Math.min(Math.max(val, min), max)
+}
+
 export const DeepCopy = (obj: any) => {
     // eslint-disable-next-line
     let copy: any
@@ -36,19 +49,4 @@ export const DeepCopy = (obj: any) => {
     }
 
     throw new Error("Unable to copy obj! Its type isn't supported.");
-}
-
-export const Random = (min: number, max: number) => {
-    return Math.random() * (max - min) + min
-}
-
-export const GenCustomId = () => SHA256(randomBytes(32).toString()).toString()
-
-export const HandleAwait = async (promise: Promise<any>): Promise<Array<any>> => {
-    try {
-        const val = await promise
-        return [val, null]
-    } catch (err) {
-        return [null, err]
-    }
 }

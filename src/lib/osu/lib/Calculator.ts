@@ -1,33 +1,27 @@
-import 'module-alias/register'
-import ojsama, { ppv2, std_diff, std_ppv2 } from "ojsama"
-import { config } from "dotenv"
-import { iScoreHitcounts } from '@lib/osu/lib/interfaces/Score'
-import { OsuBeatmap } from '@lib/osu/lib/Endpoints/Beatmap'
-import { Mods } from '@lib/osu/Utils'
-import { Score } from '@interfaces/OsuApi'
+import { Mods } from "./Constants"
+import { OsuBeatmap } from "./Endpoints/Beatmap"
+import { Score } from "./Endpoints/Score"
+import { Clamp, CommaFormat } from "./Functions"
+import { iBeatmapObjects } from "./interfaces/Beatmap"
+import { iScoreHitcounts } from "./interfaces/Score"
 
-config();
+export class CalculatorBase {
+    constructor() {};
+    protected Beatmap: OsuBeatmap
+    public Formatted: {AccPerc?:string,Total:string}
 
-const Clamp = (val: number, min: number, max: number) => {
-    return Math.min(Math.max(val, min), max)
-}
+    protected Counts: iScoreHitcounts
+    protected AchievedCombo: number
+    protected SelectedMods: number
+    protected ScoreVersion: 1|2
+    protected ComboBasedMissCount: number
+    protected EffectiveMissCount: number
 
-
-class Calculator {
-    private Beatmap: OsuBeatmap
-
-    private Counts: iScoreHitcounts
-    private AchievedCombo: number
-    private SelectedMods: number
-    private ScoreVersion: 1|2
-    private ComboBasedMissCount: number
-    private EffectiveMissCount: number
-
-    private _total: number
-    private _aim: number
-    private _speed: number
-    private _acc: number
-    private _flashlight: number
+    protected _total: number
+    protected _aim: number
+    protected _speed: number
+    protected _acc: number
+    protected _flashlight: number
 
     public get Total() {
         return this._total
@@ -45,41 +39,19 @@ class Calculator {
         return this._flashlight
     }
 
-    private get TotalHits() {
+    protected get TotalHits() {
         return this.Counts[50] + this.Counts[100] + this.Counts[300] + this.Counts.miss
     }
-    private get TotalSuccessfulHits() {
+    protected get TotalSuccessfulHits() {
         return this.Counts[50] + this.Counts[100] + this.Counts[300]
     }
-    private get Accuracy() {
+    protected get Accuracy() {
         if (this.TotalHits == 0) return 0
         return Clamp((this.Counts[50] * 50 + this.Counts[100] * 100 + this.Counts[300] * 300) / (this.TotalHits * 300), 0, 1)
     }
 
-    constructor(score: Score, beatmap: OsuBeatmap) {
-        this.Beatmap = beatmap
-        this.Counts = score.Counts
-        this.AchievedCombo = score.Combo
-        this.SelectedMods = score.Mods
-        this.ScoreVersion = Mods.Bit.ScoreV2 & score.Mods ? 2 : 1
-        this.ComputeEffectiveMissCount()
-
-        this.ComputeAimValue()
-        this.ComputeSpeedValue()
-        this.ComputeAccValue()
-        this.ComputeFlashlightValue()
-
-        this.ComputeTotalValue()
-        delete this.Beatmap
-        delete this.Counts
-        delete this.AchievedCombo
-        delete this.SelectedMods
-        delete this.ScoreVersion
-        delete this.ComboBasedMissCount
-        delete this.EffectiveMissCount
-    }
-
-    private ComputeEffectiveMissCount() {
+    
+    protected ComputeEffectiveMissCount() {
         let comboBasedMissCount = 0
         let beatmapMaxCombo = this.Beatmap.Combo
         if (this.Beatmap.Objects.Sliders > 0) {
@@ -92,13 +64,13 @@ class Calculator {
         this.EffectiveMissCount = Math.max(this.Counts.miss, (Math.floor(comboBasedMissCount)))
     }
 
-    private ComputeTotalValue() {
+    protected ComputeTotalValue() {
         let multiplier = 1.12
-        if (Mods.Bit.NoFail & this.SelectedMods)
+        if (Mods.NoFail & this.SelectedMods)
             multiplier *= Math.max(0.9, 1 - 0.02 * this.EffectiveMissCount)
 
         let numTotalHits = this.TotalHits
-        if (Mods.Bit.SpunOut & this.SelectedMods)
+        if (Mods.SpunOut & this.SelectedMods)
             multiplier *= 1 - Math.pow(this.Beatmap.Objects.Spinners / numTotalHits, 0.85)
         
         this._total =
@@ -110,10 +82,10 @@ class Calculator {
             ) * multiplier
     }
 
-    private ComputeAimValue() {
+    protected ComputeAimValue() {
         let rawAim = this.Beatmap.Difficulty.Aim
 
-        if (Mods.Bit.TouchDevice & this.SelectedMods)
+        if (Mods.TouchDevice & this.SelectedMods)
             rawAim = Math.pow(rawAim, 0.8)
 
         this._aim = Math.pow(5 * Math.max(1, rawAim / 0.0675) - 4, 3) / 100000
@@ -141,7 +113,7 @@ class Calculator {
 
         this._aim *= 1 + approachRateFactor * lengthBonus
 
-        if (Mods.Bit.Hidden & this.SelectedMods)
+        if (Mods.Hidden & this.SelectedMods)
             this._aim *= 1 + 0.04 * (12 - approachRate)
 
         const estimateDifficultSliders = this.Beatmap.Objects.Sliders * 0.15
@@ -157,7 +129,7 @@ class Calculator {
         this._aim *= 0.98 + (Math.pow(this.Beatmap.Difficulty.Overall, 2) / 2500)
     }
 
-    private ComputeSpeedValue() {
+    protected ComputeSpeedValue() {
         this._speed = Math.pow(5 * Math.max(1, this.Beatmap.Difficulty.Speed / 0.0675) - 4, 3) / 100000
 
         const numTotalHits = this.TotalHits
@@ -180,14 +152,14 @@ class Calculator {
     
         this._speed *= 1 + approachRateFactor * lengthBonus
     
-        if (Mods.Bit.Hidden & this.SelectedMods)
+        if (Mods.Hidden & this.SelectedMods)
             this._speed *= 1 + 0.04 * (12 - approachRate)
     
         this._speed *= (0.95 + Math.pow(this.Beatmap.Difficulty.Overall, 2) / 750) * Math.pow(this.Accuracy, (14.5 - Math.max(this.Beatmap.Difficulty.Overall, 8)) / 2)
         this._speed *= Math.pow(0.98, this.Counts[50] < numTotalHits / 500 ? 0 : this.Counts[50] - numTotalHits / 500) 
     }
 
-    private ComputeAccValue() {
+    protected ComputeAccValue() {
         let betterAccuracyPercentage: number
 
         let numHitObjectsWithAccuracy: number
@@ -210,53 +182,148 @@ class Calculator {
 
         this._acc *= Math.min(1.15, (Math.pow(numHitObjectsWithAccuracy / 1000, 0.3)))
 
-        if (Mods.Bit.Hidden & this.SelectedMods)
+        if (Mods.Hidden & this.SelectedMods)
             this._acc *= 1.08
 
-        if (Mods.Bit.Flashlight & this.SelectedMods)
+        if (Mods.Flashlight & this.SelectedMods)
             this._acc *= 1.02
     }
 
-    private ComputeFlashlightValue() { this._flashlight = 0 }
+    protected ComputeFlashlightValue() { this._flashlight = 0 }
 }
 
+export class Calculator extends CalculatorBase {
+    constructor(score: Score) {
+        super()
+        this.Beatmap = score.Beatmap
+        this.Counts = score.Counts
+        this.AchievedCombo = score.Combo
+        this.SelectedMods = score.Mods
+        this.ScoreVersion = Mods.ScoreV2 & score.Mods ? 2 : 1
+        this.ComputeEffectiveMissCount()
 
+        this.ComputeAimValue()
+        this.ComputeSpeedValue()
+        this.ComputeAccValue()
+        this.ComputeFlashlightValue()
 
+        this.ComputeTotalValue()
+        
+        this.Formatted = {
+            Total: CommaFormat(this.Total),
+            AccPerc: score.Accuracy?.toFixed(2)
+        }
+        delete this.Beatmap
+        delete this.Counts
+        delete this.AchievedCombo
+        delete this.SelectedMods
+        delete this.ScoreVersion
+        delete this.ComboBasedMissCount
+        delete this.EffectiveMissCount
+    }
 
+}
 
+export class CalculatorFromAcc extends CalculatorBase {
+    constructor(score: Score, acc: number) {
+        super()
+        this.Beatmap = score.Beatmap
+        this.Counts = this.AccToCounts(acc, score.Beatmap.Objects)
+        this.AchievedCombo = score.Combo
+        this.SelectedMods = score.Mods
+        this.ScoreVersion = Mods.ScoreV2 & score.Mods ? 2 : 1
+        this.ComputeEffectiveMissCount()
 
+        this.ComputeAimValue()
+        this.ComputeSpeedValue()
+        this.ComputeAccValue()
+        this.ComputeFlashlightValue()
 
-; (async () => {
-    const top = null//(await Top({ u: "Trollface", limit: 3, k: process.env.OSU_KEY }))[2]
-    const map = await new OsuBeatmap().Load({ b: top.MapId, k: process.env.OSU_KEY })
+        this.ComputeTotalValue()
+        this.Formatted = {
+            Total: CommaFormat(this.Total),
+            AccPerc: score.Accuracy.toFixed(2)
+        }
+        delete this.Beatmap
+        delete this.Counts
+        delete this.AchievedCombo
+        delete this.SelectedMods
+        delete this.ScoreVersion
+        delete this.ComboBasedMissCount
+        delete this.EffectiveMissCount
+    }
 
-    const stars = new std_diff()
-    stars.aim = map.Difficulty.Aim
-    stars.speed = map.Difficulty.Speed
-    stars.mods = top.Mods
+    private AccToCounts(acc: number, obj: iBeatmapObjects): iScoreHitcounts {
+        const objects = obj.Circles + obj.Sliders + obj.Spinners
+        let c100 = Math.round(-3.0 * ((acc * 0.01 - 1.0) * objects) * 0.5)
+        if (c100 > objects) {
+            c100 = 0
+            const c50 = Math.round(-6.0 * ((acc * 0.01 - 1.0) * objects) * 0.5)
+            return {
+                "300": objects - c100 - c50,
+                "100": c100,
+                "50": c50,
+                miss: 0
+            }
+        }
+        return {
+            "300": objects - c100,
+            "100": c100,
+            "50": 0,
+            miss: 0
+        }
+    }
+}
 
-    const ojsamapp = ppv2({
-        stars: stars,
-        aim_stars: map.Difficulty.Aim,
-        base_ar: map.Difficulty.Approach,
-        base_od: map.Difficulty.Overall,
-        combo: top.Combo,
-        max_combo: map.Combo,
-        mode: 0,
-        mods: top.Mods,
-        n100: top.Counts[100],
-        n300: top.Counts[300],
-        n50: top.Counts[50],
-        ncircles: map.Objects.Circles,
-        nobjects: map.Objects.Circles + map.Objects.Sliders + map.Objects.Spinners,
-        nmiss: top.Counts.miss,
-        nsliders: map.Objects.Sliders,
-        speed_stars: map.Difficulty.Star,
+export class MapCalculator extends CalculatorBase {
+    public AccPerc: number
+    constructor(beatmap: OsuBeatmap, mods: number, acc: number) {
+        super()
+        this.Beatmap = beatmap
+        this.Counts = this.AccToCounts(acc, beatmap.Objects)
+        this.AchievedCombo = beatmap.Combo
+        this.SelectedMods = mods
+        this.ScoreVersion = Mods.ScoreV2 & mods ? 2 : 1
+        this.AccPerc = acc
+        this.ComputeEffectiveMissCount()
 
-    })
-    const mypp = new Calculator(top, map)
-    console.log(ojsamapp);
-    console.log(mypp);
-    
+        this.ComputeAimValue()
+        this.ComputeSpeedValue()
+        this.ComputeAccValue()
+        this.ComputeFlashlightValue()
 
-})()
+        this.ComputeTotalValue()
+        this.Formatted = {
+            Total: CommaFormat(this.Total),
+            AccPerc: acc.toFixed(2)
+        }
+        delete this.Beatmap
+        delete this.Counts
+        delete this.AchievedCombo
+        delete this.SelectedMods
+        delete this.ScoreVersion
+        delete this.ComboBasedMissCount
+        delete this.EffectiveMissCount
+    }
+
+    private AccToCounts(acc: number, obj: iBeatmapObjects): iScoreHitcounts {
+        const objects = obj.Circles + obj.Sliders + obj.Spinners
+        let c100 = Math.round(-3.0 * ((acc * 0.01 - 1.0) * objects) * 0.5)
+        if (c100 > objects) {
+            c100 = 0
+            const c50 = Math.round(-6.0 * ((acc * 0.01 - 1.0) * objects) * 0.5)
+            return {
+                "300": objects - c100 - c50,
+                "100": c100,
+                "50": c50,
+                miss: 0
+            }
+        }
+        return {
+            "300": objects - c100,
+            "100": c100,
+            "50": 0,
+            miss: 0
+        }
+    }
+}

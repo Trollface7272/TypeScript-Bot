@@ -3,7 +3,6 @@ import consola, { Consola } from "consola"
 import { Command } from "@interfaces/Command"
 import { Event } from "@interfaces/Event"
 import { promisify } from "util"
-import * as database from "@database/Main"
 import glob from "glob"
 import { Trigger } from "@interfaces/Trigger"
 
@@ -13,7 +12,6 @@ export const logger = consola
 
 class Bot extends Client {
     public logger: Consola = consola
-    public database = database
     public commands: Collection<string, Command> = new Collection()
     public events: Collection<string, Event> = new Collection()
     public triggers: Collection<string, Trigger> = new Collection()
@@ -23,7 +21,6 @@ class Bot extends Client {
             intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_BANS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS],
         })
         consola.wrapAll()
-        database.Connect().then(v => this.database.database = v)
         this.guilds.fetch("341153679992160266").then(guild=> guild.channels.fetch("909270388624732160").then(channel => this.logChannel = channel as TextChannel))
         //consola.level = LogLevel.Debug
     }

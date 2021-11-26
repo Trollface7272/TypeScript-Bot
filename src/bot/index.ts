@@ -1,6 +1,9 @@
 import { Bot } from "./client/Client"
-import { config } from "dotenv"
+import { config as dotenv } from "dotenv"
+import { Connect as Database } from "@database/Main"
 
-config()
+dotenv()
+
+Database()
 
 for(const token of process.env.TOKENS.split(";")) new Bot().Start(token)

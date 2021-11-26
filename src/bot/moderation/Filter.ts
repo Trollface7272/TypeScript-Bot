@@ -1,6 +1,6 @@
 import { Message } from "discord.js"
 import { Bot } from "../client/Client"
-import { iFilter as FilterType } from "../../database/Guilds"
+import { GetFilter, iFilter as FilterType } from "../../database/Guilds"
 
 
 const Regex = (client: Bot, message: Message, filter: FilterType): boolean => {
@@ -13,7 +13,7 @@ const Word = (client: Bot, message: Message, filter: FilterType): boolean => {
 
 
 export const Filter = async (client: Bot, message: Message) => {
-    const filter = await client.database.Guilds.GetFilter(message.guild.id)
+    const filter = await GetFilter(message.guild.id)
     if (!filter) return
     client.logger.log(filter)
     for (let i = 0; i < filter.length; i++) {

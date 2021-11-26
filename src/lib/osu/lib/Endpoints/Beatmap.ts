@@ -1,4 +1,7 @@
+import { cachePath } from "@lib/Constants"
 import axios from "axios"
+import { join } from "path"
+import { AddToCache, GetCached } from "../cache/Beatmap"
 import { osuApiKey, url } from "../Constants"
 import { RoundFixed, ZeroFill } from "../Functions"
 import { iBeatmapDifficulty, iBeatmapFormatted, iBeatmapLength, iBeatmapObjects, iBeatmapParams, iBeatmapRaw } from "../interfaces/Beatmap"
@@ -87,10 +90,15 @@ export class OsuBeatmap {
     public Formatted: iBeatmapFormatted
 
     public async Load (params: iBeatmapParams) {
+        if (!params.m) params.m = 0
+        let data: iBeatmapRaw = GetCached(params.m.toString(), params.mods.toString(), params.b.toString())
+        let exists = data ? true: false
         if (!params.k) params.k = osuApiKey
 
-        const data: iBeatmapRaw = (await axios.get(this.endPoint, { params })).data[0]
+        data = exists ? data : (await axios.get(this.endPoint, { params })).data[0]
         if (!data) throw { code: 3 }
+        if (!exists && (data.approved == "4" || data.approved == "1")) AddToCache(params.m.toString(), params.mods.toString(), params.b.toString(), data)
+        
         const speed = (params.mods & Mods.DoubleTime) !== 0 ? 1.5 : (params.m & Mods.HalfTime) !== 0 ? 0.75 : 1
         data.diff_approach = (CalculateApproach(parseFloat(data.diff_approach), speed, 1)).toString()
         data.diff_overall = (CalculateOverall(parseFloat(data.diff_overall), speed, 1)).toString()

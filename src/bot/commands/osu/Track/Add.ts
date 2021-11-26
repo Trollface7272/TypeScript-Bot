@@ -2,7 +2,6 @@ import { CommandInteraction, GuildMember, Message, MessageOptions, PermissionStr
 import { Bot } from "@client/Client"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 import { Profile } from "@interfaces/OsuApi"
-import { GetProfileCache } from "@lib/osu/Api/Api"
 import { Args, HandleError, ParseArgs } from "@lib/osu/Utils"
 import { AddToTracking as dAddToTracking } from "@database/Tracking"
 import { GetOsuUsername } from "@database/Users"

@@ -6,8 +6,8 @@ import { ModNames, GetFlagUrl, GetProfileLink, GetServer, GetProfileImage, Handl
 import { getOsuSelectGamemodes } from "@lib/Constants"
 import { AddDropdownData, AddMessageToDropdown, GetDropdownData } from "@bot/Interactions/Select Menu/Data"
 import { RegisterSelectMenu } from "@bot/Interactions/Select Menu/info"
-import { GenCustomId } from "@lib/GlobalUtils"
-import { OsuProfile } from "@lib/osu/new/Endpoints/Profile"
+import { GenCustomId, HandleAwait } from "@lib/GlobalUtils"
+import { OsuProfile } from "@lib/osu/lib/Endpoints/Profile"
 
 interface iDropdownn extends Args {
     message?: Message,
@@ -15,8 +15,10 @@ interface iDropdownn extends Args {
 
 const osuProfile = async (author: GuildMember, { Name, Flags: { m } }: Args): Promise<MessageOptions> => {
     if (!Name) return HandleError(author, { code: 1 }, Name)
+    let profile: OsuProfile, err: {code:number}
 
-    let profile: OsuProfile|MessageOptions = await new OsuProfile().Load({ u: Name, m }).catch(e => HandleError(author, e, Name))
+    ;[profile, err] = await HandleAwait(new OsuProfile().Load({ u: Name, m }))
+    if (err) return HandleError(author, err, Name)
     
     if (!(profile instanceof OsuProfile)) return profile
     profile = profile as OsuProfile

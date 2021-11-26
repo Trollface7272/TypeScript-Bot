@@ -2,7 +2,6 @@ import { CommandInteraction, EmbedField, Guild, GuildMember, Message, MessageOpt
 import { Bot, Embed } from "@client/Client"
 import { GetTrackedInChannel } from "@database/Tracking"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
-import { GetProfileCache } from "@lib/osu/Api/Api"
 
 const ListTracking = async (author: GuildMember, guild: Guild, channelId: string): Promise<MessageOptions> => {
     const tracked = await GetTrackedInChannel(channelId)

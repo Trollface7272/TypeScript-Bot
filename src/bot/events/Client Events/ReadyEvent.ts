@@ -1,5 +1,4 @@
 import { Bot } from "@client/Client"
-import { Command } from "@interfaces/Command"
 import { RunFunction } from "@interfaces/Event"
 import InteractionList from "@interactions/CommandData/List"
 import { ApplicationCommand, ApplicationCommandData } from "discord.js"

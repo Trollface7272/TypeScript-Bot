@@ -4,13 +4,13 @@ import { iOnMessage, iOnSelectMenu, iOnSlashCommand } from "@interfaces/Command"
 import { GuildMember, MessageEmbed, MessageOptions } from "discord.js"
 import { Embed } from "@client/Client"
 import { ParseArgs, Args, ConvertBitMods, GetDifficultyEmote, GetMapLink, HandleError, FindMapInConversation, GetModsFromString } from "@lib/osu/Utils"
-import { GetAccuracyPerformance } from "@lib/osu/Calculator"
 import { SHA256 } from "crypto-js"
 import { randomBytes } from "crypto"
 import { getOsuSelectMods, ParseSelectedMods } from "@lib/Constants"
 import { AddDropdownData, AddMessageToDropdown, GetDropdownData } from "@bot/Interactions/Select Menu/Data"
 import { RegisterSelectMenu } from "@bot/Interactions/Select Menu/info"
-import { OsuBeatmap } from "@lib/osu/new/Endpoints/Beatmap"
+import { OsuBeatmap } from "@lib/osu/lib/Endpoints/Beatmap"
+import { MapCalculator } from "@lib/osu/lib/Calculator"
 
 const osuMap = async (author: GuildMember, { Name, Flags: { m, map, mods, acc } }: Args): Promise<MessageOptions> => {
     if (!map) {
@@ -20,17 +20,20 @@ const osuMap = async (author: GuildMember, { Name, Flags: { m, map, mods, acc } 
     const beatmap = await new OsuBeatmap().Load({ a: 1, m: m, b: map, mods: mods }).catch(e => HandleError(author, e, Name))
     if (!(beatmap instanceof OsuBeatmap)) return beatmap
 
-    const mapDiffs = await GetAccuracyPerformance(beatmap.id, mods, m, [95, acc || 99, 100])
-
+    const accs = [95, acc || 99, 100]
+    const mapDiffs = accs.map(el => {
+        return new MapCalculator(beatmap, mods, el)
+    })
+     
     let description = `**Length:** ${beatmap.Formatted.Length.Total}${beatmap.Formatted.Length.Drain !== beatmap.Formatted.Length.Total ? (` (${beatmap.Formatted.Length.Drain} drain)`) : ""} **BPM:** ${beatmap.Bpm} **Mods:** ${ConvertBitMods(mods)}\n`
     description += `**Download:** [map](https://osu.ppy.sh/d/${beatmap.SetId})([no vid](https://osu.ppy.sh/d/${beatmap.SetId}n)) osu://b/${beatmap.SetId}\n`
     description += `**${GetDifficultyEmote(m, beatmap.Difficulty.Star)}${beatmap.Version}**\n`
     description += `▸**Difficulty:** ${beatmap.Formatted.Difficulty.Star}★ ▸**Max Combo:** x${beatmap.Combo}\n`
     description += `▸**AR:** ${beatmap.Formatted.Difficulty.Approach} ▸**OD:** ${beatmap.Formatted.Difficulty.Overall} ▸**HP:** ${beatmap.Formatted.Difficulty.HealthDrain} ▸**CS:** ${beatmap.Formatted.Difficulty.CircleSize}\n`
     description += `▸**PP:** `
-    description += `○ **${mapDiffs[0].AccuracyPercent.Formatted}%-**${mapDiffs[0].Total.Formatted}`
-    description += `○ **${mapDiffs[1].AccuracyPercent.Formatted}%-**${mapDiffs[1].Total.Formatted}`
-    description += `○ **${mapDiffs[2].AccuracyPercent.Formatted}%-**${mapDiffs[2].Total.Formatted}`
+    description += `○ **${mapDiffs[0].Formatted.AccPerc}%-**${mapDiffs[0].Formatted.Total}`
+    description += `○ **${mapDiffs[1].Formatted.AccPerc}%-**${mapDiffs[1].Formatted.Total}`
+    description += `○ **${mapDiffs[2].Formatted.AccPerc}%-**${mapDiffs[2].Formatted.Total}`
 
     const dropdown = new MessageActionRow().addComponents(GetDropdown({ Name, Flags: { m, map, mods, acc } }))
 

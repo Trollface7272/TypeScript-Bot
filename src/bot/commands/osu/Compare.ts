@@ -1,12 +1,12 @@
 import { ButtonInteraction, CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
 import { Bot } from "@client/Client"
-import { AddButtons, Args, CalculateAcc, ConvertBitMods, DateDiff, FindMapInConversation, GetCombo, GetHits, GetMapImage, GetMapLink, GetProfileImage, HandleError, ModNames, ParseArgs, RankingEmotes } from "@lib/osu/Utils"
+import { AddButtons, Args, CalculateAcc, CommaFormat, ConvertBitMods, DateDiff, FindMapInConversation, GetCombo, GetHits, GetMapImage, GetMapLink, GetProfileImage, HandleError, ModNames, ParseArgs, RankingEmotes, RoundFixed } from "@lib/osu/Utils"
 import { iOnButton, iOnMessage, iOnSlashCommand } from "@interfaces/Command"
-import { GetBeatmap, GetProfile, GetScore } from "@lib/osu/Api/Api"
-import { Beatmap, Difficulty, Profile, Score } from "@interfaces/OsuApi"
-import { GetDiffWithMods, GetFcAccuracy, GetFcPerformance } from "@lib/osu/Calculator"
 import { GetOsuUsername } from "@database/Users"
 import { AddMessageToButtons, GetButtonData } from "@bot/Interactions/Buttons/Data"
+import { OsuScore } from "@lib/osu/lib/Endpoints/Score"
+import { OsuProfile } from "@lib/osu/lib/Endpoints/Profile"
+import { HandleAwait } from "@lib/GlobalUtils"
 
 interface iButton extends Args {
     message: Message
@@ -14,35 +14,26 @@ interface iButton extends Args {
 
 const OsuCompare = async (author: GuildMember, { Name, Flags: { m, mods, map, offset=0 } }: Args): Promise<MessageOptions> => {
     if (!Name) return HandleError(author, { code: 1 }, Name)
+    let profile: OsuProfile, scores: OsuScore, err: {code:number}
+    ;[profile, err] = await HandleAwait(new OsuProfile().Load({ u: Name, m: m }))
+    if (err) return HandleError(author, err, Name)
+    
 
-    let profile: Profile
-    try { profile = await GetProfile({ u: Name, m: m }) }
-    catch (err) { return HandleError(author, err, Name) }
+    ;[scores, err] = await HandleAwait(new OsuScore().Score({ u: profile.Name, b: map, m: m }))
+    if (err) return HandleError(author, { code: 7 }, Name)
 
-    let scores: Array<Score>
-    try { scores = await GetScore({ u: profile.Name, b: map, m: m }) }
-    catch (err) { return HandleError(author, { code: 7 }, Name) }
-    if (scores.length < offset) return HandleError(author, { code: 7 }, Name)
-
-    let beatmap: Beatmap
-    try { beatmap = await GetBeatmap({ b: map, m: m, mods: mods }) }
-    catch (err) { return HandleError(author, err, Name) }
-
-    let beatmapDiffs: Difficulty[] = []
-    const modCombinatios: number[] = []
-    scores.forEach(e => modCombinatios.push(e.Mods))
-    beatmapDiffs = await GetDiffWithMods(beatmap.id, m, modCombinatios)
+    if (scores.Scores.length < offset) return HandleError(author, { code: 7 }, Name)
+    await scores.CalculateFcPerformance(offset, offset + 3)
 
     const descriptionArr = []
-    for (let i = offset; i < scores.length; i++) {
-        const score = scores[i]
-        const diff = beatmapDiffs[i]
+    for (let i = offset; i < scores.Scores.length; i++) {
+        const score = scores.Scores[i]
 
         let fcppDisplay = ""
-        if (score.Counts.miss > 0 || score.Combo < beatmap.MaxCombo - 15) fcppDisplay = `(${(await GetFcPerformance(score, m)).Total.Formatted}pp for ${GetFcAccuracy(score.Counts, m)}% FC) `
-        let description = `**${i + 1}.** \`${ConvertBitMods(score.Mods)}\` **Score** [${diff.Total.Formatted}★]\n`
-        description += `▸ ${RankingEmotes(score.Rank)} ▸ **${score.Performance.Formatted}pp** ${fcppDisplay}▸ ${CalculateAcc(score.Counts, m)}%\n`
-        description += `▸ ${score.Score.Formatted} ▸ ${GetCombo(score.Combo, beatmap.MaxCombo, m)} ▸ [${GetHits(score.Counts, m)}]\n`
+        if (score.Counts.miss > 0 || score.Combo < score.Beatmap.Combo - 15) fcppDisplay = `(${CommaFormat(score.FcPerformance)}pp for ${RoundFixed(score.FcAccuracy)}% FC) `
+        let description = `**${i + 1}.** \`${ConvertBitMods(score.Mods)}\` **Score** [${score.Beatmap.Formatted.Difficulty.Star}★]\n`
+        description += `▸ ${RankingEmotes(score.Rank)} ▸ **${score.Formatted.Performance}pp** ${fcppDisplay}▸ ${CalculateAcc(score.Counts, m)}%\n`
+        description += `▸ ${score.Formatted.Score} ▸ ${GetCombo(score.Combo, score.Beatmap.Combo, m)} ▸ [${GetHits(score.Counts, m)}]\n`
         description += `▸ Score Set ${DateDiff(score.Date, new Date(new Date().toLocaleString('en-US', { timeZone: "UTC" })))}Ago\n`
         descriptionArr.push(description)
     }
@@ -51,13 +42,13 @@ const OsuCompare = async (author: GuildMember, { Name, Flags: { m, mods, map, of
     for (let i = 0; i < length; i++) {
         if (descriptionArr[i] === undefined) descriptionArr[i] = ""
     }
-    const components = AddButtons({ Name, Flags: { m, mods, map, offset } }, scores.length, onButton)
+    const components = AddButtons({ Name, Flags: { m, mods, map, offset } }, scores.Scores.length, onButton)
     const embed = new
         MessageEmbed()
-            .setAuthor(`Top ${ModNames.Name[m]} Plays for ${profile.Name} on ${beatmap.Title} [${beatmap.Version}]`, GetProfileImage(profile.id), GetMapLink(beatmap.id))
+            .setAuthor(`Top ${ModNames.Name[m]} Plays for ${profile.Name} on ${scores.Scores[offset].Beatmap.Title} [${scores.Scores[offset].Beatmap.Version}]`, GetProfileImage(profile.id), GetMapLink(scores.Scores[offset].Beatmap.id))
             .setDescription(descriptionArr[0] + descriptionArr[1] + descriptionArr[2])
-            .setThumbnail(GetMapImage(beatmap.SetId))
-            .setFooter(`On osu! Official Server | Page ${(scores.length/(offset || 1))} of ${Math.ceil(scores.length / 3)}`)
+            .setThumbnail(GetMapImage(scores.Scores[offset].Beatmap.SetId))
+            .setFooter(`On osu! Official Server | Page ${(scores.Scores.length/(offset || 1))} of ${Math.ceil(scores.Scores.length / 3)}`)
     return ({ embeds: [embed], components: components })
 }
 
