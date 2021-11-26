@@ -3,7 +3,7 @@ import axios from "axios"
 import { join } from "path"
 import { AddToCache, GetCached } from "../cache/Beatmap"
 import { osuApiKey, url } from "../Constants"
-import { RoundFixed, ZeroFill } from "../Functions"
+import { GetDiffMods, RoundFixed, ZeroFill } from "../Functions"
 import { iBeatmapDifficulty, iBeatmapFormatted, iBeatmapLength, iBeatmapObjects, iBeatmapParams, iBeatmapRaw } from "../interfaces/Beatmap"
 
 
@@ -91,6 +91,7 @@ export class OsuBeatmap {
 
     public async Load (params: iBeatmapParams) {
         if (!params.m) params.m = 0
+        params.mods = GetDiffMods(params.mods || 0)
         let data: iBeatmapRaw = GetCached(params.m.toString(), params.mods.toString(), params.b.toString())
         let exists = data ? true: false
         if (!params.k) params.k = osuApiKey
