@@ -4,7 +4,7 @@ import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 import { ClearTracking as dClearTracking } from "@database/Tracking"
 
 
-const ClearTracking = async (channelId: string) => {
+export const ClearTracking = async (channelId: string) => {
     dClearTracking(channelId)
 }
 

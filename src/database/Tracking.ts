@@ -13,12 +13,14 @@ export interface Tracking {
 
 export interface TrackedUser {
     id: string
+    name: string
     m: 0 | 1 | 2 | 3
 }
 
 const schema = new Schema<Tracking>({
     id: { type: Number, required: true },
     m: { type: Number, required: true },
+    name: { type: String, required: true },
     channels: { type: Array, required: true },
     lastcheck: { type: Number, required: false }
 })
@@ -26,9 +28,9 @@ const schema = new Schema<Tracking>({
 
 const Model = model<Tracking>("Tracking", schema)
 
-async function CreateTrackedUser (id: number, channel: string, m: 0 | 1 | 2 | 3): Promise<Tracking> {
+async function CreateTrackedUser (id: number, channel: string, m: 0 | 1 | 2 | 3, name: string): Promise<Tracking> {
     const doc = new Model({
-        id, m,
+        id, m, name,
         channels: [channel],
         lastcheck: Date.now()
     })
@@ -37,7 +39,7 @@ async function CreateTrackedUser (id: number, channel: string, m: 0 | 1 | 2 | 3)
 }
 
 // eslint-disable-next-line
-export const AddToTracking = async (id: number, channel: string, m: 0 | 1 | 2 | 3, author: GuildMember): Promise<MessageOptions> => {
+export const AddToTracking = async (id: number, name: string, channel: string, m: 0 | 1 | 2 | 3, author: GuildMember): Promise<MessageOptions> => {
     const search = { id: id, m: m }
     const data: Tracking = await GetCollection()?.findOne(search)
     
@@ -47,7 +49,7 @@ export const AddToTracking = async (id: number, channel: string, m: 0 | 1 | 2 | 
             $push: { channels: channel }
         })
     }
-    else CreateTrackedUser(id, channel, m)
+    else CreateTrackedUser(id, channel, m, name)
     return {}
 }
 
@@ -60,11 +62,11 @@ export const RemoveFromTracking = (id: number, channel: string, m: 0 | 1 | 2 | 3
 }
 
 export const GetTrackedInChannel = async (channel: string): Promise<TrackedUser[]> => {
-    const tracked = await GetCollection()?.find({ channels: { $all: [channel] } })?.toArray()
+    const tracked = await GetCollection()?.find<TrackedUser>({ channels: { $all: [channel] } }, {})?.toArray()
     const out = []
         
     for (const el of tracked) {
-        out.push({ id: el.id, m: el.m })
+        out.push({ id: el.id, m: el.m, name: el.name })
     }
     
     return out
