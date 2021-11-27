@@ -4,7 +4,7 @@ const Dropdowns = {
 
 }
 
-export const AddDropdownData = (id: string, data: any) => {
+export const AddDropdownData = (id: string, data: unknown) => {
     Dropdowns[id] = data
 }
 

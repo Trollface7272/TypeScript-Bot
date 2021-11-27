@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { ButtonInteraction, CommandInteraction, Message, PermissionString } from "discord.js"
 import { Bot } from "@client/Client"
 import { GuildMember, MessageEmbed, MessageOptions } from "discord.js"
@@ -69,10 +70,10 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, offset = 0 } }: A
 const RecentBest = async (author: GuildMember, { Name, Flags: { m, g, rv, offset = 0, b, l } }: Args): Promise<MessageOptions> => {
     const realOffset = offset / 5
     let profile: OsuProfile, top: OsuScore, err: { code: number }
-        ;[profile, err] = await HandleAwait(new OsuProfile().Load({ u: Name, m: m }))
+    ;[profile, err] = await HandleAwait(new OsuProfile().Load({ u: Name, m: m }))
     if (err) return HandleError(author, err, Name)
 
-        ;[top, err] = await HandleAwait(new OsuScore().Top({ u: Name, m: m, limit: 100 }))
+    ;[top, err] = await HandleAwait(new OsuScore().Top({ u: Name, m: m, limit: 100 }))
     if (err) return HandleError(author, err, profile.Name)
 
     let scores = top.Scores
@@ -82,7 +83,7 @@ const RecentBest = async (author: GuildMember, { Name, Flags: { m, g, rv, offset
 
     const score: Score = scores[realOffset]
     await score.CalculateFcPerformance()
-    let beatmap = score.Beatmap
+    const beatmap = score.Beatmap
 
     let fcppDisplay = ""
     if (score.Combo < beatmap.Combo - 15 || score.Counts.miss > 0) fcppDisplay = `(${CommaFormat(score.FcPerformance)}pp for ${RoundFixed(score.FcAccuracy)}% FC) `
@@ -122,7 +123,7 @@ const RecentList = async (author: GuildMember, { Name, Flags: { m, offset = 0, l
     let description = ""
     for (let i = offset; i < Math.min(scores.length, offset + 5); i++) {
         const score = scores[i];
-        let beatmap = score.Beatmap
+        const beatmap = score.Beatmap
 
         let fcppDisplay = ""
         if (score.Counts.miss > 0 || score.Combo < beatmap.Combo - 15)

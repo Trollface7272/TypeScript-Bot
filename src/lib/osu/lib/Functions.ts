@@ -17,7 +17,7 @@ export const Clamp = (val: number, min: number, max: number) => {
     return Math.min(Math.max(val, min), max)
 }
 
-export const DeepCopy = (obj: any) => {
+export const DeepCopy = (obj: unknown) => {
     // eslint-disable-next-line
     let copy: any
 

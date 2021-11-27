@@ -1,7 +1,6 @@
 import { GuildMember, Message, MessageActionRow, MessageButton, MessageOptions, TextBasedChannels } from "discord.js"
 import { modbits } from "ojsama"
 import { Embed, logger } from "@client/Client"
-import { Counts, Objects } from "@interfaces/OsuApi"
 import { GetOsuUsername } from "@database/Users"
 import { RegisterButton } from "@bot/Interactions/Buttons"
 import { AddButtonData } from "@bot/Interactions/Buttons/Data"

@@ -1,6 +1,4 @@
-import { cachePath } from "@lib/Constants"
 import axios from "axios"
-import { join } from "path"
 import { AddToCache, GetCached } from "../cache/Beatmap"
 import { osuApiKey, url } from "../Constants"
 import { GetDiffMods, RoundFixed, ZeroFill } from "../Functions"
@@ -93,7 +91,7 @@ export class OsuBeatmap {
         if (!params.m) params.m = 0
         params.mods = GetDiffMods(params.mods || 0)
         let data: iBeatmapRaw = GetCached(params.m.toString(), params.mods.toString(), params.b.toString())
-        let exists = data ? true: false
+        const exists = data ? true: false
         if (!params.k) params.k = osuApiKey
 
         data = exists ? data : (await axios.get(this.endPoint, { params })).data[0]

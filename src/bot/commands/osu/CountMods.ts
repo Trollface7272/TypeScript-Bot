@@ -1,10 +1,11 @@
+/* eslint-disable prefer-const */
 import { CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
 import { Bot } from "@client/Client"
 import { Args, ConvertBitMods, ErrorIds, GetFlagUrl, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs } from "@lib/osu/Utils"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 import { GetOsuUsername } from "@database/Users"
 import { OsuProfile } from "@lib/osu/lib/Endpoints/Profile"
-import { OsuScore, Score } from "@lib/osu/lib/Endpoints/Score"
+import { OsuScore } from "@lib/osu/lib/Endpoints/Score"
 import { HandleAwait } from "@lib/GlobalUtils"
 
 const osuCountMods = async (author: GuildMember, {Name, Flags: {m}}: Args): Promise<MessageOptions> => {

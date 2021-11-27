@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { ButtonInteraction, CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
 import { Bot } from "@client/Client"
 import { AddButtons, Args, CalculateAcc, CommaFormat, ConvertBitMods, DateDiff, FindMapInConversation, GetCombo, GetHits, GetMapImage, GetMapLink, GetProfileImage, HandleError, ModNames, ParseArgs, RankingEmotes, RoundFixed } from "@lib/osu/Utils"

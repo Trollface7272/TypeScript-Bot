@@ -5,7 +5,7 @@ import { Command } from "@interfaces/Command"
 import { onButton } from "@bot/Interactions/Buttons"
 import { onSelectMenu } from "@bot/Interactions/Select Menu/info"
 
-export const run = async ({}, interaction: Interaction) => {
+export const run = async (_, interaction: Interaction) => {
     if (interaction.isCommand())
         RunCommand(interaction as CommandInteraction)
     else if (interaction.isButton())

@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { CommandInteraction, GuildMember, Message, MessageActionRow, MessageEmbed, MessageOptions, MessageSelectMenu, PermissionString, SelectMenuInteraction } from "discord.js"
 import { Bot } from "@client/Client"
 import { iOnMessage, iOnSelectMenu, iOnSlashCommand } from "@interfaces/Command"
@@ -72,7 +73,7 @@ export const onInteraction: iOnSlashCommand = async (interaction: CommandInterac
     interaction.reply(await osuProfile(interaction.member as GuildMember, options))
 
     AddMessageToDropdown(await interaction.fetchReply() as Message)
-    interaction.reply({}).catch(err => null)
+    interaction.reply({}).catch(() => null)
 }
 
 export const onDropdown: iOnSelectMenu = async (interaction: SelectMenuInteraction) => {

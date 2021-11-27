@@ -118,13 +118,13 @@ export class OsuScore {
         return this
     }
 
-    public async FetchBeatmaps(from: number=0, to: number=this.Scores.length) {
+    public async FetchBeatmaps(from=0, to: number=this.Scores.length) {
         for (let i = from; i < Math.min(to, this.Scores.length); i++) {
             await this.Scores[i].FetchMap()
         }
     }
 
-    public async CalculateFcPerformance(from: number=0, to: number=this.Scores.length) {
+    public async CalculateFcPerformance(from=0, to: number=this.Scores.length) {
         for (let i = from; i < Math.min(to, this.Scores.length); i++) {
             await this.Scores[i].CalculateFcPerformance()
         }
@@ -133,7 +133,7 @@ export class OsuScore {
 
     private async LoadData(data: iScoreRaw[]) {
         for (let i = 0; i < data.length; i++) {
-            let score = data[i]
+            const score = data[i]
             if (score.perfect == null) score.perfect = "false"
             if (score.pp == null) score.pp = "0"
             this.Scores[i] = new Score(score, i + 1)
