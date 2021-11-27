@@ -359,7 +359,7 @@ export const DateDiff = (date1: Date, date2: Date) => {
     if (minutes > 0) out.push(`${minutes} Minute${minutes > 1 ? "s" : ""} `)
 
     const seconds: number = Math.floor(diff / 1000 % 60)
-    if (seconds > 0) out.push(`${seconds} Second${seconds > 1 ? "s" : ""} `)
+    out.push(`${seconds} Second${seconds > 1 ? "s" : ""} `)
 
     return out[0] + (out[1] || "")
 }
