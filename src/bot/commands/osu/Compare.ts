@@ -27,7 +27,7 @@ const OsuCompare = async (author: GuildMember, { Name, Flags: { m, mods, map, of
     await scores.CalculateFcPerformance(offset, offset + 3)
 
     const descriptionArr = []
-    for (let i = offset; i < scores.Scores.length; i++) {
+    for (let i = offset; i < Math.min(offset+3, scores.Scores.length); i++) {
         const score = scores.Scores[i]
 
         let fcppDisplay = ""
@@ -43,13 +43,13 @@ const OsuCompare = async (author: GuildMember, { Name, Flags: { m, mods, map, of
     for (let i = 0; i < length; i++) {
         if (descriptionArr[i] === undefined) descriptionArr[i] = ""
     }
-    const components = AddButtons({ Name, Flags: { m, mods, map, offset } }, scores.Scores.length, onButton)
+    const components = AddButtons({ Name, Flags: { m, mods, map, offset } }, scores.Scores.length, onButton, 3)
     const embed = new
         MessageEmbed()
             .setAuthor(`Top ${ModNames.Name[m]} Plays for ${profile.Name} on ${scores.Scores[offset].Beatmap.Title} [${scores.Scores[offset].Beatmap.Version}]`, GetProfileImage(profile.id), GetMapLink(scores.Scores[offset].Beatmap.id))
             .setDescription(descriptionArr[0] + descriptionArr[1] + descriptionArr[2])
             .setThumbnail(GetMapImage(scores.Scores[offset].Beatmap.SetId))
-            .setFooter(`On osu! Official Server | Page ${(scores.Scores.length/(offset || 1))} of ${Math.ceil(scores.Scores.length / 3)}`)
+            .setFooter(`On osu! Official Server | Page ${Math.floor((offset || 1) / 3 + 1)} of ${Math.ceil(scores.Scores.length / 3)}`)
     return ({ embeds: [embed], components: components })
 }
 

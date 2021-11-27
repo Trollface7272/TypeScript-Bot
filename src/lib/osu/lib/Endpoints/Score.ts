@@ -105,6 +105,7 @@ export class OsuScore {
         this.Scores = []
         const data: iScoreRaw[] = (await axios.get(this.ScoreEndpoint, { params })).data
         if (!data || data.length == 0) throw { code: 7 }
+        for (const val of data) val.beatmap_id = params.b.toString()
         await this.LoadData(data)
         return this
     }

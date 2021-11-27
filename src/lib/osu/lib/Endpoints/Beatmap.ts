@@ -93,7 +93,7 @@ export class OsuBeatmap {
         let data: iBeatmapRaw = GetCached(params.m.toString(), params.mods.toString(), params.b.toString())
         const exists = data ? true: false
         if (!params.k) params.k = osuApiKey
-
+        
         data = exists ? data : (await axios.get(this.endPoint, { params })).data[0]
         if (!data) throw { code: 3 }
         if (!exists && (data.approved == "4" || data.approved == "1")) AddToCache(params.m.toString(), params.mods.toString(), params.b.toString(), data)
