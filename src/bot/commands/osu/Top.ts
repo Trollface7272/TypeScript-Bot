@@ -61,7 +61,7 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
     const components = AddButtons({ Name, Flags: { m, rv, g, b, p, rand, offset } }, scores.length, onButton)
 
     const embed = new MessageEmbed()
-        .setAuthor(`Top ${Math.min(scores.length, 5)} ${ModNames.Name[m]} Plays for ${profile.Name}`, GetFlagUrl(profile.Country), GetProfileLink(profile.id, m))
+        .setAuthor(`Top ${Math.min(scores.length, 5)} ${ModNames.Name[m]} Play${scores.length > 1 ? "s" : ""} for ${profile.Name}`, GetFlagUrl(profile.Country), GetProfileLink(profile.id, m))
         .setDescription(desc)
         .setFooter(GetServer())
         .setThumbnail(GetProfileImage(profile.id))
