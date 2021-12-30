@@ -17,7 +17,14 @@ for (let i = 0; i < 4; i++) {
 
 export const GetCached = (m: string, mods: string, id: string) => {
     const path = join(cachePath, "maps", m, mods, id+".json")
-    if (existsSync(path)) return require(path)
+    
+    if (existsSync(path)) {
+        let map: any
+        try {
+            map = require(path)
+        } catch (err) { console.log(err) }
+        return map
+    }
 }
 
 export const AddToCache = (m: string, mods: string, id: string, data: iBeatmapRaw) => {

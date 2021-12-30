@@ -91,8 +91,8 @@ export class OsuBeatmap {
         if (!params.m) params.m = 0
         params.a = 1
         params.mods = GetDiffMods(params.mods || 0)
-        let data: iBeatmapRaw = GetCached(params.m.toString(), params.mods.toString(), params.b.toString())
-        const exists = data ? true: false
+        let data: iBeatmapRaw = await GetCached(params.m.toString(), params.mods.toString(), params.b.toString())
+        const exists = data ? true : false
         if (!params.k) params.k = osuApiKey
         
         data = exists ? data : (await axios.get(this.endPoint, { params })).data[0]
