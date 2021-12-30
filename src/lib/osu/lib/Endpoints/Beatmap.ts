@@ -89,6 +89,7 @@ export class OsuBeatmap {
 
     public async Load (params: iBeatmapParams) {
         if (!params.m) params.m = 0
+        params.a = 1
         params.mods = GetDiffMods(params.mods || 0)
         let data: iBeatmapRaw = GetCached(params.m.toString(), params.mods.toString(), params.b.toString())
         const exists = data ? true: false
