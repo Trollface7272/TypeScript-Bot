@@ -10,3 +10,4 @@ config.json
 .yarn.yaml
 src/cache
 .env
+nodemon.json
