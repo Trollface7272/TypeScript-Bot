@@ -97,15 +97,16 @@ export class OsuBeatmap {
         
         data = exists ? data : (await axios.get(this.endPoint, { params })).data[0]
         if (!data) throw { code: 3 }
-        if (!exists && (data.approved == "4" || data.approved == "1")) AddToCache(params.m.toString(), params.mods.toString(), params.b.toString(), data)
         
-        const multiplier = (params.mods & Mods.HardRock) !== 0 ? 1.4 : (params.m & Mods.Easy) !== 0 ? 0.5 : 1
-        const speed = (params.mods & Mods.DoubleTime) !== 0 ? 1.5 : (params.m & Mods.HalfTime) !== 0 ? 0.75 : 1
-        data.diff_approach = (CalculateApproach(parseFloat(data.diff_approach), speed, multiplier)).toString()
-        data.diff_overall = (CalculateOverall(parseFloat(data.diff_overall), speed, multiplier)).toString()
-
+        if (!exists) {
+            const multiplier = (params.mods & Mods.HardRock) !== 0 ? 1.4 : (params.m & Mods.Easy) !== 0 ? 0.5 : 1
+            const speed = (params.mods & Mods.DoubleTime) !== 0 ? 1.5 : (params.m & Mods.HalfTime) !== 0 ? 0.75 : 1
+            data.diff_approach = (CalculateApproach(parseFloat(data.diff_approach), speed, multiplier)).toString()
+            data.diff_overall = (CalculateOverall(parseFloat(data.diff_overall), speed, multiplier)).toString()
+        }
         this.LoadData(data)
         this.LoadFormattedData()
+        if (!exists && (data.approved == "4" || data.approved == "1")) AddToCache(params.m.toString(), params.mods.toString(), params.b.toString(), data)
         return this
     }
 
