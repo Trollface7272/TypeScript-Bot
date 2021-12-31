@@ -10,9 +10,7 @@ export const run: RunFunction = async (client: Bot, message: Message) => {
     OnMessage(message.guild, message.member)
 
     //if (await Filter(client, message)) return
-    let prefix: string[]
-    if (process.argv.indexOf("-prefix") !== -1) prefix = [process.argv[process.argv.indexOf("-prefix") + 1]]
-    else prefix = await GetPrefix(message.guild.id)
+    let prefix: string[] = process.env.PREFIX ? [process.env.PREFIX] : await GetPrefix(message.guild.id)
 
     RunTrigger(client, message)
 
