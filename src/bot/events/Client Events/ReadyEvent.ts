@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Bot } from "@client/Client"
 import { RunFunction } from "@interfaces/Event"
 import InteractionList from "@interactions/CommandData/List"

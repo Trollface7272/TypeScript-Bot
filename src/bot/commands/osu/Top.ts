@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import { ButtonInteraction, CommandInteraction, GuildMember, Message, MessageEmbed, MessageOptions, PermissionString } from "discord.js"
 import { Bot, Embed } from "@client/Client"
 import { AddButtons, Args, CalculateAcc, CommaFormat, ConvertBitMods, DateDiff, GetCombo, GetFlagUrl, GetHits, GetMapLink, GetProfileImage, GetProfileLink, GetServer, HandleError, ModNames, ParseArgs, RankingEmotes, RoundFixed } from "@lib/osu/Utils"
@@ -7,7 +8,6 @@ import { AddMessageToButtons, GetButtonData } from "@bot/Interactions/Buttons/Da
 import { OsuScore, Score } from "@lib/osu/lib/Endpoints/Score"
 import { OsuProfile } from "@lib/osu/lib/Endpoints/Profile"
 import { HandleAwait } from "@lib/GlobalUtils"
-import { beatmap } from "ojsama"
 
 
 interface iButton extends Args {
@@ -51,7 +51,7 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
 
     if (rand) scores = [scores[Math.floor(Math.random() * (scores.length - 1) + 1)]]
 
-    await top.CalculateFcPerformance(offset, Math.min(offset + scores.length, offset + 5))
+    for (let i = offset; i < Math.min(offset+5, scores.length); i++) await scores[i].CalculateFcPerformance()
 
     let desc = ""
     for (let i = offset; i < Math.min(offset + scores.length, offset + 5); i++) {
@@ -61,7 +61,7 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
     const components = AddButtons({ Name, Flags: { m, rv, g, b, p, rand, offset } }, scores.length, onButton)
 
     const embed = new MessageEmbed()
-        .setAuthor(`Top ${Math.min(scores.length, 5)} ${ModNames.Name[m]} Plays for ${profile.Name}`, GetFlagUrl(profile.Country), GetProfileLink(profile.id, m))
+        .setAuthor(`Top ${Math.min(scores.length, 5)} ${ModNames.Name[m]} Play${scores.length > 1 ? "s" : ""} for ${profile.Name}`, GetFlagUrl(profile.Country), GetProfileLink(profile.id, m))
         .setDescription(desc)
         .setFooter(GetServer())
         .setThumbnail(GetProfileImage(profile.id))
@@ -71,7 +71,7 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
 
 
 const FormatTopPlay = async (author: GuildMember, m: 0 | 1 | 2 | 3, score: Score): Promise<string> => {
-    let beatmap = score.Beatmap
+    const beatmap = score.Beatmap
 
     let fcppDisplay = "", description = ""
     if (score.Combo < beatmap.Combo - 15 || score.Counts.miss > 0) fcppDisplay = `(${CommaFormat(score.FcPerformance)}pp for ${RoundFixed(score.FcAccuracy)}% FC) `
@@ -141,7 +141,7 @@ export const onButton: iOnButton = async (interaction: ButtonInteraction) => {
     const reply = await button.message.edit(await osuTopPlays(interaction.member as GuildMember, button))
 
     AddMessageToButtons(reply)
-    interaction.reply({}).catch(err => null)
+    interaction.reply({}).catch(() => null)
 }
 
 export const name: string[] = ["top", "osutop", "maniatop", "taikotop", "ctbtop"]

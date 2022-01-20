@@ -1,5 +1,5 @@
 import 'module-alias/register'
-import ojsama, { ppv2, std_diff, std_ppv2 } from "ojsama"
+import { ppv2, std_diff } from "ojsama"
 import { config } from "dotenv"
 import { iScoreHitcounts } from '@lib/osu/lib/interfaces/Score'
 import { OsuBeatmap } from '@lib/osu/lib/Endpoints/Beatmap'
@@ -81,9 +81,9 @@ class Calculator {
 
     private ComputeEffectiveMissCount() {
         let comboBasedMissCount = 0
-        let beatmapMaxCombo = this.Beatmap.Combo
+        const beatmapMaxCombo = this.Beatmap.Combo
         if (this.Beatmap.Objects.Sliders > 0) {
-            let fullComboThreshold = beatmapMaxCombo - 0.1 * this.Beatmap.Objects.Sliders
+            const fullComboThreshold = beatmapMaxCombo - 0.1 * this.Beatmap.Objects.Sliders
             if (this.AchievedCombo < fullComboThreshold)
                 comboBasedMissCount = fullComboThreshold / Math.max(1, this.AchievedCombo)
         }
@@ -97,7 +97,7 @@ class Calculator {
         if (Mods.Bit.NoFail & this.SelectedMods)
             multiplier *= Math.max(0.9, 1 - 0.02 * this.EffectiveMissCount)
 
-        let numTotalHits = this.TotalHits
+        const numTotalHits = this.TotalHits
         if (Mods.Bit.SpunOut & this.SelectedMods)
             multiplier *= 1 - Math.pow(this.Beatmap.Objects.Spinners / numTotalHits, 0.85)
         
@@ -128,7 +128,7 @@ class Calculator {
         if (this.EffectiveMissCount > 0)
             this._aim *= 0.97 * Math.pow(1 - Math.pow(this.EffectiveMissCount / (numTotalHits), 0.775), this.EffectiveMissCount)
 
-        let maxCombo = this.Beatmap.Combo
+        const maxCombo = this.Beatmap.Combo
         if (maxCombo > 0)
             this._aim *= Math.min(Math.pow(this.AchievedCombo, 0.8) / Math.pow(maxCombo, 0.8), 1)
 
@@ -162,7 +162,7 @@ class Calculator {
 
         const numTotalHits = this.TotalHits
     
-        let lengthBonus = 0.95 + 0.4 * Math.min(1, (numTotalHits) / 2000) +
+        const lengthBonus = 0.95 + 0.4 * Math.min(1, (numTotalHits) / 2000) +
             (numTotalHits > 2000 ? Math.log10((numTotalHits) / 2000) * 0.5: 0)
         this._speed *= lengthBonus
     
@@ -226,7 +226,7 @@ class Calculator {
 
 
 
-; (async () => {
+ (async () => {
     const top = null//(await Top({ u: "Trollface", limit: 3, k: process.env.OSU_KEY }))[2]
     const map = await new OsuBeatmap().Load({ b: top.MapId, k: process.env.OSU_KEY })
 

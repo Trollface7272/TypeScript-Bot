@@ -46,7 +46,7 @@ export interface iScoreRaw {
     replay_available: string
 }
 
-interface iTopRaw {
+export interface iTopRaw {
     beatmap_id:       string
     score_id:         string
     score:            string

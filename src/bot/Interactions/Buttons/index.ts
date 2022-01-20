@@ -3,7 +3,7 @@ import { ButtonInteraction } from "discord.js"
 
 const RegisteredButtons = {}
 
-export const RegisterButton = (id: string, callback: Function) => {
+export const RegisterButton = (id: string, callback: iOnButton) => {
     RegisteredButtons[id] = callback
 }
 

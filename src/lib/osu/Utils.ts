@@ -1,7 +1,6 @@
 import { GuildMember, Message, MessageActionRow, MessageButton, MessageOptions, TextBasedChannels } from "discord.js"
 import { modbits } from "ojsama"
 import { Embed, logger } from "@client/Client"
-import { Counts, Objects } from "@interfaces/OsuApi"
 import { GetOsuUsername } from "@database/Users"
 import { RegisterButton } from "@bot/Interactions/Buttons"
 import { AddButtonData } from "@bot/Interactions/Buttons/Data"
@@ -364,7 +363,7 @@ export const DateDiff = (date1: Date, date2: Date) => {
     if (minutes > 0) out.push(`${minutes} Minute${minutes > 1 ? "s" : ""} `)
 
     const seconds: number = Math.floor(diff / 1000 % 60)
-    if (seconds > 0) out.push(`${seconds} Second${seconds > 1 ? "s" : ""} `)
+    out.push(`${seconds} Second${seconds > 1 ? "s" : ""} `)
 
     return out[0] + (out[1] || "")
 }
@@ -393,11 +392,11 @@ export const GetDifficultyEmote = (mode: 0 | 1 | 2 | 3, star: number) => {
     return `<:Black:${DifficultyEmoteIds[mode][difficulty]}>`
 }
 
-export const AddButtons = ({ Name, Flags: { m, acc, b, g, l, map, mods, offset, p, rand, rv } }: Args, scoreCount: number, callback: iOnButton) => {
+export const AddButtons = ({ Name, Flags: { m, acc, b, g, l, map, mods, offset, p, rand, rv } }: Args, scoreCount: number, callback: iOnButton, increment=5) => {
     const buttons = []
 
     if (offset !== 0) buttons.push(AddButton("⬅️", { Name, Flags: { m, acc, b, g, l, map, mods, offset: offset - 5, p, rand, rv } }, callback))
-    if (offset + 5 < scoreCount) buttons.push(AddButton("➡️", { Name, Flags: { m, acc, b, g, l, map, mods, offset: offset + 5, p, rand, rv } }, callback))
+    if (offset + increment < scoreCount) buttons.push(AddButton("➡️", { Name, Flags: { m, acc, b, g, l, map, mods, offset: offset + increment, p, rand, rv } }, callback))
     const components = buttons.length > 0 ? [new MessageActionRow().addComponents(buttons)] : undefined
 
     return components

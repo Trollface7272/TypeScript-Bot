@@ -6,7 +6,6 @@ import { iBeatmapObjects } from "./interfaces/Beatmap"
 import { iScoreHitcounts } from "./interfaces/Score"
 
 export class CalculatorBase {
-    constructor() {};
     protected Beatmap: OsuBeatmap
     public Formatted: {AccPerc?:string,Total:string}
 
@@ -53,9 +52,9 @@ export class CalculatorBase {
     
     protected ComputeEffectiveMissCount() {
         let comboBasedMissCount = 0
-        let beatmapMaxCombo = this.Beatmap.Combo
+        const beatmapMaxCombo = this.Beatmap.Combo
         if (this.Beatmap.Objects.Sliders > 0) {
-            let fullComboThreshold = beatmapMaxCombo - 0.1 * this.Beatmap.Objects.Sliders
+            const fullComboThreshold = beatmapMaxCombo - 0.1 * this.Beatmap.Objects.Sliders
             if (this.AchievedCombo < fullComboThreshold)
                 comboBasedMissCount = fullComboThreshold / Math.max(1, this.AchievedCombo)
         }
@@ -69,7 +68,7 @@ export class CalculatorBase {
         if (Mods.NoFail & this.SelectedMods)
             multiplier *= Math.max(0.9, 1 - 0.02 * this.EffectiveMissCount)
 
-        let numTotalHits = this.TotalHits
+        const numTotalHits = this.TotalHits
         if (Mods.SpunOut & this.SelectedMods)
             multiplier *= 1 - Math.pow(this.Beatmap.Objects.Spinners / numTotalHits, 0.85)
         
@@ -100,7 +99,7 @@ export class CalculatorBase {
         if (this.EffectiveMissCount > 0)
             this._aim *= 0.97 * Math.pow(1 - Math.pow(this.EffectiveMissCount / (numTotalHits), 0.775), this.EffectiveMissCount)
 
-        let maxCombo = this.Beatmap.Combo
+        const maxCombo = this.Beatmap.Combo
         if (maxCombo > 0)
             this._aim *= Math.min(Math.pow(this.AchievedCombo, 0.8) / Math.pow(maxCombo, 0.8), 1)
 
@@ -134,7 +133,7 @@ export class CalculatorBase {
 
         const numTotalHits = this.TotalHits
     
-        let lengthBonus = 0.95 + 0.4 * Math.min(1, (numTotalHits) / 2000) +
+        const lengthBonus = 0.95 + 0.4 * Math.min(1, (numTotalHits) / 2000) +
             (numTotalHits > 2000 ? Math.log10((numTotalHits) / 2000) * 0.5: 0)
         this._speed *= lengthBonus
     

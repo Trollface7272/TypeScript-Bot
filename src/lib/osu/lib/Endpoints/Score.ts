@@ -23,6 +23,7 @@ export class Score {
     public Performance: number
     public Downloadable: boolean
     public FcPerformance: number
+    public Gamemode: 0|1|2|3
     public Beatmap: OsuBeatmap
 
     public get Accuracy() {
@@ -37,12 +38,13 @@ export class Score {
         Score: string
     }
 
-    constructor(play: iScoreRaw, index: number) {
+    constructor(play: iScoreRaw, index: number, gamemode: 0|1|2|3) {
         this.Index = index
         this.UserId = parseInt(play.user_id)
         this.Username = null
         this.MapId = parseInt(play.beatmap_id)
         this.Score = parseInt(play.score)
+        this.Gamemode = gamemode
 
         this.Counts = {
             '300': parseInt(play.count300),
@@ -82,7 +84,7 @@ export class Score {
     }
 
     public async FetchMap() {
-        this.Beatmap = await new OsuBeatmap().Load({ b: this.MapId, mods: this.Mods })
+        this.Beatmap = await new OsuBeatmap().Load({ b: this.MapId, mods: this.Mods, m: this.Gamemode })
     }
 }
 
@@ -93,50 +95,54 @@ export class OsuScore {
     private ScoreEndpoint = url + "get_scores"
     public async Recent(params: iRecentParams) {
         if (!params.k) params.k = osuApiKey
+        if (!params.m) params.m = 0
         this.Scores = []
         const data: iScoreRaw[] = (await axios.get(this.RecentEndpoint, { params })).data
         if (!data || data.length == 0) throw { code: 5 }
-        await this.LoadData(data)
+        await this.LoadData(data, params.m)
         return this
     }
 
     public async Score(params: iScoreParams) {
         if (!params.k) params.k = osuApiKey
+        if (!params.m) params.m = 0
         this.Scores = []
         const data: iScoreRaw[] = (await axios.get(this.ScoreEndpoint, { params })).data
         if (!data || data.length == 0) throw { code: 7 }
-        await this.LoadData(data)
+        for (const val of data) val.beatmap_id = params.b.toString()
+        await this.LoadData(data, params.m)
         return this
     }
 
     public async Top(params: iTopParams) {
         if (!params.k) params.k = osuApiKey
+        if (!params.m) params.m = 0
         this.Scores = []
         const data: iScoreRaw[] = (await axios.get(this.TopEndpoint, { params })).data
         if (!data || data.length == 0) throw { code: 5 }
-        await this.LoadData(data)
+        await this.LoadData(data, params.m)
         return this
     }
 
-    public async FetchBeatmaps(from: number=0, to: number=this.Scores.length) {
+    public async FetchBeatmaps(from=0, to: number=this.Scores.length) {
         for (let i = from; i < Math.min(to, this.Scores.length); i++) {
             await this.Scores[i].FetchMap()
         }
     }
 
-    public async CalculateFcPerformance(from: number=0, to: number=this.Scores.length) {
+    public async CalculateFcPerformance(from=0, to: number=this.Scores.length) {
         for (let i = from; i < Math.min(to, this.Scores.length); i++) {
             await this.Scores[i].CalculateFcPerformance()
         }
     }
 
 
-    private async LoadData(data: iScoreRaw[]) {
+    private async LoadData(data: iScoreRaw[], gamemode: 0|1|2|3) {
         for (let i = 0; i < data.length; i++) {
-            let score = data[i]
+            const score = data[i]
             if (score.perfect == null) score.perfect = "false"
             if (score.pp == null) score.pp = "0"
-            this.Scores[i] = new Score(score, i + 1)
+            this.Scores[i] = new Score(score, i + 1, gamemode)
         }
     }
 

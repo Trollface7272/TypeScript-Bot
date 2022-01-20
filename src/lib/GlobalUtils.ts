@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { randomBytes } from "crypto";
 import { SHA256 } from "crypto-js";
 
@@ -44,7 +45,7 @@ export const Random = (min: number, max: number) => {
 
 export const GenCustomId = () => SHA256(randomBytes(32).toString()).toString()
 
-export const HandleAwait = async (promise: Promise<any>): Promise<Array<any>> => {
+export const HandleAwait = async (promise: Promise<any>) => {
     try {
         const val = await promise
         return [val, null]

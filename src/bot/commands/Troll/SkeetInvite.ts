@@ -1,4 +1,4 @@
-import { ApplicationCommandData, CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString } from "discord.js"
+import { CommandInteraction, Guild, GuildMember, Message, MessageOptions, PermissionString } from "discord.js"
 import { Bot } from "@client/Client"
 import { iOnMessage, iOnSlashCommand } from "@interfaces/Command"
 import { SkeetkeyUsed } from "@database/Main"

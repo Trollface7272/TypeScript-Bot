@@ -4,7 +4,7 @@ const Buttons = {
 
 }
 
-export const AddButtonData = (id: string, data: any) => {
+export const AddButtonData = (id: string, data: unknown) => {
     Buttons[id] = data
 }
 

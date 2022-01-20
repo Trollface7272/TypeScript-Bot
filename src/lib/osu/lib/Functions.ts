@@ -1,3 +1,5 @@
+import { Mods } from "./Constants"
+
 export const RoundFixed = (num: number, digits = 2): string => {
     return (Math.round(num * Math.pow(10, digits)) / Math.pow(10, digits)).toFixed(digits)
 }
@@ -15,7 +17,7 @@ export const Clamp = (val: number, min: number, max: number) => {
     return Math.min(Math.max(val, min), max)
 }
 
-export const DeepCopy = (obj: any) => {
+export const DeepCopy = (obj: unknown) => {
     // eslint-disable-next-line
     let copy: any
 
@@ -49,4 +51,8 @@ export const DeepCopy = (obj: any) => {
     }
 
     throw new Error("Unable to copy obj! Its type isn't supported.");
+}
+
+export const GetDiffMods = (mods: number) => {
+    return (mods & Mods.DoubleTime | mods & Mods.HalfTime | mods & Mods.HardRock | mods & Mods.Easy)
 }
