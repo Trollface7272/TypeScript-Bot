@@ -8,6 +8,7 @@ import { AddMessageToButtons, GetButtonData } from "@bot/Interactions/Buttons/Da
 import { OsuScore, Score } from "@lib/osu/lib/Endpoints/Score"
 import { OsuProfile } from "@lib/osu/lib/Endpoints/Profile"
 import { HandleAwait } from "@lib/GlobalUtils"
+import { onMessage as osuMap } from "./Map"
 
 interface iButtonData extends Args {
     message: Message
@@ -148,6 +149,8 @@ const RecentList = async (author: GuildMember, { Name, Flags: { m, offset = 0, l
 
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     const options: Args = await ParseArgs(message, args)
+
+    if (options.Flags.map) return await osuMap(client, message, args)
 
     const reply = await message.reply(await osuRecent(message.member, options))
 
