@@ -11,9 +11,9 @@ import { AddDropdownData, AddMessageToDropdown, GetDropdownData } from "@bot/Int
 import { RegisterSelectMenu } from "@bot/Interactions/Select Menu/info"
 import { OsuBeatmap } from "@lib/osu/lib/Endpoints/Beatmap"
 import { MapCalculator } from "@lib/osu/lib/Calculator"
-import { onMessage as osuRecent } from "./Recent"
+import { onMessage as osuCompare } from "./Compare"
 
-const osuMap = async (author: GuildMember, { Name, Flags: { m, map, mods, acc, b } }: Args): Promise<MessageOptions> => {
+export const osuMap = async (author: GuildMember, { Name, Flags: { m, map, mods, acc, b } }: Args): Promise<MessageOptions> => {
     if (!map) {
         return ({ embeds: [Embed({ description: "**🔴 Map not found.**" }, author.user)] })
     }
@@ -63,7 +63,9 @@ const GetDropdown = (options: Args) => {
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     const options: Args = await ParseArgs(message, args)
 
-    if (options.Flags.c) return await osuRecent(client, message, args)
+    if (options.Flags.c) 
+        return await osuCompare(client, message, args)
+    
 
     const reply = await message.reply(await osuMap(message.member, options))
     AddMessageToDropdown(reply)

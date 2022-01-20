@@ -9,7 +9,8 @@ import { AddMessageToButtons, GetButtonData } from "@bot/Interactions/Buttons/Da
 import { OsuScore, Score } from "@lib/osu/lib/Endpoints/Score"
 import { OsuProfile } from "@lib/osu/lib/Endpoints/Profile"
 import { HandleAwait } from "@lib/GlobalUtils"
-import { onMessage as osuMap } from "./Map"
+import { osuMap } from "./Map"
+import { AddMessageToDropdown } from "@bot/Interactions/Select Menu/Data"
 
 interface iButtonData extends Args {
     message: Message
@@ -24,15 +25,22 @@ const osuRecent = async (author: GuildMember, options: Args): Promise<MessageOpt
     return Normal(author, options)
 }
 
-const Normal = async (author: GuildMember, { Name, Flags: { m, offset = 0 } }: Args): Promise<MessageOptions> => {
+const Normal = async (author: GuildMember, { Name, Flags: { m, offset = 0, showMap } }: Args): Promise<MessageOptions> => {
     const realOffset = offset / 5
     let profile: OsuProfile, recent: OsuScore, err: { code: number }
-    ;[profile, err] = await HandleAwait(new OsuProfile().Load({ u: Name, m: m }))
-    if (err) return HandleError(author, err, Name)
     
     ;[recent, err] = await HandleAwait(new OsuScore().Recent({ u: Name, m: m, limit: 50 }))
     if (err) return HandleError(author, err, profile.Name)
     const scores = recent.Scores
+
+    if (showMap) {
+        return osuMap(author, { Name, Flags: { m, offset, showMap, map: scores[0].MapId } })
+    }
+    
+    ;[profile, err] = await HandleAwait(new OsuProfile().Load({ u: Name, m: m }))
+    if (err) return HandleError(author, err, Name)
+    
+    
     
     if (scores.length == 0) return HandleError(author, { code: 5 }, profile.Name)
 
@@ -151,11 +159,12 @@ const RecentList = async (author: GuildMember, { Name, Flags: { m, offset = 0, l
 export const onMessage: iOnMessage = async (client: Bot, message: Message, args: string[]) => {
     const options: Args = await ParseArgs(message, args)
 
-    if (options.Flags.map) return await osuMap(client, message, args)
-
     const reply = await message.reply(await osuRecent(message.member, options))
 
-    AddMessageToButtons(reply)
+    console.log(reply.components[0]);
+    
+    if (reply.components.length > 0 && reply.components[0].components[0].type == "BUTTON") AddMessageToButtons(reply)
+    else AddMessageToDropdown(reply)
 }
 
 export const onInteraction: iOnSlashCommand = async (interaction: CommandInteraction) => {
