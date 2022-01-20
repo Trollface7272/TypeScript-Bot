@@ -160,8 +160,6 @@ export const onMessage: iOnMessage = async (client: Bot, message: Message, args:
     const options: Args = await ParseArgs(message, args)
 
     const reply = await message.reply(await osuRecent(message.member, options))
-
-    console.log(reply.components[0]);
     
     if (reply.components.length > 0 && reply.components[0].components[0].type == "BUTTON") AddMessageToButtons(reply)
     else AddMessageToDropdown(reply)
