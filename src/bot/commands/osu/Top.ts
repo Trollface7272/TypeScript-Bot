@@ -51,7 +51,7 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, rv, g, b, p, rand
 
     if (rand) scores = [scores[Math.floor(Math.random() * (scores.length - 1) + 1)]]
 
-    for (let i = offset; i < Math.min(offset+5, scores.length); i++) await scores[i].CalculateFcPerformance()
+    for (let i = offset; i < Math.min(offset+5, scores.length); i++) await scores[i]?.CalculateFcPerformance()
 
     let desc = ""
     for (let i = offset; i < Math.min(offset + scores.length, offset + 5); i++) {

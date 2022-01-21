@@ -24,7 +24,7 @@ const OsuCompare = async (author: GuildMember, { Name, Flags: { m, mods, map, of
     if (err) return HandleError(author, { code: 7 }, Name)
 
     if (scores.Scores.length < offset) return HandleError(author, { code: 7 }, Name)
-    await scores.CalculateFcPerformance(offset, offset + 3)
+    await scores?.CalculateFcPerformance(offset, offset + 3)
 
     const descriptionArr = []
     for (let i = offset; i < Math.min(offset+3, scores.Scores.length); i++) {

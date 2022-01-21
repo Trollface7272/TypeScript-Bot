@@ -7,7 +7,7 @@ const messages = [
 ]
 export const run: RunFunction = async (client: Bot, message: Message) => {
     if (message.content.toLowerCase().includes("trollface7272@post.cz")) return
-    message.reply({content: messages[Math.round(Math.random() * messages.length)], files: ["https://i.imgur.com/3sFZs6Q.gif"]})
+    await message.reply({content: messages[Math.round(Math.random() * messages.length)], files: ["https://i.imgur.com/3sFZs6Q.gif"]})
 }
 
 export const name = "WYSI"

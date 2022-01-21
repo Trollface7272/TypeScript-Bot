@@ -132,7 +132,7 @@ export class OsuScore {
 
     public async CalculateFcPerformance(from=0, to: number=this.Scores.length) {
         for (let i = from; i < Math.min(to, this.Scores.length); i++) {
-            await this.Scores[i].CalculateFcPerformance()
+            await this.Scores[i]?.CalculateFcPerformance()
         }
     }
 

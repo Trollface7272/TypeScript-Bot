@@ -36,7 +36,7 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, offset = 0 } }: A
     if (scores.length == 0) return HandleError(author, { code: 5 }, profile.Name)
 
     const score: Score = scores[realOffset]
-    await score.CalculateFcPerformance()
+    await score?.CalculateFcPerformance()
     const beatmap = score.Beatmap
 
 
@@ -82,7 +82,7 @@ const RecentBest = async (author: GuildMember, { Name, Flags: { m, g, rv, offset
     scores.sort((a, b) => rv ? a.Date.getTime() - b.Date.getTime() : b.Date.getTime() - a.Date.getTime())
 
     const score: Score = scores[realOffset]
-    await score.CalculateFcPerformance()
+    await score?.CalculateFcPerformance()
     const beatmap = score.Beatmap
 
     let fcppDisplay = ""
@@ -116,7 +116,7 @@ const RecentList = async (author: GuildMember, { Name, Flags: { m, offset = 0, l
 
     if (scores.length == 0) return HandleError(author, { code: 5 }, profile.Name)
     
-    await recent.CalculateFcPerformance(offset, offset + 5)
+    await recent?.CalculateFcPerformance(offset, offset + 5)
 
 
 

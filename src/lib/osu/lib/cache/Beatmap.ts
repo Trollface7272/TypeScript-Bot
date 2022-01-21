@@ -1,3 +1,4 @@
+import { logger } from "@bot/client/Client"
 import { cachePath } from "@lib/Constants"
 import { existsSync, mkdirSync, writeFile } from "fs"
 import { join } from "path"
@@ -28,6 +29,7 @@ export const GetCached = (m: string, mods: string, id: string) => {
 }
 
 export const AddToCache = (m: string, mods: string, id: string, data: iBeatmapRaw) => {
+    logger.log(`Caching`, data)
     if (!existsSync(join(cachePath, "maps", m, mods))) mkdirSync(join(cachePath, "maps", m, mods))
     writeFile(join(cachePath, "maps", m, mods, id+".json"), JSON.stringify(data), {encoding: "utf-8"}, () => null)
 }
