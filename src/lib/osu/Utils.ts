@@ -140,6 +140,8 @@ export interface Flags {
     l?: boolean
     offset?: number
     cache?: boolean
+    c?: boolean
+    showMap?: boolean
 }
 
 export const ParseArgs = async (message: Message, args: string[]) => {
@@ -156,7 +158,9 @@ export const ParseArgs = async (message: Message, args: string[]) => {
             acc: null,
             map: null,
             rand: null,
-            l: null
+            l: null,
+            c: null,
+            showMap: null
         }
     }
 
@@ -168,6 +172,8 @@ export const ParseArgs = async (message: Message, args: string[]) => {
         else if (el == "rv") out.Flags.rv = true
         else if (el == "rand") out.Flags.rand = true
         else if (el == "l") out.Flags.l = true
+        else if (el == "c") out.Flags.c = true
+        else if (el == "map") out.Flags.showMap = 1
         else if (el == "g") {
             if (i == args.length - 1) break
             out.Flags.g = args[i + 1]
