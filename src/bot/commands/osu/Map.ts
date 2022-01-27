@@ -12,6 +12,7 @@ import { RegisterSelectMenu } from "@bot/Interactions/Select Menu/info"
 import { OsuBeatmap } from "@lib/osu/lib/Endpoints/Beatmap"
 import { MapCalculator } from "@lib/osu/lib/Calculator"
 import { onMessage as osuCompare } from "./Compare"
+import { OsuScore } from "@lib/osu/lib/Endpoints/Score"
 
 export const osuMap = async (author: GuildMember, { Name, Flags: { m, map, mods, acc, b } }: Args): Promise<MessageOptions> => {
     if (!map) {
@@ -65,6 +66,11 @@ export const onMessage: iOnMessage = async (client: Bot, message: Message, args:
 
     if (options.Flags.c) 
         return await osuCompare(client, message, args)
+    if (options.Flags.b) {
+        let score = (await new OsuScore().Recent({u: options.Name, limit: 1, m: options.Flags.m})).Scores[0]
+        await score.FetchMap()
+        options.Flags.map = score.Beatmap.id
+    }
     
 
     const reply = await message.reply(await osuMap(message.member, options))

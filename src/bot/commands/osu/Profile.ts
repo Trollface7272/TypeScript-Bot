@@ -28,7 +28,8 @@ const osuProfile = async (author: GuildMember, { Name, Flags: { m } }: Args): Pr
     description += `**▸ Level:** ${profile.Formatted.Level}\n`
     description += `**▸ Total PP:** ${profile.Formatted.Performence}\n`
     description += `**▸ Hit Accuracy:** ${profile.Formatted.Accuracy}%\n`
-    description += `**▸ Playcount:** ${profile.Formatted.PlayCount}`
+    description += `**▸ Score:** ${(Math.floor(profile.Score.Ranked/1000000)/1000).toLocaleString()}B (${(Math.floor(profile.Score.Total/1000000)/1000).toLocaleString()}B)\n`
+    description += `**▸ Playcount:** ${profile.Formatted.PlayCount} (${Math.floor(profile.Playtime / 60 / 60)} hours)`
 
     const embed = new MessageEmbed()
         .setAuthor(`${ModNames.Name[m]} Profile for ${profile.Name}`, GetFlagUrl(profile.Country), GetProfileLink(profile.id, m))
