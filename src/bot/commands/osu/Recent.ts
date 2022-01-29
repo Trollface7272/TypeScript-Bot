@@ -64,14 +64,14 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, offset = 0, showM
 
     if (score.Rank == "F")
         desc += `\n▸ **Map Completion:** ${CalculateProgress(score.Counts, beatmap.Objects, m)}%`
-
+        
 
     const embed = new MessageEmbed()
         .setAuthor(`${beatmap.Title} [${beatmap.Version}] +${ConvertBitMods(score.Mods)} [${beatmap.Formatted.Difficulty.Star}★]`, GetProfileImage(profile.id), GetMapLink(beatmap.id))
         .setThumbnail(GetMapImage(beatmap.SetId))
         .setDescription(desc)
         .setFooter(`Try #${tries} | ${DateDiff(score.Date, new Date(new Date().toLocaleString('en-US', { timeZone: "UTC" })))}Ago ${GetServer()}`)
-    const button = AddButtons({ Name, Flags: { m, offset } }, scores.length * 5, onButton)
+    const button = AddButtons({ Name, Flags: { m, offset } }, scores.length, onButton)
 
     return ({ embeds: [embed], components: button, allowedMentions: { repliedUser: false } })
 }
@@ -108,7 +108,7 @@ const RecentBest = async (author: GuildMember, { Name, Flags: { m, g, rv, offset
         .setFooter(GetServer())
         .setThumbnail(GetProfileImage(profile.id))
 
-    const button = AddButtons({ Name, Flags: { m, g, rv, offset, b, l } }, scores.length * 5, onButton)
+    const button = AddButtons({ Name, Flags: { m, g, rv, offset, b, l } }, scores.length, onButton)
 
     return ({ embeds: [embed], components: button, allowedMentions: { repliedUser: false } })
 }
@@ -151,7 +151,7 @@ const RecentList = async (author: GuildMember, { Name, Flags: { m, offset = 0, l
         .setThumbnail(GetProfileImage(profile.id))
         .setDescription(description)
         .setFooter(`${GetServer()}`)
-    const button = AddButtons({ Name, Flags: { m, offset, l, b } }, scores.length * 5, onButton)
+    const button = AddButtons({ Name, Flags: { m, offset, l, b } }, scores.length, onButton)
 
     return ({ embeds: [embed], components: button, allowedMentions: { repliedUser: false } })
 }
