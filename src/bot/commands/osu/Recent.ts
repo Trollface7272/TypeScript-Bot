@@ -30,7 +30,7 @@ const Normal = async (author: GuildMember, { Name, Flags: { m, offset = 0, showM
     let profile: OsuProfile, recent: OsuScore, err: { code: number }
     
     ;[recent, err] = await HandleAwait(new OsuScore().Recent({ u: Name, m: m, limit: 50 }))
-    if (err) return HandleError(author, err, profile.Name)
+    if (err) return HandleError(author, err, Name)
     const scores = recent.Scores
 
     if (showMap) {
