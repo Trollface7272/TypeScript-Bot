@@ -396,7 +396,8 @@ export const GetDifficultyEmote = (mode: 0 | 1 | 2 | 3, star: number) => {
 
 export const AddButtons = ({ Name, Flags: { m, acc, b, g, l, map, mods, offset, p, rand, rv } }: Args, scoreCount: number, callback: iOnButton, increment=5) => {
     const buttons = []
-
+    console.log(offset + increment < scoreCount, offset, increment, scoreCount);
+    
     if (offset !== 0) buttons.push(AddButton("⬅️", { Name, Flags: { m, acc, b, g, l, map, mods, offset: offset - 5, p, rand, rv } }, callback))
     if (offset + increment < scoreCount) buttons.push(AddButton("➡️", { Name, Flags: { m, acc, b, g, l, map, mods, offset: offset + increment, p, rand, rv } }, callback))
     const components = buttons.length > 0 ? [new MessageActionRow().addComponents(buttons)] : undefined
