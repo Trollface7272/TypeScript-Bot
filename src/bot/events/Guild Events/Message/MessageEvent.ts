@@ -26,7 +26,7 @@ export const run: RunFunction = async (client: Bot, message: Message) => {
 }
 // /(:[^:\s]+:|<:[^:\s]+:[0-9]+>|<a:[^:\s]+:[0-9]+>)/g
 const RunCommand = async (client: Bot, message: Message, args: string[]) => {
-    const cmd: string = args.shift()
+    const cmd: string = args.shift().toLowerCase()
     const command: Command = client.commands.get(cmd)
 
     if (!command) return

@@ -17,6 +17,7 @@ interface iButtonData extends Args {
 }
 
 const osuRecent = async (author: GuildMember, options: Args): Promise<MessageOptions> => {
+    //if (options.Name.toLowerCase() == "karo" || options.Name.toLowerCase() == "_karo_" || options.Name == "12646484") options.Name = "passed"
     if (!options.Name) return HandleError(author, { code: ErrorIds.NoUsername }, "")
     if (options.Flags.l) return RecentList(author, options)
 
