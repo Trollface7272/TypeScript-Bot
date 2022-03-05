@@ -142,11 +142,12 @@ export interface Flags {
     cache?: boolean
     c?: boolean
     showMap?: boolean
+    includeFail?: boolean
 }
 
 export const ParseArgs = async (message: Message, args: string[]) => {
     const cmd = message.content.toLocaleLowerCase().split(" ")[0].substr(1)
-    const out = {
+    const out:Args = {
         Name: null,
         Flags: {
             m: CommandGamemodes[cmd] || 0,
@@ -160,7 +161,8 @@ export const ParseArgs = async (message: Message, args: string[]) => {
             rand: null,
             l: null,
             c: null,
-            showMap: null
+            showMap: null,
+            includeFail: true
         }
     }
 
@@ -173,10 +175,11 @@ export const ParseArgs = async (message: Message, args: string[]) => {
         else if (el == "rand") out.Flags.rand = true
         else if (el == "l") out.Flags.l = true
         else if (el == "c") out.Flags.c = true
-        else if (el == "map") out.Flags.showMap = 1
+        else if (el == "map") out.Flags.showMap = true
+        else if (el == "ps" || el == "p") out.Flags.includeFail = false
         else if (el == "g") {
             if (i == args.length - 1) break
-            out.Flags.g = args[i + 1]
+            out.Flags.g = parseInt(args[i + 1])
             i++
         }
         else if (!isNaN(parseInt(el)) && parseInt(el) > 0 && parseInt(el) <= 100) {
@@ -185,9 +188,7 @@ export const ParseArgs = async (message: Message, args: string[]) => {
         }
         else if (el == "m") {
             if (i == args.length - 1) break
-            out.Flags.m = args[i + 1]
-            if (isNaN(out.Flags.m)) out.Flags.m = CommandGamemodes[out.Flags.m] || 0
-            else out.Flags.m = parseInt(out.Flags.m)
+            out.Flags.m = isNaN(parseInt(args[i + 1])) ? CommandGamemodes[args[i + 1]] || 0 : parseInt(args[i + 1])
             i++
         }
         else if (el.startsWith("+")) out.Flags.mods |= GetModsFromString(el.substr(1))
@@ -195,10 +196,10 @@ export const ParseArgs = async (message: Message, args: string[]) => {
         else if (el.length >= 3) out.Name = el
     }
     if (cmd == "map" || cmd == "m" || cmd == "c" || cmd == "compare") {
-        if (!out.Flags.map) out.Flags.map = await FindMapInConversation(message.channel)
+        if (!out.Flags.map) out.Flags.map = parseInt(await FindMapInConversation(message.channel))
     }
     if (!out.Name) {
-        out.Name = await GetOsuUsername(message.author.id)
+        out.Name = await GetOsuUsername(message.author.id) || null
     }
     logger.info(out)
     return out

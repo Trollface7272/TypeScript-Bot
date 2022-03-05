@@ -114,7 +114,7 @@ const RecentBest = async (author: GuildMember, { Name, Flags: { m, g, rv, offset
     return ({ embeds: [embed], components: button, allowedMentions: { repliedUser: false } })
 }
 
-const RecentList = async (author: GuildMember, { Name, Flags: { m, offset = 0, l, b } }: Args): Promise<MessageOptions> => {
+const RecentList = async (author: GuildMember, { Name, Flags: { m, offset = 0, l, b, includeFail } }: Args): Promise<MessageOptions> => {
     let profile: OsuProfile, recent: OsuScore, err: { code: number }
 
     ;[profile, err] = await HandleAwait(new OsuProfile().Load({ u: Name, m: m }))
@@ -122,10 +122,12 @@ const RecentList = async (author: GuildMember, { Name, Flags: { m, offset = 0, l
 
     ;[recent, err] = await HandleAwait(new OsuScore().Recent({ u: Name, m: m, limit: offset + 6 }))
     if (err) return HandleError(author, err, profile.Name)
-    const scores = recent.Scores
+    let scores = recent.Scores
 
     if (scores.length == 0) return HandleError(author, { code: 5 }, profile.Name)
     
+    if (!includeFail) scores= scores.filter(el => el.Rank !== "F")
+
     await recent?.CalculateFcPerformance(offset, offset + 5)
 
 
