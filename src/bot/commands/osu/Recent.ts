@@ -120,22 +120,24 @@ const RecentList = async (author: GuildMember, { Name, Flags: { m, offset = 0, l
     ;[profile, err] = await HandleAwait(new OsuProfile().Load({ u: Name, m: m }))
     if (err) return HandleError(author, err, Name)
 
-    ;[recent, err] = await HandleAwait(new OsuScore().Recent({ u: Name, m: m, limit: offset + 6 }))
+    ;[recent, err] = await HandleAwait(new OsuScore().Recent({ u: Name, m: m, limit: includeFail ? offset + 6 : 50 }))
     if (err) return HandleError(author, err, profile.Name)
     let scores = recent.Scores
 
     if (scores.length == 0) return HandleError(author, { code: 5 }, profile.Name)
+    console.log(includeFail);
     
-    if (!includeFail) scores= scores.filter(el => el.Rank !== "F")
-
-    await recent?.CalculateFcPerformance(offset, offset + 5)
+    if (!includeFail) scores = scores.filter(el => el.Rank !== "F")
 
 
 
     let description = ""
     for (let i = offset; i < Math.min(scores.length, offset + 5); i++) {
         const score = scores[i];
+        if (!score) continue
+        if (!score.Beatmap) await score.FetchMap()
         const beatmap = score.Beatmap
+        await score.CalculateFcPerformance()
 
         let fcppDisplay = ""
         if (score.Counts.miss > 0 || score.Combo < beatmap.Combo - 15)
