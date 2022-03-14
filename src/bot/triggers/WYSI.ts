@@ -7,6 +7,7 @@ const messages = [
 ]
 export const run: RunFunction = async (client: Bot, message: Message) => {
     if (message.content.toLowerCase().includes("trollface7272@post.cz")) return
+    if (message.guild.id === "524904361336504320") return
     await message.reply({content: messages[Math.round(Math.random() * messages.length)], files: ["https://i.imgur.com/3sFZs6Q.gif"]})
 }
 
