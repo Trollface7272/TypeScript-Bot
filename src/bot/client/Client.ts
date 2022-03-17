@@ -18,7 +18,7 @@ class Bot extends Client {
     public logChannel: TextChannel
     public constructor() {
         super({
-            intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_BANS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS],
+            intents: new Intents(32767),
         })
         consola.wrapAll()
         this.guilds.fetch("341153679992160266").then(guild=> guild.channels.fetch("909270388624732160").then(channel => this.logChannel = channel as TextChannel))
