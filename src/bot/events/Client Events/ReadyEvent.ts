@@ -44,9 +44,9 @@ const RemoveSlashCommands = async (client: Bot) => {
     const global = await client.application.commands.fetch(undefined, {force: true}) as unknown as ApplicationCommand[]
     const commands = [...guild, ...global]
     
-    const removeSlashCommand = (data: ApplicationCommand) => {
+    const removeSlashCommand = (data: ApplicationCommandData) => {
         if (!commands.find(e => e.name === data.name)) return
-        data.delete()
+        client.application.commands.delete(data.name)
     }
     InteractionList.map(removeSlashCommand)
 }
