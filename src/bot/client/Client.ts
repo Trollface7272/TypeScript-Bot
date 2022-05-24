@@ -21,7 +21,7 @@ class Bot extends Client {
             intents: new Intents(32767),
         })
         consola.wrapAll()
-        this.guilds.fetch("341153679992160266").then(guild=> guild.channels.fetch("909270388624732160").then(channel => this.logChannel = channel as TextChannel))
+        //this.guilds.fetch("341153679992160266").then(guild=> guild.channels.fetch("909270388624732160").then(channel => this.logChannel = channel as TextChannel))
         //consola.level = LogLevel.Debug
     }
     public async Start(token: string): Promise<void> {
